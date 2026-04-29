@@ -333,12 +333,17 @@
     }
 
     function showIndex() {
+      sessionStorage.setItem('seenCover', '1');
       showView('view-index');
-      // Stagger reveal items after view is visible
       const items = document.querySelectorAll('.essay-item');
       items.forEach((item, i) => {
         setTimeout(() => item.classList.add('visible'), 60 + i * 70);
       });
+    }
+
+    // On load: skip cover if they've already seen it this session
+    if (sessionStorage.getItem('seenCover')) {
+      showIndex();
     }
 
     // ── BUILD INDEX ───────────────────────────────────────────
