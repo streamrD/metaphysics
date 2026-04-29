@@ -264,7 +264,7 @@
 <body>
 
   <!-- COVER -->
-  <section class="cover view active" id="view-cover">
+  <section class="cover view" id="view-cover">
     <div class="cover-rule"></div>
     <p class="cover-ornament">A Collection of</p>
     <h1 class="cover-title">Metaphysical<br><em>Essays</em></h1>
@@ -281,11 +281,11 @@
   </section>
 
   <!-- INDEX -->
-  <div class="view" id="view-index">
+  <div class="view active" id="view-index">
     <main class="index-section">
       <header class="section-header">
         <p class="section-label">Contents</p>
-        <h2 class="section-title">The Essays</h2>
+        <h2 class="section-title" onclick="showCover()" style="cursor:pointer;" title="View title page">The Essays</h2>
         <div class="section-rule">✦</div>
       </header>
       <ul class="essay-list" id="essayList"></ul>
@@ -333,18 +333,23 @@
     }
 
     function showIndex() {
-      sessionStorage.setItem('seenCover', '1');
       showView('view-index');
+      revealItems();
+    }
+
+    function showCover() {
+      showView('view-cover');
+    }
+
+    function revealItems() {
       const items = document.querySelectorAll('.essay-item');
       items.forEach((item, i) => {
         setTimeout(() => item.classList.add('visible'), 60 + i * 70);
       });
     }
 
-    // On load: skip cover if they've already seen it this session
-    if (sessionStorage.getItem('seenCover')) {
-      showIndex();
-    }
+    // Reveal index items on initial load
+    window.addEventListener('DOMContentLoaded', revealItems);
 
     // ── BUILD INDEX ───────────────────────────────────────────
     const list = document.getElementById('essayList');
