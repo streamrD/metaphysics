@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metaphysical Essays — Todd Stabley</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:        #1a1a18;
+      --ink-light:  #3d3d38;
+      --ink-faint:  #7a7a72;
+      --paper:      #faf9f6;
+      --rule:       #d8d4ca;
+      --gold:       #b08d57;
+      --gold-light: #c9a96e;
+    }
+
+    html { font-size: 18px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'EB Garamond', Georgia, serif;
+      line-height: 1.7;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── VIEWS ───────────────────────────────────────────────── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── COVER ───────────────────────────────────────────────── */
+    .cover {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 4rem 2rem;
+      position: relative; overflow: hidden;
+    }
+    .cover::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%,  rgba(176,141,87,.07) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 50% 100%, rgba(176,141,87,.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cover-rule {
+      width: 1px; height: 80px;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      margin: 0 auto;
+    }
+    .cover-ornament {
+      font-size: .85rem; color: var(--gold); letter-spacing: .35em;
+      text-transform: uppercase; font-family: 'Lato', sans-serif; font-weight: 300;
+      margin: 2rem 0 1.2rem;
+      opacity: 0; animation: fadeUp 1s ease .2s forwards;
+    }
+    .cover-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(3rem, 8vw, 5.5rem); font-weight: 300;
+      line-height: 1.1; color: var(--ink);
+      opacity: 0; animation: fadeUp 1s ease .4s forwards;
+    }
+    .cover-title em { font-style: italic; color: var(--ink-light); }
+    .cover-divider {
+      display: flex; align-items: center; gap: 1rem;
+      color: var(--gold); font-size: 1rem;
+      margin: 1.5rem auto 1rem;
+      width: 100%; max-width: 320px; justify-content: center;
+      opacity: 0; animation: fadeUp 1s ease .55s forwards;
+    }
+    .cover-divider::before, .cover-divider::after {
+      content: ''; display: block; flex: 1; height: 1px;
+      background: var(--gold); opacity: .5;
+    }
+    .cover-byline {
+      font-size: .85rem; color: var(--ink-faint); letter-spacing: .2em;
+      text-transform: uppercase; font-family: 'Lato', sans-serif; font-weight: 300;
+      opacity: 0; animation: fadeUp 1s ease .6s forwards;
+    }
+    .cover-description {
+      max-width: 520px; font-size: 1.1rem; color: var(--ink-light);
+      line-height: 1.85; font-style: italic; margin: 2rem auto 2.5rem;
+      opacity: 0; animation: fadeUp 1s ease .8s forwards;
+    }
+    .scroll-cue {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .8rem;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint);
+      background: none; border: none; cursor: pointer;
+      opacity: 0; animation: fadeUp 1.2s ease 1.2s forwards;
+      transition: color .2s;
+    }
+    .scroll-cue:hover { color: var(--gold); }
+    .scroll-arrow {
+      display: block; margin: .5rem auto 0; width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--gold-light), transparent);
+      animation: pulse 2s ease-in-out 1.4s infinite;
+    }
+
+    /* ── INDEX ───────────────────────────────────────────────── */
+    #view-index { padding-bottom: 6rem; }
+    .index-section { max-width: 760px; margin: 0 auto; padding: 5rem 2rem 2rem; }
+    .section-header { text-align: center; margin-bottom: 3.5rem; }
+    .section-label {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .72rem;
+      letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin-bottom: .8rem;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 400;
+      font-size: 2rem; color: var(--ink); font-style: italic;
+    }
+    .section-rule {
+      display: flex; align-items: center; justify-content: center;
+      gap: .8rem; margin-top: 1.2rem; color: var(--gold);
+    }
+    .section-rule::before, .section-rule::after {
+      content: ''; display: block; height: 1px; width: 80px;
+      background: linear-gradient(to right, transparent, var(--rule));
+    }
+
+    /* ── ESSAY LIST ──────────────────────────────────────────── */
+    .essay-list { list-style: none; }
+
+    .essay-item {
+      opacity: 0; transform: translateY(10px);
+      transition: opacity .45s ease, transform .45s ease;
+    }
+    .essay-item.visible { opacity: 1; transform: translateY(0); }
+
+    .essay-link {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 1rem; padding: 1.3rem 0; border-bottom: 1px solid var(--rule);
+      text-decoration: none; color: inherit; cursor: pointer;
+      background: none; border-top: none; border-left: none; border-right: none;
+      width: 100%; text-align: left; font-family: inherit; font-size: inherit;
+      transition: all .25s ease; position: relative;
+    }
+    .essay-link::before {
+      content: ''; position: absolute; left: -1.5rem; top: 50%;
+      transform: translateY(-50%) scaleY(0); width: 3px; height: 55%;
+      background: var(--gold); border-radius: 2px;
+      transition: transform .25s ease; transform-origin: center;
+    }
+    .essay-link:hover::before { transform: translateY(-50%) scaleY(1); }
+    .essay-link:hover .essay-title-text { color: var(--gold); }
+
+    .essay-left { flex: 1; }
+    .essay-number {
+      font-family: 'Lato', sans-serif; font-size: .65rem; font-weight: 300;
+      letter-spacing: .2em; color: var(--gold); text-transform: uppercase;
+      display: block; margin-bottom: .25rem;
+    }
+    .essay-title-text {
+      font-family: 'EB Garamond', serif; font-size: 1.2rem;
+      font-weight: 400; color: var(--ink); line-height: 1.35;
+      transition: color .25s ease; display: block;
+    }
+    .essay-date {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .75rem;
+      letter-spacing: .1em; color: var(--ink-faint); white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* ── ESSAY READER ────────────────────────────────────────── */
+    #view-essay { min-height: 100vh; }
+
+    .essay-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--paper); border-bottom: 1px solid var(--rule);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .back-btn {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .75rem;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint);
+      background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; gap: .5rem;
+      transition: color .2s;
+    }
+    .back-btn:hover { color: var(--gold); }
+    .back-btn::before { content: '←'; font-size: 1rem; font-family: serif; }
+    .nav-title {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .72rem;
+      letter-spacing: .15em; text-transform: uppercase; color: var(--ink-faint);
+    }
+
+    .essay-body { max-width: 680px; margin: 0 auto; padding: 4rem 2rem 8rem; }
+    .essay-header {
+      text-align: center; margin-bottom: 3.5rem;
+      padding-bottom: 2.5rem; border-bottom: 1px solid var(--rule);
+    }
+    .essay-header-label {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .72rem;
+      letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem;
+    }
+    .essay-header-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; color: var(--ink);
+    }
+    .essay-header-date {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .75rem;
+      letter-spacing: .15em; color: var(--ink-faint); margin-top: 1.2rem;
+    }
+
+    .essay-content { color: var(--ink-light); }
+    .essay-content p { margin-bottom: 1.5em; font-size: 1.05rem; line-height: 1.85; }
+    .essay-content h1, .essay-content h2, .essay-content h3 {
+      font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--ink);
+      margin: 2.5em 0 .75em; line-height: 1.25;
+    }
+    .essay-content h1 { font-size: 1.8rem; }
+    .essay-content h2 { font-size: 1.4rem; }
+    .essay-content h3 { font-size: 1.15rem; font-style: italic; }
+    .essay-content blockquote {
+      margin: 2em 0; padding: 0 0 0 1.5rem;
+      border-left: 2px solid var(--gold);
+      color: var(--ink-faint); font-style: italic;
+    }
+    .essay-content ul, .essay-content ol { margin: 1.2em 0 1.2em 1.5em; }
+    .essay-content li { margin-bottom: .5em; line-height: 1.75; }
+    .essay-content hr { border: none; border-top: 1px solid var(--rule); margin: 2.5em auto; width: 40%; }
+
+    .loading-state, .error-state {
+      text-align: center; padding: 4rem 2rem;
+      font-family: 'Lato', sans-serif; font-weight: 300;
+      color: var(--ink-faint); letter-spacing: .1em; font-size: .9rem;
+    }
+    .loading-dots::after { content: ''; animation: dots 1.5s steps(3,end) infinite; }
+    @keyframes dots {
+      0%   { content: ''; }
+      33%  { content: '.'; }
+      66%  { content: '..'; }
+      100% { content: '...'; }
+    }
+
+    footer {
+      text-align: center; padding: 2.5rem 2rem 3rem;
+      border-top: 1px solid var(--rule); color: var(--ink-faint);
+      font-family: 'Lato', sans-serif; font-weight: 300;
+      font-size: .78rem; letter-spacing: .12em;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; } 50% { opacity: .3; }
+    }
+
+    @media (max-width: 600px) {
+      .essay-link { flex-direction: column; gap: .25rem; }
+      .essay-link::before { display: none; }
+      .essay-nav { padding: .75rem 1rem; }
+      .nav-title { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER -->
+  <section class="cover view active" id="view-cover">
+    <div class="cover-rule"></div>
+    <p class="cover-ornament">A Collection of</p>
+    <h1 class="cover-title">Metaphysical<br><em>Essays</em></h1>
+    <div class="cover-divider">✦</div>
+    <p class="cover-byline">Todd Stabley</p>
+    <p class="cover-description">
+      No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I'd had.
+    </p>
+    <button class="scroll-cue" onclick="showIndex()">
+      Index of Essays
+      <span class="scroll-arrow"></span>
+    </button>
+    <div class="cover-rule" style="margin-top:2rem;"></div>
+  </section>
+
+  <!-- INDEX -->
+  <div class="view" id="view-index">
+    <main class="index-section">
+      <header class="section-header">
+        <p class="section-label">Contents</p>
+        <h2 class="section-title">The Essays</h2>
+        <div class="section-rule">✦</div>
+      </header>
+      <ul class="essay-list" id="essayList"></ul>
+    </main>
+    <footer>
+      <p>Metaphysical Essays &nbsp;·&nbsp; Todd Stabley &nbsp;·&nbsp; Hillsborough, NC</p>
+    </footer>
+  </div>
+
+  <!-- ESSAY READER -->
+  <div class="view" id="view-essay">
+    <nav class="essay-nav">
+      <button class="back-btn" onclick="showIndex()">All Essays</button>
+      <span class="nav-title" id="navTitle"></span>
+    </nav>
+    <article class="essay-body">
+      <header class="essay-header">
+        <p class="essay-header-label">Metaphysical Essays</p>
+        <h1 class="essay-header-title" id="essayTitle"></h1>
+        <p class="essay-header-date" id="essayDate"></p>
+      </header>
+      <div class="essay-content" id="essayContent"></div>
+    </article>
+  </div>
+
+  <script>
+    const essays = [
+      { title: "First Principles 1: Unity",                              date: "April 2025",     pubUrl: "https://docs.google.com/document/d/e/2PACX-1vQiMJtRSbNP8ysO9dU08BtATbyvmhcKqZgyVmr3XIH8LBOZ6U4C7Xdze3uPPcIOYGSYiz5xKgbNlH6M/pub" },
+      { title: "First Principles 2: The Impulse to Create",              date: "April 2025",     pubUrl: "https://docs.google.com/document/d/e/2PACX-1vRGVJR2isARAi9HdzfI7vF1qWGFExtFtQnBjkX81246n1nw7UlC9Gjj2eCHEltTLpSqzc8juNoG0KRI/pub" },
+      { title: "First Principles 3: Free Will",                          date: "August 2025",    pubUrl: "https://docs.google.com/document/d/e/2PACX-1vREEmvp19Y47YXwhTQYlcRolh1Jjvf5BicROwt8s3enEc7N04YSKY3Z7JM0ALG9uZI7WLpkStU9kDS5/pub" },
+      { title: "First Principles 4: Service to Others vs. Service to Self", date: "June 2025",  pubUrl: "https://docs.google.com/document/d/e/2PACX-1vTeCYqeO50ASL2VL_dGCS1OwHJwO7Kn6KtaeteVA7T2BFg2gCoqk6xiMlrIiXVTU_tjxGanFpaAKvBK/pub" },
+      { title: "The Lessons of the Supervillain",                        date: "January 2026",   pubUrl: "https://docs.google.com/document/d/e/2PACX-1vSTxKV3FBIwFol0fNiF_taah6LZdKwnasTxUdYvSk_i_tDsApFzeRNbGfHLQtdXHjTgo-FbZmUqOZFk/pub" },
+      { title: "The Upside Down World of the Id",                        date: "August 2025",    pubUrl: "https://docs.google.com/document/d/e/2PACX-1vRlvNG-eehvpayBkE-nFsLBXkdkRyiGohNmKAZyiejdvEvK1LcaORAOUAP1qWElMcICK429OJq984Yv/pub" },
+      { title: "The Two Paths",                                          date: "January 2026",   pubUrl: "https://docs.google.com/document/d/e/2PACX-1vTi97lIgFOd3hebtucPg433eolUmICKcIn3ttARGv7qkmZLtZnh4DRaw7W9zkWPv6xIGHjdAC9dmVWN/pub" },
+      { title: "The First Rock",                                         date: "January 2025",   pubUrl: "https://docs.google.com/document/d/e/2PACX-1vQCf10pOoWOI4byYUaxte7c49wz_Av-ASpT74RHmpEFD-6puSuspNqD4re1VxbVjxPFfTUILtN4dp8J/pub" },
+      { title: "Narcissism and the Evangelical Romance",                 date: "September 2025", pubUrl: "https://docs.google.com/document/d/e/2PACX-1vSPRE5CKmoMgAsQIgZMfpZSEbL8OEalMwM9BbaARsYzvnpKTRw5ttrTcwU_W2cyFm6g1QcDuXW8zPgq/pub" },
+      { title: "The Curriculum and the Veil",                           date: "July 2025",      pubUrl: "https://docs.google.com/document/d/e/2PACX-1vQazMi8MI2WvlZWVOaaD0oUsa0JffoyrGWCv7ubGbCKWh-FtkIMf4D5ZknmYqz1uznLw_6NL4GdSy9N/pub" },
+    ];
+
+    // ── VIEW MANAGEMENT ───────────────────────────────────────
+    function showView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function showIndex() {
+      showView('view-index');
+      // Stagger reveal items after view is visible
+      const items = document.querySelectorAll('.essay-item');
+      items.forEach((item, i) => {
+        setTimeout(() => item.classList.add('visible'), 60 + i * 70);
+      });
+    }
+
+    // ── BUILD INDEX ───────────────────────────────────────────
+    const list = document.getElementById('essayList');
+    essays.forEach((essay, i) => {
+      const li = document.createElement('li');
+      li.className = 'essay-item';
+      li.innerHTML = `
+        <button class="essay-link" onclick="openEssay(${i})">
+          <div class="essay-left">
+            <span class="essay-number">Essay ${String(i + 1).padStart(2, '0')}</span>
+            <span class="essay-title-text">${essay.title}</span>
+          </div>
+          <span class="essay-date">${essay.date}</span>
+        </button>`;
+      list.appendChild(li);
+    });
+
+    // ── OPEN ESSAY ────────────────────────────────────────────
+    async function openEssay(idx) {
+      const essay = essays[idx];
+      document.getElementById('essayTitle').textContent = essay.title;
+      document.getElementById('essayDate').textContent  = essay.date;
+      document.getElementById('navTitle').textContent   = essay.title;
+
+      const contentEl = document.getElementById('essayContent');
+      contentEl.innerHTML = '<p class="loading-state">Loading<span class="loading-dots"></span></p>';
+      showView('view-essay');
+
+      try {
+        // Try direct fetch first (works on Railway/deployed); fall back to CORS proxy for local preview
+        let html;
+        try {
+          const res = await fetch(essay.pubUrl);
+          if (!res.ok) throw new Error();
+          html = await res.text();
+        } catch {
+          const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(essay.pubUrl);
+          const res = await fetch(proxyUrl);
+          if (!res.ok) throw new Error();
+          const json = await res.json();
+          html = json.contents;
+        }
+        contentEl.innerHTML = parseGoogleDoc(html, essay.title);
+      } catch {
+        contentEl.innerHTML = `
+          <div class="error-state">
+            <p>Unable to load this essay right now.</p>
+            <p style="margin-top:.75rem">
+              <a href="${essay.pubUrl}" target="_blank" style="color:var(--gold);text-decoration:none">Open directly →</a>
+            </p>
+          </div>`;
+      }
+    }
+
+    // ── PARSE GOOGLE DOCS HTML ────────────────────────────────
+    function parseGoogleDoc(html, essayTitle) {
+      const parser = new DOMParser();
+      const doc    = parser.parseFromString(html, 'text/html');
+      const container = doc.querySelector('#contents') || doc.querySelector('.doc-content') || doc.body;
+
+      let output = '';
+      let titleSkipped = false;
+
+      function buildInline(el) {
+        let result = '';
+        el.childNodes.forEach(node => {
+          if (node.nodeType === 3) {
+            result += esc(node.textContent);
+          } else if (node.nodeType === 1) {
+            const t = node.tagName.toLowerCase();
+            const s = node.getAttribute('style') || '';
+            const inner = buildInline(node);
+            if (t === 'br') { result += '<br>'; return; }
+            if (t === 'a')  { result += inner; return; }
+            const isItalic = s.includes('font-style:italic') || s.includes('font-style: italic') || t === 'em' || t === 'i';
+            const isBold   = s.includes('font-weight:700')   || s.includes('font-weight: 700')   || s.includes('font-weight:bold') || t === 'strong' || t === 'b';
+            let wrapped = inner;
+            if (isBold)   wrapped = `<strong>${wrapped}</strong>`;
+            if (isItalic) wrapped = `<em>${wrapped}</em>`;
+            result += wrapped;
+          }
+        });
+        return result;
+      }
+
+      function walk(el) {
+        const tag  = el.tagName ? el.tagName.toLowerCase() : '';
+        const text = el.textContent ? el.textContent.trim() : '';
+        if (!tag || ['script','style','head'].includes(tag)) return;
+        if (!text && tag !== 'hr') return;
+
+        // Skip repeated title
+        if (!titleSkipped && text === essayTitle) { titleSkipped = true; return; }
+
+        if (tag === 'hr') { output += '<hr>'; return; }
+
+        if (['h1','h2','h3','h4'].includes(tag)) {
+          const level = tag === 'h1' ? 'h2' : tag;
+          output += `<${level}>${buildInline(el)}</${level}>`;
+          return;
+        }
+        if (tag === 'ul' || tag === 'ol') {
+          let items = '';
+          el.querySelectorAll('li').forEach(li => { items += `<li>${buildInline(li)}</li>`; });
+          if (items) output += `<${tag}>${items}</${tag}>`;
+          return;
+        }
+        if (tag === 'p') {
+          const style       = el.getAttribute('style') || '';
+          const marginMatch = style.match(/margin-left\s*:\s*([\d.]+)pt/);
+          const indent      = marginMatch ? parseFloat(marginMatch[1]) : 0;
+          const inner       = buildInline(el);
+          if (!inner) return;
+          output += indent > 35 ? `<blockquote><p>${inner}</p></blockquote>` : `<p>${inner}</p>`;
+          return;
+        }
+        if (['div','section','article','body'].includes(tag)) {
+          Array.from(el.children).forEach(walk);
+        }
+      }
+
+      Array.from(container.children).forEach(walk);
+      return output || '<p class="error-state">Content could not be displayed.</p>';
+    }
+
+    function esc(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+  </script>
+</body>
+</html>
