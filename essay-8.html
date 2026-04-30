@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Narcissism and the Evangelical Romance — Metaphysical Essays</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1a1a18; --ink-light: #3d3d38; --ink-faint: #7a7a72;
+      --paper: #faf9f6; --rule: #d8d4ca; --gold: #b08d57;
+    }
+    html { font-size: 18px; }
+    body { background: var(--paper); color: var(--ink); font-family: 'EB Garamond', Georgia, serif; line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+    /* NAV */
+    .essay-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--paper); border-bottom: 1px solid var(--rule);
+      padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .back-btn {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .75rem;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--ink-faint);
+      text-decoration: none; display: flex; align-items: center; gap: .5rem; transition: color .2s;
+    }
+    .back-btn:hover { color: var(--gold); }
+    .back-btn::before { content: '\2190'; font-size: 1rem; font-family: serif; }
+    .nav-title {
+      font-family: 'Lato', sans-serif; font-weight: 300; font-size: .72rem;
+      letter-spacing: .15em; text-transform: uppercase; color: var(--ink-faint);
+      max-width: 50%; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* BODY */
+    .essay-body { max-width: 680px; margin: 0 auto; padding: 4rem 2rem 8rem; }
+    .essay-header { text-align: center; margin-bottom: 3.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--rule); }
+    .essay-header-label { font-family: 'Lato', sans-serif; font-weight: 300; font-size: .72rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+    .essay-header-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; color: var(--ink); }
+    .essay-header-date { font-family: 'Lato', sans-serif; font-weight: 300; font-size: .75rem; letter-spacing: .15em; color: var(--ink-faint); margin-top: 1.2rem; }
+
+    /* CONTENT */
+    .essay-content { color: var(--ink-light); }
+    .essay-content p { margin-bottom: 1.5em; font-size: 1.05rem; line-height: 1.85; }
+    .essay-content h2, .essay-content h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--ink); margin: 2.5em 0 .75em; line-height: 1.25; }
+    .essay-content h2 { font-size: 1.4rem; }
+    .essay-content h3 { font-size: 1.15rem; font-style: italic; }
+    .essay-content blockquote { margin: 2em 0; padding: 0 0 0 1.5rem; border-left: 2px solid var(--gold); color: var(--ink-faint); font-style: italic; }
+    .essay-content ul, .essay-content ol { margin: 1.2em 0 1.2em 1.5em; }
+    .essay-content li { margin-bottom: .5em; line-height: 1.75; }
+    .essay-content hr { border: none; border-top: 1px solid var(--rule); margin: 2.5em auto; width: 40%; }
+
+    .loading-state { text-align: center; padding: 4rem 2rem; font-family: 'Lato', sans-serif; font-weight: 300; color: var(--ink-faint); letter-spacing: .1em; font-size: .9rem; }
+    .loading-dots::after { content: ''; animation: dots 1.5s steps(3,end) infinite; }
+    @keyframes dots { 0% { content: ''; } 33% { content: '.'; } 66% { content: '..'; } 100% { content: '...'; } }
+    .error-state { text-align: center; padding: 4rem 2rem; font-family: 'Lato', sans-serif; font-weight: 300; color: var(--ink-faint); font-size: .9rem; }
+
+    footer { text-align: center; padding: 2.5rem 2rem 3rem; border-top: 1px solid var(--rule); color: var(--ink-faint); font-family: 'Lato', sans-serif; font-weight: 300; font-size: .78rem; letter-spacing: .12em; }
+
+    @media (max-width: 600px) { .essay-nav { padding: .75rem 1rem; } .nav-title { display: none; } }
+  </style>
+</head>
+<body>
+
+  <nav class="essay-nav">
+    <a class="back-btn" href="index.html">All Essays</a>
+    <span class="nav-title">Narcissism and the Evangelical Romance</span>
+  </nav>
+
+  <div class="essay-body">
+    <header class="essay-header">
+      <p class="essay-header-label">Metaphysical Essays</p>
+      <h1 class="essay-header-title">Narcissism and the Evangelical Romance</h1>
+      <p class="essay-header-date">September 2025</p>
+    </header>
+    <div class="essay-content" id="content">
+      <p class="loading-state">Loading<span class="loading-dots"></span></p>
+    </div>
+  </div>
+
+  <footer><p>Metaphysical Essays &nbsp;&middot;&nbsp; Todd Stabley &nbsp;&middot;&nbsp; Hillsborough, NC</p></footer>
+
+  <script>
+    const PUB_URL = "https://docs.google.com/document/d/e/2PACX-1vSPRE5CKmoMgAsQIgZMfpZSEbL8OEalMwM9BbaARsYzvnpKTRw5ttrTcwU_W2cyFm6g1QcDuXW8zPgq/pub";
+    const TITLE   = "Narcissism and the Evangelical Romance";
+
+    async function load() {
+      const el = document.getElementById('content');
+      try {
+        let html;
+        try {
+          const res = await fetch(PUB_URL);
+          if (!res.ok) throw new Error();
+          html = await res.text();
+        } catch {
+          const proxy = 'https://api.allorigins.win/get?url=' + encodeURIComponent(PUB_URL);
+          const res = await fetch(proxy);
+          if (!res.ok) throw new Error();
+          html = (await res.json()).contents;
+        }
+        el.innerHTML = parse(html);
+      } catch {
+        el.innerHTML = '<div class="error-state"><p>Unable to load this essay.</p><p style="margin-top:.75rem"><a href="' + PUB_URL + '" target="_blank" style="color:#b08d57;text-decoration:none">Open in Google Docs \u2192</a></p></div>';
+      }
+    }
+
+    function parse(html) {
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const container = doc.querySelector('#contents') || doc.querySelector('.doc-content') || doc.body;
+      let out = '';
+      let skipped = false;
+
+      function inline(el) {
+        let r = '';
+        el.childNodes.forEach(n => {
+          if (n.nodeType === 3) { r += esc(n.textContent); return; }
+          if (n.nodeType !== 1) return;
+          const t = n.tagName.toLowerCase();
+          const s = n.getAttribute('style') || '';
+          const inner = inline(n);
+          if (t === 'br') { r += '<br>'; return; }
+          if (t === 'a')  { r += inner; return; }
+          const italic = s.includes('font-style:italic') || s.includes('font-style: italic') || t==='em' || t==='i';
+          const bold   = s.includes('font-weight:700')   || s.includes('font-weight: 700')   || s.includes('font-weight:bold') || t==='strong' || t==='b';
+          let w = inner;
+          if (bold)   w = '<strong>' + w + '</strong>';
+          if (italic) w = '<em>' + w + '</em>';
+          r += w;
+        });
+        return r;
+      }
+
+      function walk(el) {
+        const tag  = el.tagName ? el.tagName.toLowerCase() : '';
+        const text = el.textContent ? el.textContent.trim() : '';
+        if (!tag || ['script','style','head'].includes(tag)) return;
+        if (!text && tag !== 'hr') return;
+        if (!skipped && text === TITLE) { skipped = true; return; }
+        if (tag === 'hr') { out += '<hr>'; return; }
+        if (['h1','h2','h3','h4'].includes(tag)) { const lv = tag==='h1'?'h2':tag; out += '<'+lv+'>'+inline(el)+'</'+lv+'>'; return; }
+        if (tag==='ul'||tag==='ol') { let li=''; el.querySelectorAll('li').forEach(i=>{li+='<li>'+inline(i)+'</li>'}); if(li) out+='<'+tag+'>'+li+'</'+tag+'>'; return; }
+        if (tag==='p') {
+          const m = (el.getAttribute('style')||'').match(/margin-left\s*:\s*([\d.]+)pt/);
+          const ind = m ? parseFloat(m[1]) : 0;
+          const inn = inline(el);
+          if (!inn) return;
+          out += ind > 35 ? '<blockquote><p>'+inn+'</p></blockquote>' : '<p>'+inn+'</p>';
+          return;
+        }
+        if (['div','section','article','body'].includes(tag)) Array.from(el.children).forEach(walk);
+      }
+
+      Array.from(container.children).forEach(walk);
+      return out || '<p class="error-state">Content could not be displayed.</p>';
+    }
+
+    function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    load();
+  </script>
+</body>
+</html>
