@@ -4,6 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Narcissism and the Evangelical Romance — Metaphysical Essays</title>
+
+  <!-- OpenGraph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="A Collection of Metaphysical Essays" />
+  <meta property="og:title" content="Narcissism and the Evangelical Romance" />
+  <meta property="og:description" content="No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I’d had." />
+  <meta property="og:url" content="https://metaphysics.up.railway.app/essay-8.html" />
+  <meta property="og:image" content="https://metaphysics.up.railway.app/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="920" />
+  <meta property="og:image:alt" content="Narcissism and the Evangelical Romance — Metaphysical Essays" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Narcissism and the Evangelical Romance" />
+  <meta name="twitter:description" content="No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I’d had." />
+  <meta name="twitter:image" content="https://metaphysics.up.railway.app/og-image.jpg" />
+
+  <!-- Umami -->
+  <script defer src="https://todd-umami.up.railway.app/script.js" data-website-id="4e78e7bf-2775-43b0-9732-fea26e8abbcb"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
@@ -16,7 +35,6 @@
     html { font-size: 18px; }
     body { background: var(--paper); color: var(--ink); font-family: 'EB Garamond', Georgia, serif; line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100vh; }
 
-    /* NAV */
     .essay-nav {
       position: sticky; top: 0; z-index: 100;
       background: var(--paper); border-bottom: 1px solid var(--rule);
@@ -35,14 +53,12 @@
       max-width: 50%; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
 
-    /* BODY */
     .essay-body { max-width: 680px; margin: 0 auto; padding: 4rem 2rem 8rem; }
     .essay-header { text-align: center; margin-bottom: 3.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--rule); }
     .essay-header-label { font-family: 'Lato', sans-serif; font-weight: 300; font-size: .72rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
     .essay-header-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; color: var(--ink); }
     .essay-header-date { font-family: 'Lato', sans-serif; font-weight: 300; font-size: .75rem; letter-spacing: .15em; color: var(--ink-faint); margin-top: 1.2rem; }
 
-    /* CONTENT */
     .essay-content { color: var(--ink-light); }
     .essay-content p { margin-bottom: 1.5em; font-size: 1.05rem; line-height: 1.85; }
     .essay-content h2, .essay-content h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; color: var(--ink); margin: 2.5em 0 .75em; line-height: 1.25; }
@@ -62,25 +78,11 @@
 
     @media (max-width: 600px) { .essay-nav { padding: .75rem 1rem; } .nav-title { display: none; } }
   </style>
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="A Collection of Metaphysical Essays" />
-    <meta property="og:title" content="A Collection of Metaphysical Essays" />
-    <meta property="og:description" content="No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I'd had." />
-    <meta property="og:url" content="https://metaphysics.up.railway.app" />
-    <meta property="og:image" content="https://metaphysics.up.railway.app/og-image.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="920" />
-    <meta property="og:image:alt" content="A Collection of Metaphysical Essays" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="A Collection of Metaphysical Essays" />
-    <meta name="twitter:description" content="No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I'd had." />
-    <meta name="twitter:image" content="https://metaphysics.up.railway.app/og-image.jpg" />
-    <script defer src="https://todd-umami.up.railway.app/script.js" data-website-id="4e78e7bf-2775-43b0-9732-fea26e8abbcb"></script>
-  </head>
+</head>
 <body>
 
   <nav class="essay-nav">
-    <a class="back-btn" href="index.html">All Essays</a>
+    <a class="back-btn" href="index.html#index">All Essays</a>
     <span class="nav-title">Narcissism and the Evangelical Romance</span>
   </nav>
 
@@ -117,7 +119,7 @@
         }
         el.innerHTML = parse(html);
       } catch {
-        el.innerHTML = '<div class="error-state"><p>Unable to load this essay.</p><p style="margin-top:.75rem"><a href="' + PUB_URL + '" target="_blank" style="color:#b08d57;text-decoration:none">Open in Google Docs \u2192</a></p></div>';
+        el.innerHTML = '<div class="error-state"><p>Unable to load this essay.</p><p style="margin-top:.75rem"><a href="' + PUB_URL + '" target="_blank" style="color:#b08d57;text-decoration:none">Open in Google Docs →</a></p></div>';
       }
     }
 
