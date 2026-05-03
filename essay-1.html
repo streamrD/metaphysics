@@ -147,6 +147,11 @@
         return r;
       }
 
+      function applyEmTags(s) {
+        // Handle [em]...[/em] that Google collapses into one paragraph
+        return s.replace(/\[em\](.*?)\[\/em\]/gs, '<em>$1</em>');
+      }
+
       function walk(el) {
         const tag  = el.tagName ? el.tagName.toLowerCase() : '';
         const text = el.textContent ? el.textContent.trim() : '';
@@ -170,8 +175,10 @@
           if (text === '[/em]') { emOpen = false; return; }
           const m = (el.getAttribute('style') || '').match(/margin-left\s*:\s*([\d.]+)pt/);
           const ind = m ? parseFloat(m[1]) : 0;
-          const inn = inline(el);
+          let inn = inline(el);
           if (!inn) return;
+          // Apply inline [em]...[/em] tags
+          inn = applyEmTags(inn);
           if (emOpen)    { out += '<p><em>' + inn + '</em></p>'; return; }
           if (ind > 35)  { out += '<blockquote><p>' + inn + '</p></blockquote>'; return; }
           out += '<p>' + inn + '</p>';
