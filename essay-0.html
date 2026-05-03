@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>First Principles 1: Unity — Metaphysical Essays</title>
 
-  <!-- OpenGraph -->
   <meta property="og:type" content="article" />
   <meta property="og:site_name" content="A Collection of Metaphysical Essays" />
   <meta property="og:title" content="First Principles 1: Unity" />
-  <meta property="og:description" content="No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I'd had. May they offer some light." />
+  <meta property="og:description" content="No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I’d had. May they offer some light." />
   <meta property="og:url" content="https://metaphysics.up.railway.app/essay-0.html" />
   <meta property="og:image" content="https://metaphysics.up.railway.app/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
@@ -17,10 +16,9 @@
   <meta property="og:image:alt" content="First Principles 1: Unity — Metaphysical Essays" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="First Principles 1: Unity" />
-  <meta name="twitter:description" content="No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I'd had. May they offer some light." />
+  <meta name="twitter:description" content="No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I’d had. May they offer some light." />
   <meta name="twitter:image" content="https://metaphysics.up.railway.app/og-image.jpg" />
 
-  <!-- Umami -->
   <script defer src="https://todd-umami.up.railway.app/script.js" data-website-id="4e78e7bf-2775-43b0-9732-fea26e8abbcb"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,9 +73,8 @@
     .error-state { text-align: center; padding: 4rem 2rem; font-family: 'Lato', sans-serif; font-weight: 300; color: var(--ink-faint); font-size: .9rem; }
 
     footer { text-align: center; padding: 2.5rem 2rem 3rem; border-top: 1px solid var(--rule); color: var(--ink-faint); font-family: 'Lato', sans-serif; font-weight: 300; font-size: .78rem; letter-spacing: .12em; }
-
     @media (max-width: 600px) { .essay-nav { padding: .75rem 1rem; } .nav-title { display: none; } }
-  </style>
+</style>
 </head>
 <body>
 
@@ -100,8 +97,8 @@
   <footer><p>Metaphysical Essays &nbsp;&middot;&nbsp; Todd Stabley &nbsp;&middot;&nbsp; Hillsborough, NC</p></footer>
 
   <script>
-    const PUB_URL = "https://docs.google.com/document/d/e/2PACX-1vQiMJtRSbNP8ysO9dU08BtATbyvmhcKqZgyVmr3XIH8LBOZ6U4C7Xdze3uPPcIOYGSYiz5xKgbNlH6M/pub";
-    const TITLE   = "First Principles 1: Unity";
+    const PUB_URL = 'https://docs.google.com/document/d/e/2PACX-1vQiMJtRSbNP8ysO9dU08BtATbyvmhcKqZgyVmr3XIH8LBOZ6U4C7Xdze3uPPcIOYGSYiz5xKgbNlH6M/pub';
+    const TITLE   = 'First Principles 1: Unity';
 
     async function load() {
       const el = document.getElementById('content');
@@ -119,7 +116,7 @@
         }
         el.innerHTML = parse(html);
       } catch {
-        el.innerHTML = '<div class="error-state"><p>Unable to load this essay.</p><p style="margin-top:.75rem"><a href="' + PUB_URL + '" target="_blank" style="color:#b08d57;text-decoration:none">Open in Google Docs →</a></p></div>';
+        el.innerHTML = '<div class="error-state"><p>Unable to load this essay.</p><p style="margin-top:.75rem"><a href="' + PUB_URL + '" target="_blank" style="color:#b08d57;text-decoration:none">Open in Google Docs \u2192</a></p></div>';
       }
     }
 
@@ -128,6 +125,7 @@
       const container = doc.querySelector('#contents') || doc.querySelector('.doc-content') || doc.body;
       let out = '';
       let skipped = false;
+      let emOpen = false;
 
       function inline(el) {
         let r = '';
@@ -156,17 +154,32 @@
         if (!text && tag !== 'hr') return;
         if (!skipped && text === TITLE) { skipped = true; return; }
         if (tag === 'hr') { out += '<hr>'; return; }
-        if (['h1','h2','h3','h4'].includes(tag)) { const lv = tag==='h1'?'h2':tag; out += '<'+lv+'>'+inline(el)+'</'+lv+'>'; return; }
-        if (tag==='ul'||tag==='ol') { let li=''; el.querySelectorAll('li').forEach(i=>{li+='<li>'+inline(i)+'</li>'}); if(li) out+='<'+tag+'>'+li+'</'+tag+'>'; return; }
-        if (tag==='p') {
-          const m = (el.getAttribute('style')||'').match(/margin-left\s*:\s*([\d.]+)pt/);
+        if (['h1','h2','h3','h4'].includes(tag)) {
+          const lv = tag === 'h1' ? 'h2' : tag;
+          out += '<' + lv + '>' + inline(el) + '</' + lv + '>';
+          return;
+        }
+        if (tag === 'ul' || tag === 'ol') {
+          let li = '';
+          el.querySelectorAll('li').forEach(i => { li += '<li>' + inline(i) + '</li>'; });
+          if (li) out += '<' + tag + '>' + li + '</' + tag + '>';
+          return;
+        }
+        if (tag === 'p') {
+          if (text === '[em]')  { emOpen = true;  return; }
+          if (text === '[/em]') { emOpen = false; return; }
+          const m = (el.getAttribute('style') || '').match(/margin-left\s*:\s*([\d.]+)pt/);
           const ind = m ? parseFloat(m[1]) : 0;
           const inn = inline(el);
           if (!inn) return;
-          out += ind > 35 ? '<blockquote><p>'+inn+'</p></blockquote>' : '<p>'+inn+'</p>';
+          if (emOpen)    { out += '<p><em>' + inn + '</em></p>'; return; }
+          if (ind > 35)  { out += '<blockquote><p>' + inn + '</p></blockquote>'; return; }
+          out += '<p>' + inn + '</p>';
           return;
         }
-        if (['div','section','article','body'].includes(tag)) Array.from(el.children).forEach(walk);
+        if (['div','section','article','body'].includes(tag)) {
+          Array.from(el.children).forEach(walk);
+        }
       }
 
       Array.from(container.children).forEach(walk);
@@ -176,6 +189,6 @@
     function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     load();
-  </script>
+</script>
 </body>
 </html>
