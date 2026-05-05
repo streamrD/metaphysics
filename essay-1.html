@@ -66,6 +66,7 @@
     .essay-content ul, .essay-content ol { margin: 1.2em 0 1.2em 1.5em; }
     .essay-content li { margin-bottom: .5em; line-height: 1.75; }
     .essay-content hr { border: none; border-top: 1px solid var(--rule); margin: 2.5em auto; width: 40%; }
+    .essay-content .attribution { text-align: right; font-style: italic; font-size: .95rem; color: var(--ink-faint); margin-top: -.75em; margin-bottom: 1.5em; }
 
     .loading-state { text-align: center; padding: 4rem 2rem; font-family: 'Lato', sans-serif; font-weight: 300; color: var(--ink-faint); letter-spacing: .1em; font-size: .9rem; }
     .loading-dots::after { content: ''; animation: dots 1.5s steps(3,end) infinite; }
@@ -149,7 +150,8 @@
 
       function applyEmTags(s) {
         // Handle [em]...[/em] that Google collapses into one paragraph
-        return s.replace(/\[em\](.*?)\[\/em\]/gs, '<em>$1</em>');
+        s = s.replace(/\[em\](.*?)\[\/em\]/gs, '<em>$1</em>');
+        return s;
       }
 
       function walk(el) {
@@ -179,6 +181,12 @@
           if (!inn) return;
           // Apply inline [em]...[/em] tags
           inn = applyEmTags(inn);
+          // Handle [right]...[/right] for right-aligned attribution
+          if (inn.startsWith('[right]') && inn.endsWith('[/right]')) {
+            const inner = inn.slice(7, -8);
+            out += '<p class="attribution">' + inner + '</p>';
+            return;
+          }
           if (emOpen)    { out += '<p><em>' + inn + '</em></p>'; return; }
           if (ind > 35)  { out += '<blockquote><p>' + inn + '</p></blockquote>'; return; }
           out += '<p>' + inn + '</p>';
