@@ -13,10 +13,12 @@ interface Essay {
   id: string;
   num: string;
   title: string;
-  folder: string;        // path under /slides/
+  folder: string;
   slideCount: number;
-  filePrefix: string;    // e.g. "essay1_slide_"
+  filePrefix: string;
   docUrl: string;
+  indexGray: string;   // shown on index by default
+  indexCream: string;  // shown on index on hover
   quote?: string;
   date?: string;
 }
@@ -24,6 +26,9 @@ interface Essay {
 type ViewMode = 'index' | 'slides' | 'reading';
 
 // ─── Essay data — folders and slide counts match the repo exactly ─────────────
+// indexGray  = shown on index by default
+// indexCream = shown on index on hover
+// carousel starts at slide 01 (original, full color)
 
 const ESSAYS: Essay[] = [
   {
@@ -31,6 +36,8 @@ const ESSAYS: Essay[] = [
     title: 'First Principles 1: Unity',
     quote: 'The thing you are standing in front of is sacred.',
     folder: '1-unity', filePrefix: 'essay1_slide_', slideCount: 12,
+    indexGray: '/slides/1-unity/essay1_slide_01_gray.png',
+    indexCream: '/slides/1-unity/essay1_slide_01.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQiMJtRSbNP8ysO9dU08BtATbyvmhcKqZgyVmr3XIH8LBOZ6U4C7Xdze3uPPcIOYGSYiz5xKgbNlH6M/pub',
   },
   {
@@ -38,6 +45,8 @@ const ESSAYS: Essay[] = [
     title: 'First Principles 2: Free Will',
     quote: 'Once upon a time, there was only the One Thing.',
     folder: '2-free', filePrefix: 'essay2_slide_', slideCount: 11,
+    indexGray: '/slides/2-free/essay2_slide_01_gray.png',
+    indexCream: '/slides/2-free/essay2_slide_01.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vREEmvp19Y47YXwhTQYlcRolh1Jjvf5BicROwt8s3enEc7N04YSKY3Z7JM0ALG9uZI7WLpkStU9kDS5/pub',
   },
   {
@@ -45,6 +54,8 @@ const ESSAYS: Essay[] = [
     title: 'First Principles 3: The Impulse to Create',
     quote: 'In the beginning was the Word. And It is still being spoken. As you.',
     folder: '3-create', filePrefix: 'essay3_slide_', slideCount: 12,
+    indexGray: '/slides/3-create/essay3_slide_01_gray.png',
+    indexCream: '/slides/3-create/essay3_slide_01.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vRGVJR2isARAi9HdzfI7vF1qWGFExtFtQnBjkX81246n1nw7UlC9Gjj2eCHEltTLpSqzc8juNoG0KRI/pub',
   },
   {
@@ -52,6 +63,8 @@ const ESSAYS: Essay[] = [
     title: 'First Principles 4: Service to Others vs. Service to Self',
     quote: 'The sun and the black hole — one radiating energy, the other fully invested in containing it.',
     folder: '4-service', filePrefix: 'essay4_slide_', slideCount: 14,
+    indexGray: '/slides/4-service/essay4_slide_01_gray.png',
+    indexCream: '/slides/4-service/essay4_slide_01.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vTeCYqeO50ASL2VL_dGCS1OwHJwO7Kn6KtaeteVA7T2BFg2gCoqk6xiMlrIiXVTU_tjxGanFpaAKvBK/pub',
   },
   {
@@ -59,6 +72,8 @@ const ESSAYS: Essay[] = [
     title: 'The Lessons of the Supervillain',
     quote: 'The supervillain is not just a villain. He is a curriculum, and class is now in session.',
     folder: '5-supervillain', filePrefix: 'essay5_slide_', slideCount: 9,
+    indexGray: '/slides/5-supervillain/essay5_slide_01_gray.png',
+    indexCream: '/slides/5-supervillain/essay5_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vSTxKV3FBIwFol0fNiF_taah6LZdKwnasTxUdYvSk_i_tDsApFzeRNbGfHLQtdXHjTgo-FbZmUqOZFk/pub',
   },
   {
@@ -66,6 +81,8 @@ const ESSAYS: Essay[] = [
     title: 'The Upside-Down World of the Id',
     quote: "The child's tantrum has become a spectacle of adult insurrection playing out across the national stage.",
     folder: '6-id', filePrefix: 'essay6_slide_', slideCount: 9,
+    indexGray: '/slides/6-id/essay6_slide_01_gray.png',
+    indexCream: '/slides/6-id/essay6_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vRlvNG-eehvpayBkE-nFsLBXkdkRyiGohNmKAZyiejdvEvK1LcaORAOUAP1qWElMcICK429OJq984Yv/pub',
   },
   {
@@ -73,6 +90,8 @@ const ESSAYS: Essay[] = [
     title: 'The Two Paths',
     quote: 'The further you go, the harder it becomes to leave.',
     folder: '7-paths', filePrefix: 'essay7_slide_', slideCount: 13,
+    indexGray: '/slides/7-paths/essay7_slide_01_gray.png',
+    indexCream: '/slides/7-paths/essay7_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vTi97lIgFOd3hebtucPg433eolUmICKcIn3ttARGv7qkmZLtZnh4DRaw7W9zkWPv6xIGHjdAC9dmVWN/pub',
   },
   {
@@ -80,6 +99,8 @@ const ESSAYS: Essay[] = [
     title: 'The First Rock',
     quote: 'When you feel indignation rise, how do you respond?',
     folder: '8-rocks', filePrefix: 'essay8_slide_', slideCount: 11,
+    indexGray: '/slides/8-rocks/essay8_slide_01_gray.png',
+    indexCream: '/slides/8-rocks/essay8_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQCf10pOoWOI4byYUaxte7c49wz_Av-ASpT74RHmpEFD-6puSuspNqD4re1VxbVjxPFfTUILtN4dp8J/pub',
   },
   {
@@ -87,6 +108,8 @@ const ESSAYS: Essay[] = [
     title: 'I Never Knew You: Narcissism and the Evangelical Soul',
     quote: "They beat the drum of tribalism and call that dance 'righteousness.'",
     folder: '9-narcissism', filePrefix: 'essay9_slide_', slideCount: 11,
+    indexGray: '/slides/9-narcissism/essay9_slide_01_gray.png',
+    indexCream: '/slides/9-narcissism/essay9_slide_01.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vSPRE5CKmoMgAsQIgZMfpZSEbL8OEalMwM9BbaARsYzvnpKTRw5ttrTcwU_W2cyFm6g1QcDuXW8zPgq/pub',
   },
   {
@@ -94,6 +117,8 @@ const ESSAYS: Essay[] = [
     title: 'The Curriculum and the Veil',
     quote: 'We pressed the cup of forgetting to our lips and let its strange taste drift us to sleep.',
     folder: '10-curriculum', filePrefix: 'essay10_slide_', slideCount: 11,
+    indexGray: '/slides/10-curriculum/essay10_slide_01_gray.png',
+    indexCream: '/slides/10-curriculum/essay10_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQazMi8MI2WvlZWVOaaD0oUsa0JffoyrGWCv7ubGbCKWh-FtkIMf4D5ZknmYqz1uznLw_6NL4GdSy9N/pub',
   },
 ];
@@ -359,17 +384,25 @@ function EssayCard({ essay, onExploreSlides, onReadEssay }: {
       }}
       className="group"
     >
-      {/* Thumbnail — clicking goes to slides */}
+      {/* Thumbnail — gray by default, warms to cream on hover */}
       <div
-        className="aspect-square bg-neutral-50 mb-5 overflow-hidden border border-neutral-100 relative cursor-pointer"
+        className="aspect-square mb-5 overflow-hidden border border-neutral-200 relative cursor-pointer"
         onClick={onExploreSlides}
       >
+        {/* Gray default */}
         <img
-          src={slideUrl(essay, 1)}
+          src={essay.indexGray}
           alt={essay.title}
-          className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-[1.03]"
+          className="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:opacity-0 transition-opacity duration-500"
+          draggable={false}
         />
-        <div className="absolute inset-0 bg-zen-text/0 group-hover:bg-zen-text/5 transition-colors duration-500" />
+        {/* Cream hover */}
+        <img
+          src={essay.indexCream}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          draggable={false}
+        />
       </div>
 
       {/* Meta */}
