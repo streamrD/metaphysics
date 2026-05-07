@@ -37,7 +37,7 @@ const ESSAYS: Essay[] = [
     quote: 'The thing you are standing in front of is sacred.',
     folder: '1-unity', filePrefix: 'essay1_slide_', slideCount: 12,
     indexGray: '/slides/1-unity/essay1_slide_01_gray.png',
-    indexCream: '/slides/1-unity/essay1_slide_01.png',
+    indexCream: '/slides/1-unity/essay1_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQiMJtRSbNP8ysO9dU08BtATbyvmhcKqZgyVmr3XIH8LBOZ6U4C7Xdze3uPPcIOYGSYiz5xKgbNlH6M/pub',
   },
   {
@@ -46,7 +46,7 @@ const ESSAYS: Essay[] = [
     quote: 'Once upon a time, there was only the One Thing.',
     folder: '2-free', filePrefix: 'essay2_slide_', slideCount: 11,
     indexGray: '/slides/2-free/essay2_slide_01_gray.png',
-    indexCream: '/slides/2-free/essay2_slide_01.png',
+    indexCream: '/slides/2-free/essay2_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vREEmvp19Y47YXwhTQYlcRolh1Jjvf5BicROwt8s3enEc7N04YSKY3Z7JM0ALG9uZI7WLpkStU9kDS5/pub',
   },
   {
@@ -55,7 +55,7 @@ const ESSAYS: Essay[] = [
     quote: 'In the beginning was the Word. And It is still being spoken. As you.',
     folder: '3-create', filePrefix: 'essay3_slide_', slideCount: 12,
     indexGray: '/slides/3-create/essay3_slide_01_gray.png',
-    indexCream: '/slides/3-create/essay3_slide_01.png',
+    indexCream: '/slides/3-create/essay3_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vRGVJR2isARAi9HdzfI7vF1qWGFExtFtQnBjkX81246n1nw7UlC9Gjj2eCHEltTLpSqzc8juNoG0KRI/pub',
   },
   {
@@ -64,7 +64,7 @@ const ESSAYS: Essay[] = [
     quote: 'The sun and the black hole — one radiating energy, the other fully invested in containing it.',
     folder: '4-service', filePrefix: 'essay4_slide_', slideCount: 14,
     indexGray: '/slides/4-service/essay4_slide_01_gray.png',
-    indexCream: '/slides/4-service/essay4_slide_01.png',
+    indexCream: '/slides/4-service/essay4_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vTeCYqeO50ASL2VL_dGCS1OwHJwO7Kn6KtaeteVA7T2BFg2gCoqk6xiMlrIiXVTU_tjxGanFpaAKvBK/pub',
   },
   {
@@ -109,7 +109,7 @@ const ESSAYS: Essay[] = [
     quote: "They beat the drum of tribalism and call that dance 'righteousness.'",
     folder: '9-narcissism', filePrefix: 'essay9_slide_', slideCount: 11,
     indexGray: '/slides/9-narcissism/essay9_slide_01_gray.png',
-    indexCream: '/slides/9-narcissism/essay9_slide_01.png',
+    indexCream: '/slides/9-narcissism/essay9_slide_01_cream.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vSPRE5CKmoMgAsQIgZMfpZSEbL8OEalMwM9BbaARsYzvnpKTRw5ttrTcwU_W2cyFm6g1QcDuXW8zPgq/pub',
   },
   {
