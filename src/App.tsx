@@ -496,13 +496,13 @@ function EssayCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
         <img
           src={essay.indexGray}
           alt={essay.title}
-          className="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:opacity-0 transition-all duration-500"
+          className="thumb-gray absolute inset-0 w-full h-full object-cover opacity-100 group-hover:opacity-0 transition-all duration-500"
           draggable={false}
         />
         <img
           src={essay.indexRollover}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-0 scale-100 group-hover:opacity-100 group-hover:scale-[1.06] transition-all duration-500 ease-out"
+          className="thumb-rollover absolute inset-0 w-full h-full object-cover opacity-0 scale-100 group-hover:opacity-100 group-hover:scale-[1.06] transition-all duration-500 ease-out"
           draggable={false}
         />
       </div>
