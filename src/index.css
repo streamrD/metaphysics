@@ -1,24 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Playfair Display", serif;
-  --font-sans: "Inter", sans-serif;
-  
-  --color-zen-bg: #fdfcfb;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  --color-zen-bg: #faf9f6;
   --color-zen-text: #2d2a2e;
   --color-zen-accent: #8e8d8a;
 }
 
 @layer base {
+  html { font-size: 18px; }
   body {
-    @apply bg-zen-bg text-zen-text font-sans antialiased selection:bg-zen-accent selection:text-white;
+    @apply bg-zen-bg text-zen-text font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    scrollbar-gutter: stable;
   }
 
+  ::selection {
+    background: rgba(142, 141, 138, 0.15);
+  }
+}
+
+@layer components {
+  /* Essay body — matches v1 site: EB Garamond, 1.05rem, 1.85 line-height */
   .essay-content {
-    @apply font-serif leading-relaxed text-lg max-w-2xl mx-auto;
+    max-width: 680px;
+    margin: 0 auto;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 1.15rem;
+    line-height: 1.85;
   }
 
   .essay-content em {
-    @apply italic;
+    font-style: italic;
   }
+
+
 }
