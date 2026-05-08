@@ -125,6 +125,26 @@ To add a new tag: update the split regex and add a handler in `formatEssayConten
 
 ---
 
+## Cover page
+
+The landing page is a full-viewport cover section that mirrors the v1 static site exactly, using the same CSS values, fonts, and animation timings sourced directly from `v1/index.html`.
+
+Structure (top to bottom):
+1. Thin vertical gold gradient line (80px)
+2. "A COLLECTION OF" — Lato 300, gold, letter-spaced, fade-up at 0.2s
+3. "Metaphysical / *Essays*" — Cormorant Garamond 300, clamp(3rem–5.5rem), at 0.4s
+4. ✦ diamond divider with gold hairlines, at 0.55s
+5. "TODD STABLEY" — Lato 300, muted, at 0.6s
+6. Italic tagline — EB Garamond italic, at 0.8s
+7. "INDEX OF ESSAYS" anchor link — scrolls to `#index`, at 1.2s
+8. Descending gold gradient line + bottom vertical rule
+
+Below the cover, a "Contents / The Essays" section header (Cormorant Garamond italic) introduces the thumbnail grid.
+
+The cover uses inline `style` props rather than Tailwind to precisely match v1 CSS values. Do not convert these to Tailwind classes.
+
+---
+
 ## Slide thumbnail system
 
 Each folder has:
@@ -148,7 +168,7 @@ Four input methods: mouse drag/swipe (>40px), keyboard ← →, dot strip, fixed
 
 ```
 --font-serif: Playfair Display
---color-zen-bg: #fdfcfb
+--color-zen-bg: #faf9f6  (matches v1 warm parchment)
 --color-zen-text: #2d2a2e
 --color-zen-accent: #8e8d8a
 ```
@@ -157,10 +177,14 @@ Four input methods: mouse drag/swipe (>40px), keyboard ← →, dot strip, fixed
 
 | Use | Font | Size |
 |---|---|---|
-| Titles | Playfair Display 400 | clamp(2rem → 4.5rem) |
+| Cover title | Cormorant Garamond 300 | clamp(3rem → 5.5rem) |
+| Cover labels | Lato 300 | .72rem–.85rem |
+| Index section header | Cormorant Garamond italic | 2rem |
+| Card titles | EB Garamond 400 | 1.2rem |
+| Card labels | Lato 300 | .65rem (gold) / .75rem (muted) |
 | Essay body | EB Garamond 400 | 1.15rem / lh 1.85 |
-| Pull quotes | Playfair Display italic | 1.25rem |
-| Slide covers | Gelasio (Georgia-compatible) | 112px (reduced for essays 3–4) |
+| Reading view titles | Playfair Display 400 | clamp(2rem → 3rem) |
+| Slide cover images | Gelasio (Georgia-compatible) | 112px (72px essay 3, 56px essay 4) |
 
 ---
 
