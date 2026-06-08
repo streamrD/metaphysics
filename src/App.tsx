@@ -537,7 +537,33 @@ function EssayCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
 // ─── Root App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [selected, setSelected] = useState<Essay | null>(null);
+  const [selected, setSelected] = useState<Essay | null>(() => {
+    const match = window.location.pathname.match(/^\/essays\/(.+)/);
+    return match ? (ESSAYS.find(e => e.folder === match[1]) ?? null) : null;
+  });
+
+  useEffect(() => {
+    const onPop = () => {
+      const match = window.location.pathname.match(/^\/essays\/(.+)/);
+      setSelected(match ? (ESSAYS.find(e => e.folder === match[1]) ?? null) : null);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  useEffect(() => {
+    document.title = selected ? `${selected.title} — Metaphysical Essays` : 'Metaphysical Essays';
+  }, [selected]);
+
+  const openEssay = useCallback((essay: Essay) => {
+    window.history.pushState({}, '', `/essays/${essay.folder}`);
+    setSelected(essay);
+  }, []);
+
+  const closeEssay = useCallback(() => {
+    window.history.pushState({}, '', '/');
+    setSelected(null);
+  }, []);
 
   return (
     <div className="min-h-screen bg-zen-bg text-zen-text selection:bg-zen-accent/15">
@@ -647,7 +673,7 @@ export default function App() {
             <EssayCard
               key={essay.id}
               essay={essay}
-              onClick={() => setSelected(essay)}
+              onClick={() => openEssay(essay)}
             />
           ))}
         </motion.div>
@@ -665,7 +691,7 @@ export default function App() {
           <ReadingView
             key={selected.id}
             essay={selected}
-            onClose={() => setSelected(null)}
+            onClose={closeEssay}
           />
         )}
       </AnimatePresence>
