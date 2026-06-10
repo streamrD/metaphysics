@@ -116,6 +116,15 @@ const ESSAYS: Essay[] = [
     indexRollover: '/slides/10-curriculum/essay10_cover_rollover.png',
     docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQazMi8MI2WvlZWVOaaD0oUsa0JffoyrGWCv7ubGbCKWh-FtkIMf4D5ZknmYqz1uznLw_6NL4GdSy9N/pub',
   },
+  {
+    id: '10', num: '11', date: 'June 2026',
+    title: 'The Apprentice',
+    quote: 'We all choose our path. But others step in to help.',
+    folder: '11-apprentice', filePrefix: 'essay11_slide_', slideCount: 0,
+    indexGray: '/slides/11-apprentice/essay11_slide_01_gray.png',
+    indexRollover: '/slides/11-apprentice/essay11_cover_rollover.png',
+    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQzD_cIS25kxCHZLRVibdc9LymrJwlPkUDWGFmrUEf39q8cVpqM8zoVPYYqdVToZsP9wWb9Q6zJZsV_/pub',
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -126,13 +135,28 @@ function slideUrl(essay: Essay, n: number): string {
 
 function formatEssayContent(text: string): React.ReactNode[] {
   if (!text) return [];
-  // Split on [em]...[/em] and [right]...[/right] blocks
-  const segments = text.split(/(\[em\][\s\S]*?\[\/em\]|\[right\][\s\S]*?\[\/right\])/g);
+  // Split on [right]...[/right] blocks; [em] is handled inline within lines
+  const segments = text.split(/(\[right\][\s\S]*?\[\/right\])/g);
   const nodes: React.ReactNode[] = [];
   let key = 0;
+  // [em] state carries across lines so a tag pair wrapping whole
+  // paragraphs (the original block usage) still italicizes all of them
+  let inEm = false;
+
+  const renderInline = (line: string): React.ReactNode[] => {
+    const out: React.ReactNode[] = [];
+    let k = 0;
+    line.split(/(\[em\]|\[\/em\])/g).forEach(part => {
+      if (part === '[em]') { inEm = true; return; }
+      if (part === '[/em]') { inEm = false; return; }
+      if (!part) return;
+      out.push(inEm ? <em key={k++}>{part}</em> : <span key={k++}>{part}</span>);
+    });
+    return out;
+  };
 
   // Collect consecutive [li] lines into a single <ul>
-  const flushList = (items: string[]) => {
+  const flushList = (items: React.ReactNode[][]) => {
     if (!items.length) return;
     nodes.push(
       <ul key={key++} className="mb-6 pl-5 space-y-1 list-disc text-[1.15rem] leading-[1.85] text-zen-text/85">
@@ -143,31 +167,29 @@ function formatEssayContent(text: string): React.ReactNode[] {
   };
 
   segments.forEach(segment => {
-    const emMatch = segment.match(/^\[em\]([\s\S]*?)\[\/em\]$/);
     const rightMatch = segment.match(/^\[right\]([\s\S]*?)\[\/right\]$/);
-    if (emMatch) {
-      const listBuffer: string[] = [];
-      emMatch[1].split('\n').filter(p => p.trim()).forEach(para => {
-        flushList(listBuffer);
-        nodes.push(<p key={key++} className="mb-6 text-[1.15rem] leading-[1.85] text-zen-text/85 italic">{para.trim()}</p>);
-      });
-    } else if (rightMatch) {
+    if (rightMatch) {
       rightMatch[1].split('\n').filter(p => p.trim()).forEach(para => {
-        const parts = para.trim().split(/(\[em\][\s\S]*?\[\/em\])/g);
-        const content = parts.map((part, j) => {
-          const em = part.match(/^\[em\]([\s\S]*?)\[\/em\]$/);
-          return em ? <em key={j}>{em[1]}</em> : <span key={j}>{part}</span>;
-        });
-        nodes.push(<p key={key++} className="mb-6 text-[1.15rem] leading-[1.85] text-zen-text/85 text-right">{content}</p>);
+        nodes.push(<p key={key++} className="mb-6 text-[1.15rem] leading-[1.85] text-zen-text/85 text-right">{renderInline(para.trim())}</p>);
       });
     } else {
-      const listBuffer: string[] = [];
+      const listBuffer: React.ReactNode[][] = [];
       segment.split('\n').filter(p => p.trim()).forEach(para => {
-        if (para.startsWith('[li]')) {
-          listBuffer.push(para.slice(4).trim());
+        const heading = para.match(/^\[h([1-6])\](.*)$/);
+        if (heading) {
+          flushList(listBuffer);
+          const level = Number(heading[1]);
+          const size = level <= 2 ? 'text-[1.5rem]' : 'text-[1.3rem]';
+          nodes.push(
+            <h2 key={key++} className={`${size} font-medium leading-snug text-zen-text mt-14 mb-6`}>
+              {renderInline(heading[2].trim())}
+            </h2>
+          );
+        } else if (para.startsWith('[li]')) {
+          listBuffer.push(renderInline(para.slice(4).trim()));
         } else {
           flushList(listBuffer);
-          nodes.push(<p key={key++} className="mb-6 text-[1.15rem] leading-[1.85] text-zen-text/85">{para.trim()}</p>);
+          nodes.push(<p key={key++} className="mb-6 text-[1.15rem] leading-[1.85] text-zen-text/85">{renderInline(para.trim())}</p>);
         }
       });
       flushList(listBuffer);
@@ -185,9 +207,12 @@ function extractTextFromDocHtml(html: string): string {
   content.querySelectorAll('p, h1, h2, h3, h4, h5, li').forEach(el => {
     const text = el.textContent?.trim();
     if (!text) return;
-    // Prefix list items so formatter can render them as bullets
-    if (el.tagName.toLowerCase() === 'li') {
+    const tag = el.tagName.toLowerCase();
+    // Prefix list items and headings so the formatter can render them
+    if (tag === 'li') {
       blocks.push('[li]' + text);
+    } else if (tag.startsWith('h')) {
+      blocks.push(`[${tag}]` + text);
     } else {
       blocks.push(text);
     }
@@ -411,8 +436,8 @@ function ReadingView({ essay, onClose }: { essay: Essay; onClose: () => void }) 
           </blockquote>
         )}
 
-        {/* View Slides toggle */}
-        <div className="mb-14">
+        {/* View Slides toggle (hidden for essays without a slide deck) */}
+        {essay.slideCount > 0 && <div className="mb-14">
           <button
             onClick={() => setSlidesOpen(v => !v)}
             tabIndex={-1}
@@ -444,7 +469,7 @@ function ReadingView({ essay, onClose }: { essay: Essay; onClose: () => void }) 
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </div>}
 
         {/* Divider */}
         <div className="flex items-center gap-4 mb-14">

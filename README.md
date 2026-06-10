@@ -1,6 +1,6 @@
 # Metaphysical Essays — README
 
-A collection of 10 metaphysical essays by Todd Stabley. Built as a React single-page application with a Zen-minimalist aesthetic, deployed on Railway.
+A collection of 11 metaphysical essays by Todd Stabley. Built as a React single-page application with a Zen-minimalist aesthetic, deployed on Railway.
 
 **Live site:** `metaphysics.up.railway.app`  
 **Repo:** `https://github.com/streamrD/metaphysics`
@@ -42,7 +42,8 @@ metaphysics/
 │       ├── 7-paths/      … (13 slides)
 │       ├── 8-rocks/      … (11 slides)
 │       ├── 9-narcissism/ … (11 slides)
-│       └── 10-curriculum/ … (11 slides)
+│       ├── 10-curriculum/ … (11 slides)
+│       └── 11-apprentice/ … (cover thumbnails only — no slide deck yet; `slideCount: 0` hides the View Slides button)
 ├── server.js            ← Express production server
 ├── vite.config.ts       ← Vite + dev proxy plugin
 ├── index.html           ← HTML shell

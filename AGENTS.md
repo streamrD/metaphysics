@@ -6,7 +6,7 @@ This file gives a new AI agent enough context to begin work on this project. Rea
 
 ## What this is
 
-A React/TypeScript/Vite single-page app that presents a collection of 10 metaphysical essays by Todd Stabley. Deployed on Railway at `metaphysics.up.railway.app`.
+A React/TypeScript/Vite single-page app that presents a collection of 11 metaphysical essays by Todd Stabley. Deployed on Railway at `metaphysics.up.railway.app`.
 
 ---
 
@@ -28,7 +28,8 @@ metaphysics/
 │       ├── 7-paths/          …13 slides
 │       ├── 8-rocks/          …11 slides
 │       ├── 9-narcissism/     …11 slides
-│       └── 10-curriculum/    …11 slides
+│       ├── 10-curriculum/    …11 slides
+│       └── 11-apprentice/    cover thumbnails only (no slide deck yet)
 ├── server.js            ← Express production server (serves dist/ + /api/fetch-essay proxy)
 ├── vite.config.ts       ← Vite config with dev-only essay proxy plugin
 ├── index.html           ← HTML entry point (html/body/#root all width:100%, 18px base font)
@@ -45,7 +46,7 @@ metaphysics/
 ## Key concepts for any new task
 
 ### Essay data
-All 10 essays are hardcoded in the `ESSAYS` array near the top of `App.tsx`. Each essay has:
+All essays are hardcoded in the `ESSAYS` array near the top of `App.tsx`. Each essay has:
 - `folder` — matches the `public/slides/` subdirectory name
 - `filePrefix` — e.g. `essay1_slide_` (files zero-padded: `essay1_slide_01.png`)
 - `slideCount` — total number of slides
