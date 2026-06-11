@@ -646,7 +646,7 @@ export default function App() {
           transition={{ duration: 1, delay: 0.8 }}
           style={{ maxWidth: '520px', fontSize: '1.1rem', color: '#3d3d38', lineHeight: 1.85, fontStyle: 'italic', margin: '2rem auto 2.5rem', fontFamily: "'EB Garamond', Georgia, serif" }}
         >
-          No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I&apos;d had. May they help you remember what you already know — now, when it matters most.
+          No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I&apos;d had. May they help you remember what you already know <span style={{ whiteSpace: 'nowrap' }}>— now, when it matters most.</span>
         </motion.p>
 
         {/* Index of Essays cue */}
