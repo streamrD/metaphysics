@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, BookOpen, Layers } from 'lucide-react';
+import essaysData from './essays.json';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,107 +26,7 @@ interface Essay {
 
 // ─── Essay data ───────────────────────────────────────────────────────────────
 
-const ESSAYS: Essay[] = [
-  {
-    id: '0', num: '01', date: 'April 2025',
-    title: 'First Principles 1: Unity',
-    quote: 'The thing you are standing in front of is sacred.',
-    folder: '1-unity', filePrefix: 'essay1_slide_', slideCount: 12,
-    indexGray: '/slides/1-unity/essay1_slide_01_gray.png',
-    indexRollover: '/slides/1-unity/essay01_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQiMJtRSbNP8ysO9dU08BtATbyvmhcKqZgyVmr3XIH8LBOZ6U4C7Xdze3uPPcIOYGSYiz5xKgbNlH6M/pub',
-  },
-  {
-    id: '1', num: '02', date: 'August 2025',
-    title: 'First Principles 2: Free Will',
-    quote: 'Once upon a time, there was only the One Thing. And then we forgot.',
-    folder: '2-free', filePrefix: 'essay2_slide_', slideCount: 11,
-    indexGray: '/slides/2-free/essay2_slide_01_gray.png',
-    indexRollover: '/slides/2-free/essay02_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vREEmvp19Y47YXwhTQYlcRolh1Jjvf5BicROwt8s3enEc7N04YSKY3Z7JM0ALG9uZI7WLpkStU9kDS5/pub',
-  },
-  {
-    id: '2', num: '03', date: 'April 2025',
-    title: 'First Principles 3: The Impulse to Create',
-    quote: 'In the beginning was the Word. And It is still being spoken. As you.',
-    folder: '3-create', filePrefix: 'essay3_slide_', slideCount: 12,
-    indexGray: '/slides/3-create/essay3_slide_01_gray.png',
-    indexRollover: '/slides/3-create/essay03_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vRGVJR2isARAi9HdzfI7vF1qWGFExtFtQnBjkX81246n1nw7UlC9Gjj2eCHEltTLpSqzc8juNoG0KRI/pub',
-  },
-  {
-    id: '3', num: '04', date: 'June 2025',
-    title: 'First Principles 4: Service to Others vs. Service to Self',
-    quote: 'The sun and the black hole — one radiating energy, the other fully invested in containing it.',
-    folder: '4-service', filePrefix: 'essay4_slide_', slideCount: 14,
-    indexGray: '/slides/4-service/essay4_slide_01_gray.png',
-    indexRollover: '/slides/4-service/essay04_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vR4Rgbrakrd2AeWJ0-c4gXQvWVZ4VDdtlubpH22KejQwqAH5VbA_Jw_R6LnnIkwlYRkKW-2maHAM_pN/pub',
-  },
-  {
-    id: '4', num: '05', date: 'January 2026',
-    title: 'The Lessons of the Supervillain',
-    quote: 'The supervillain is not just a villain. He is a curriculum, and class is now in session.',
-    folder: '5-supervillain', filePrefix: 'essay5_slide_', slideCount: 9,
-    indexGray: '/slides/5-supervillain/essay5_slide_01_gray.png',
-    indexRollover: '/slides/5-supervillain/essay05_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vSTxKV3FBIwFol0fNiF_taah6LZdKwnasTxUdYvSk_i_tDsApFzeRNbGfHLQtdXHjTgo-FbZmUqOZFk/pub',
-  },
-  {
-    id: '5', num: '06', date: 'August 2025',
-    title: 'The Upside-Down World of the Id',
-    quote: "The child's tantrum has become a spectacle of adult insurrection playing out everywhere across the national stage.",
-    folder: '6-id', filePrefix: 'essay6_slide_', slideCount: 9,
-    indexGray: '/slides/6-id/essay6_slide_01_gray.png',
-    indexRollover: '/slides/6-id/essay06_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vRlvNG-eehvpayBkE-nFsLBXkdkRyiGohNmKAZyiejdvEvK1LcaORAOUAP1qWElMcICK429OJq984Yv/pub',
-  },
-  {
-    id: '6', num: '07', date: 'January 2026',
-    title: 'The Two Paths',
-    quote: 'The further you go, the harder it becomes to leave.',
-    folder: '7-paths', filePrefix: 'essay7_slide_', slideCount: 13,
-    indexGray: '/slides/7-paths/essay7_slide_01_gray.png',
-    indexRollover: '/slides/7-paths/essay07_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vTi97lIgFOd3hebtucPg433eolUmICKcIn3ttARGv7qkmZLtZnh4DRaw7W9zkWPv6xIGHjdAC9dmVWN/pub',
-  },
-  {
-    id: '7', num: '08', date: 'January 2025',
-    title: 'The First Rock',
-    quote: 'When you feel indignation rise, how do you respond?',
-    folder: '8-rocks', filePrefix: 'essay8_slide_', slideCount: 11,
-    indexGray: '/slides/8-rocks/essay8_slide_01_gray.png',
-    indexRollover: '/slides/8-rocks/essay08_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQCf10pOoWOI4byYUaxte7c49wz_Av-ASpT74RHmpEFD-6puSuspNqD4re1VxbVjxPFfTUILtN4dp8J/pub',
-  },
-  {
-    id: '8', num: '09', date: 'September 2025',
-    title: 'I Never Knew You: Narcissism and the Evangelical Soul',
-    quote: "They beat the drum of tribalism and call that dance 'righteousness.'",
-    folder: '9-narcissism', filePrefix: 'essay9_slide_', slideCount: 11,
-    indexGray: '/slides/9-narcissism/essay9_slide_01_gray.png',
-    indexRollover: '/slides/9-narcissism/essay09_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vSPRE5CKmoMgAsQIgZMfpZSEbL8OEalMwM9BbaARsYzvnpKTRw5ttrTcwU_W2cyFm6g1QcDuXW8zPgq/pub',
-  },
-  {
-    id: '9', num: '10', date: 'July 2025',
-    title: 'The Curriculum and the Veil',
-    quote: 'We pressed the cup of forgetting to our lips and let its strange taste drift us to sleep.',
-    folder: '10-curriculum', filePrefix: 'essay10_slide_', slideCount: 11,
-    indexGray: '/slides/10-curriculum/essay10_slide_01_gray.png',
-    indexRollover: '/slides/10-curriculum/essay10_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQazMi8MI2WvlZWVOaaD0oUsa0JffoyrGWCv7ubGbCKWh-FtkIMf4D5ZknmYqz1uznLw_6NL4GdSy9N/pub',
-  },
-  {
-    id: '10', num: '11', date: 'June 2026',
-    title: 'The Apprentice',
-    quote: 'We all choose our path. But others step in to help.',
-    folder: '11-apprentice', filePrefix: 'essay11_slide_', slideCount: 0,
-    indexGray: '/slides/11-apprentice/essay11_slide_01_gray.png',
-    indexRollover: '/slides/11-apprentice/essay11_cover_rollover.png',
-    docUrl: 'https://docs.google.com/document/d/e/2PACX-1vQzD_cIS25kxCHZLRVibdc9LymrJwlPkUDWGFmrUEf39q8cVpqM8zoVPYYqdVToZsP9wWb9Q6zJZsV_/pub',
-  },
-];
+const ESSAYS: Essay[] = essaysData;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -220,9 +121,11 @@ function extractTextFromDocHtml(html: string): string {
   return blocks.join('\n');
 }
 
-async function fetchEssayText(url: string): Promise<string> {
+// Essay text is snapshotted from Google Docs at build time by
+// scripts/fetch-essays.mjs into public/essay-content/<folder>.html
+async function fetchEssayText(essay: Essay): Promise<string> {
   try {
-    const res = await fetch(`/api/fetch-essay?url=${encodeURIComponent(url)}`);
+    const res = await fetch(`/essay-content/${essay.folder}.html`);
     if (res.ok) {
       const html = await res.text();
       if (html.length > 100) {
@@ -393,7 +296,7 @@ function ReadingView({ essay, onClose }: { essay: Essay; onClose: () => void }) 
   useEffect(() => {
     setLoading(true); setError(false); setText(null);
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
-    fetchEssayText(essay.docUrl)
+    fetchEssayText(essay)
       .then(t => { setText(t); setLoading(false); })
       .catch(() => { setError(true); setLoading(false); });
   }, [essay.id]);

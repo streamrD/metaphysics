@@ -44,8 +44,10 @@ metaphysics/
 │       ├── 9-narcissism/ … (11 slides)
 │       ├── 10-curriculum/ … (11 slides)
 │       └── 11-apprentice/ … (cover thumbnails only — no slide deck yet; `slideCount: 0` hides the View Slides button)
-├── server.js            ← Express production server
-├── vite.config.ts       ← Vite + dev proxy plugin
+├── server.js            ← Express production server (static dist/ + per-essay OG meta injection)
+├── vite.config.ts       ← Vite config
+├── scripts/fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
+├── source-material/     ← Drafts and source assets (not used by the app)
 ├── index.html           ← HTML shell
 ├── package.json
 └── railway.toml         ← Railway deployment config
@@ -93,7 +95,7 @@ interface Essay {
   filePrefix: string;   // e.g. 'essay1_slide_'
   slideCount: number;
   indexGray: string;    // path to default index thumbnail
-  indexCream: string;   // path to hover index thumbnail
+  indexRollover: string; // path to hover index thumbnail
   docUrl: string;       // Google Docs /pub URL
 }
 ```
@@ -104,10 +106,9 @@ interface Essay {
 
 ### Fetching
 
-Google Docs published URLs cannot be fetched from the browser (CORS). Solution: server-side proxy at `/api/fetch-essay?url=<encoded>`.
+Essay text lives in published Google Docs but is snapshotted at build time rather than fetched at runtime: `scripts/fetch-essays.mjs` downloads each doc's HTML into `public/essay-content/<folder>.html` (gitignored, regenerated on every build via the `prebuild` script; `predev` fetches only missing files). The client fetches the static snapshot — no CORS issue, no runtime dependency on Google.
 
-- **Dev:** middleware registered in `vite.config.ts`
-- **Production:** handled in `server.js`
+To refresh content after editing a doc: `npm run fetch-essays` locally, or simply redeploy (Railway re-snapshots during the build).
 
 ### Parsing
 
@@ -200,7 +201,7 @@ buildCommand = "npm run build"
 startCommand = "npm start"
 ```
 
-`server.js` serves the proxy route + `dist/` static files + SPA fallback.
+`server.js` serves `dist/` static files + SPA fallback, and injects per-essay OpenGraph/Twitter meta tags on `/essays/:folder` routes (title, pull quote, and cover rollover image from `src/essays.json`) so shared essay links unfurl with their own cards.
 
 Branch strategy: `main` = v2 React app (production), `v1` = original static HTML site (preserved).
 
@@ -210,10 +211,11 @@ Branch strategy: `main` = v2 React app (production), `v1` = original static HTML
 
 ```bash
 npm install
-npm run dev      # localhost:3000
-npm run build    # → dist/
-npm run lint     # tsc --noEmit
-npm start        # production server
+npm run dev           # localhost:3000 (fetches missing essay snapshots first)
+npm run fetch-essays  # force-refresh all essay snapshots from Google Docs
+npm run build         # → dist/ (re-snapshots all essays first)
+npm run lint          # tsc --noEmit
+npm start             # production server (requires a prior build)
 ```
 
 **Quirks:** Changes to `index.html`/`index.css` require full dev server restart. `#root` must have `width: 100%` for centering. `scrollbar-gutter: stable` on body prevents layout shift.
