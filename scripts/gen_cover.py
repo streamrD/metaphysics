@@ -60,12 +60,13 @@ def make_cover(out, bg, header2, title_lines, quote_lines, *,
     # Author, ink top at y=980
     spaced_text(d, (105, 980 - f_hdr.getbbox('T')[1]), 'TODD STABLEY', f_hdr, muted, 4)
 
-    # Footer (rollover only): two right-aligned lines, tops at 944 / 974
+    # Footer (rollover only): right-aligned lines, bottom line's ink top at 974
     if footer:
         for i, line in enumerate(footer):
             wline = d.textlength(line, font=f_foot)
             bbox = d.textbbox((0,0), line, font=f_foot)
-            d.text((974 - wline, 944 + i*30 - bbox[1]), line, font=f_foot, fill=footer_col)
+            ytop = 974 - 30 * (len(footer) - 1 - i)
+            d.text((974 - wline, ytop - bbox[1]), line, font=f_foot, fill=footer_col)
 
     img.save(out)
     print('wrote', out)
@@ -82,7 +83,7 @@ D_MUTED = (168, 152, 120)
 D_CREAM = (240, 235, 224)
 D_QUOTE = (212, 200, 168)
 
-BOARDROOM = (38, 42, 48)   # cold charcoal slate — the dim boardroom
+FOREST = (44, 61, 46)   # forest green — matches the apprentice slide deck
 
 if __name__ == '__main__':
     folder = '/Users/tcs16/Desktop/Personal/Projects/metaphysics-git/public/slides/11-apprentice'
@@ -96,8 +97,8 @@ if __name__ == '__main__':
         gold=GOLD, muted=MUTED, dark=DARK, quote_col=QUOTE,
         title_top=371, divider_y=788, quote_top=845)
 
-    make_cover(f'{folder}/essay11_cover_rollover.png', BOARDROOM, header2, title, quote,
+    make_cover(f'{folder}/essay11_cover_rollover.png', FOREST, header2, title, quote,
         gold=D_GOLD, muted=D_MUTED, dark=None, cream=D_CREAM, quote_col=D_QUOTE,
         title_top=352, divider_y=750, quote_top=807,
-        footer=['One of 11 essays · All available now at', 'metaphysics.up.railway.app'],
+        footer=['metaphysics.up.railway.app'],
         footer_col=D_GOLD)
