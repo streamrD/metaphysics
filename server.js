@@ -56,19 +56,24 @@ function buildRss() {
     .sort((a, b) => (b.isoDate || '').localeCompare(a.isoDate || ''))
     .map(e => {
       const link = `${SITE_URL}/essays/${e.folder}`;
-      const pubDate = e.isoDate ? new Date(`${e.isoDate}T00:00:00Z`).toUTCString() : '';
+      const pubDate = e.isoDate ? new Date(`${e.isoDate}T12:00:00Z`).toUTCString() : '';
+      const image = e.rssCard ? `${SITE_URL}${e.rssCard}` : '';
+      const media = image
+        ? `\n      <media:content url="${escapeXml(image)}" medium="image" type="image/png" width="1200" height="630" />` +
+          `\n      <media:thumbnail url="${escapeXml(image)}" width="1200" height="630" />`
+        : '';
       return `    <item>
       <title>${escapeXml(e.title)}</title>
       <link>${escapeXml(link)}</link>
       <guid isPermaLink="true">${escapeXml(link)}</guid>${pubDate ? `\n      <pubDate>${pubDate}</pubDate>` : ''}
-      <description>${escapeXml(e.quote || '')}</description>
+      <description>${escapeXml(e.quote || '')}</description>${media}
     </item>`;
     })
     .join('\n');
 
   const lastBuildDate = new Date().toUTCString();
   return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>A Collection of Metaphysical Essays</title>
     <link>${SITE_URL}</link>

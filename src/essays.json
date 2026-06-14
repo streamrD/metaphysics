@@ -6,6 +6,7 @@
     "folder": "1-unity", "filePrefix": "essay1_slide_", "slideCount": 12,
     "indexGray": "/slides/1-unity/essay1_slide_01_gray.png",
     "indexRollover": "/slides/1-unity/essay01_cover_rollover.png",
+    "rssCard": "/slides/1-unity/essay01_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vQiMJtRSbNP8ysO9dU08BtATbyvmhcKqZgyVmr3XIH8LBOZ6U4C7Xdze3uPPcIOYGSYiz5xKgbNlH6M/pub"
   },
   {
@@ -15,6 +16,7 @@
     "folder": "2-free", "filePrefix": "essay2_slide_", "slideCount": 11,
     "indexGray": "/slides/2-free/essay2_slide_01_gray.png",
     "indexRollover": "/slides/2-free/essay02_cover_rollover.png",
+    "rssCard": "/slides/2-free/essay02_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vREEmvp19Y47YXwhTQYlcRolh1Jjvf5BicROwt8s3enEc7N04YSKY3Z7JM0ALG9uZI7WLpkStU9kDS5/pub"
   },
   {
@@ -24,6 +26,7 @@
     "folder": "3-create", "filePrefix": "essay3_slide_", "slideCount": 12,
     "indexGray": "/slides/3-create/essay3_slide_01_gray.png",
     "indexRollover": "/slides/3-create/essay03_cover_rollover.png",
+    "rssCard": "/slides/3-create/essay03_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vRGVJR2isARAi9HdzfI7vF1qWGFExtFtQnBjkX81246n1nw7UlC9Gjj2eCHEltTLpSqzc8juNoG0KRI/pub"
   },
   {
@@ -33,6 +36,7 @@
     "folder": "4-service", "filePrefix": "essay4_slide_", "slideCount": 14,
     "indexGray": "/slides/4-service/essay4_slide_01_gray.png",
     "indexRollover": "/slides/4-service/essay04_cover_rollover.png",
+    "rssCard": "/slides/4-service/essay04_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vR4Rgbrakrd2AeWJ0-c4gXQvWVZ4VDdtlubpH22KejQwqAH5VbA_Jw_R6LnnIkwlYRkKW-2maHAM_pN/pub"
   },
   {
@@ -42,6 +46,7 @@
     "folder": "5-supervillain", "filePrefix": "essay5_slide_", "slideCount": 9,
     "indexGray": "/slides/5-supervillain/essay5_slide_01_gray.png",
     "indexRollover": "/slides/5-supervillain/essay05_cover_rollover.png",
+    "rssCard": "/slides/5-supervillain/essay05_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vSTxKV3FBIwFol0fNiF_taah6LZdKwnasTxUdYvSk_i_tDsApFzeRNbGfHLQtdXHjTgo-FbZmUqOZFk/pub"
   },
   {
@@ -51,6 +56,7 @@
     "folder": "6-id", "filePrefix": "essay6_slide_", "slideCount": 10,
     "indexGray": "/slides/6-id/essay6_slide_01_gray.png",
     "indexRollover": "/slides/6-id/essay06_cover_rollover.png",
+    "rssCard": "/slides/6-id/essay06_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vRlvNG-eehvpayBkE-nFsLBXkdkRyiGohNmKAZyiejdvEvK1LcaORAOUAP1qWElMcICK429OJq984Yv/pub"
   },
   {
@@ -60,6 +66,7 @@
     "folder": "7-paths", "filePrefix": "essay7_slide_", "slideCount": 13,
     "indexGray": "/slides/7-paths/essay7_slide_01_gray.png",
     "indexRollover": "/slides/7-paths/essay07_cover_rollover.png",
+    "rssCard": "/slides/7-paths/essay07_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vTi97lIgFOd3hebtucPg433eolUmICKcIn3ttARGv7qkmZLtZnh4DRaw7W9zkWPv6xIGHjdAC9dmVWN/pub"
   },
   {
@@ -69,6 +76,7 @@
     "folder": "8-rocks", "filePrefix": "essay8_slide_", "slideCount": 11,
     "indexGray": "/slides/8-rocks/essay8_slide_01_gray.png",
     "indexRollover": "/slides/8-rocks/essay08_cover_rollover.png",
+    "rssCard": "/slides/8-rocks/essay08_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vQCf10pOoWOI4byYUaxte7c49wz_Av-ASpT74RHmpEFD-6puSuspNqD4re1VxbVjxPFfTUILtN4dp8J/pub"
   },
   {
@@ -78,6 +86,7 @@
     "folder": "9-narcissism", "filePrefix": "essay9_slide_", "slideCount": 11,
     "indexGray": "/slides/9-narcissism/essay9_slide_01_gray.png",
     "indexRollover": "/slides/9-narcissism/essay09_cover_rollover.png",
+    "rssCard": "/slides/9-narcissism/essay09_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vSPRE5CKmoMgAsQIgZMfpZSEbL8OEalMwM9BbaARsYzvnpKTRw5ttrTcwU_W2cyFm6g1QcDuXW8zPgq/pub"
   },
   {
@@ -87,6 +96,7 @@
     "folder": "10-curriculum", "filePrefix": "essay10_slide_", "slideCount": 11,
     "indexGray": "/slides/10-curriculum/essay10_slide_01_gray.png",
     "indexRollover": "/slides/10-curriculum/essay10_cover_rollover.png",
+    "rssCard": "/slides/10-curriculum/essay10_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vQazMi8MI2WvlZWVOaaD0oUsa0JffoyrGWCv7ubGbCKWh-FtkIMf4D5ZknmYqz1uznLw_6NL4GdSy9N/pub"
   },
   {
@@ -96,6 +106,7 @@
     "folder": "11-apprentice", "filePrefix": "essay11_slide_", "slideCount": 7,
     "indexGray": "/slides/11-apprentice/essay11_slide_01_gray.png",
     "indexRollover": "/slides/11-apprentice/essay11_cover_rollover.png",
+    "rssCard": "/slides/11-apprentice/essay11_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vQzD_cIS25kxCHZLRVibdc9LymrJwlPkUDWGFmrUEf39q8cVpqM8zoVPYYqdVToZsP9wWb9Q6zJZsV_/pub"
   }
 ]
