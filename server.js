@@ -25,15 +25,17 @@ function essayHtml(essay) {
   let html = indexHtml;
   const title = `${essay.title} — Metaphysical Essays`;
   const description = essay.quote || '';
-  const image = `${SITE_URL}${essay.indexRollover}`;
+  // Landscape title/subtitle card — the universally safe 1.91:1 ratio that
+  // unfurls uncropped everywhere (iMessage, Twitter, Slack, Feedly, ...)
+  const image = `${SITE_URL}${essay.rssCard || essay.indexRollover}`;
   html = html.replace(/<title>[^<]*<\/title>/, `<title>${escapeAttr(title)}</title>`);
   html = setMeta(html, 'property', 'og:type', 'article');
   html = setMeta(html, 'property', 'og:title', essay.title);
   html = setMeta(html, 'property', 'og:description', description);
   html = setMeta(html, 'property', 'og:url', `${SITE_URL}/essays/${essay.folder}`);
   html = setMeta(html, 'property', 'og:image', image);
-  html = setMeta(html, 'property', 'og:image:width', '1080');
-  html = setMeta(html, 'property', 'og:image:height', '1080');
+  html = setMeta(html, 'property', 'og:image:width', '1200');
+  html = setMeta(html, 'property', 'og:image:height', '630');
   html = setMeta(html, 'property', 'og:image:alt', title);
   html = setMeta(html, 'name', 'twitter:title', essay.title);
   html = setMeta(html, 'name', 'twitter:description', description);
