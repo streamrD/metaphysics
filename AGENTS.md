@@ -21,8 +21,9 @@ metaphysics/
 ├── public/
 │   ├── essay-content/   ← Generated Google Docs snapshots (gitignored; created by scripts/fetch-essays.mjs)
 │   └── slides/          ← Slide images served statically
-│       ├── 1-unity/          essay1_slide_01.png…12 + essay1_slide_01_gray.png + essay01_cover_rollover.png
-│       ├── 2-free/           essay2_slide_01.png…11 + _gray + rollover
+│       │                  (each folder: essay[n]_slide_01…NN.png + _slide_01_gray.png + _cover_rollover.png + _rss_card.png)
+│       ├── 1-unity/          …12 slides
+│       ├── 2-free/           …11 slides
 │       ├── 3-create/         …12 slides
 │       ├── 4-service/        …14 slides
 │       ├── 5-supervillain/   …9 slides
@@ -31,12 +32,14 @@ metaphysics/
 │       ├── 8-rocks/          …11 slides
 │       ├── 9-narcissism/     …11 slides
 │       ├── 10-curriculum/    …11 slides
-│       └── 11-apprentice/    cover thumbnails only (no slide deck yet)
+│       └── 11-apprentice/    …7 slides (dark-brown deck, recoloured to match Unity)
 ├── scripts/
-│   ├── fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
-│   └── gen_cover.py     ← Generates cover thumbnails
+│   ├── fetch-essays.mjs   ← Snapshots published Google Docs into public/essay-content/
+│   ├── gen_cover.py       ← Generates cover thumbnails (index gray + rollover)
+│   ├── gen_rss_cards.py   ← Generates 1200×630 RSS/OG cards (title + subtitle on the deck colour)
+│   └── recolor_deck.py    ← Lossless background recolour for a deck's PNGs (alpha-unmix → recomposite)
 ├── source-material/     ← Drafts and source assets, not used by the app (intro deck variants, .docx source, alternate essay-10 deck)
-├── server.js            ← Express production server (serves dist/ + injects per-essay OG meta on /essays/:folder)
+├── server.js            ← Express production server (serves dist/ + /rss.xml feed + injects per-essay OG meta on /essays/:folder)
 ├── vite.config.ts       ← Vite config
 ├── index.html           ← HTML entry point (html/body/#root all width:100%, 18px base font)
 ├── package.json
@@ -56,15 +59,24 @@ All essays are defined in `src/essays.json` (imported by `App.tsx` as the `ESSAY
 - `folder` — matches the `public/slides/` subdirectory name
 - `filePrefix` — e.g. `essay1_slide_` (files zero-padded: `essay1_slide_01.png`)
 - `slideCount` — total number of slides
+- `date` — human display date (e.g. `"June 2026"`); `isoDate` — machine date (`YYYY-MM-DD`) for the RSS `pubDate`
+- `quote` — tagline; used as the OG/feed description and rendered on the RSS card
 - `indexGray` — default index thumbnail (cool gray `#EFEFED`)
 - `indexRollover` — hover index thumbnail (named `essay[xx]_cover_rollover.png`)
+- `rssCard` — 1200×630 landscape card (`essay[xx]_rss_card.png`); used for the RSS feed thumbnail **and** OG/Twitter images
 - `docUrl` — Google Docs published URL for essay text
 
 ### Essay text pipeline
 Essay text lives in published Google Docs (the `docUrl` field) but is **snapshotted at build time**, not fetched at runtime. `scripts/fetch-essays.mjs` downloads each doc's HTML into `public/essay-content/<folder>.html`; the client fetches that static file and parses it with `extractTextFromDocHtml`. The script runs automatically via `prebuild` (every build/deploy) and `predev` (only fetches missing files). **After editing an essay in Google Docs, run `npm run fetch-essays` locally to refresh, or just redeploy — Railway re-snapshots on every build.**
 
 ### Social sharing (OG tags)
-`server.js` intercepts `/essays/:folder` and injects per-essay OpenGraph/Twitter meta (title, quote as description, cover rollover as image) into `dist/index.html`. The homepage keeps the site-wide tags from `index.html`.
+`server.js` intercepts `/essays/:folder` and injects per-essay OpenGraph/Twitter meta (title, quote as description, **the 1200×630 `rssCard` as the image**) into `dist/index.html`. The landscape card is the universally safe 1.91:1 ratio that unfurls uncropped everywhere (iMessage, X, Slack, Feedly). The homepage keeps the site-wide tags from `index.html` (including `og-image.jpg`).
+
+### RSS feed
+`server.js` serves an RSS 2.0 feed at `/rss.xml`, generated from `essays.json` (newest first by `isoDate`, `pubDate` stamped at noon UTC). Each item carries the `quote` as its description and the `rssCard` via Media RSS (`media:content`/`media:thumbnail`). `index.html` advertises it with a `<link rel="alternate" type="application/rss+xml">` autodiscovery tag. Feed readers cache aggressively — test changes in a fresh reader (Feedly reuses cached visuals).
+
+### Slide / card image generation (Python)
+The cover, card, and recolour scripts use **Pillow + numpy** in a gitignored `.venv/` (run them as `.venv/bin/python scripts/<name>.py`). `gen_cover.py` makes the index gray + rollover thumbnails; `gen_rss_cards.py` makes the landscape RSS/OG cards (sampling each deck's bg colour from its rollover); `recolor_deck.py` repaints a deck's flat background to a new colour losslessly. The 11 content slide decks themselves are produced by an external pipeline (not in this repo) — recolour or edit the existing PNGs rather than expecting to regenerate them here.
 
 ### Custom text formatting tags
 The Google Docs source uses custom markup:
@@ -117,16 +129,16 @@ npm run lint          # TypeScript check (tsc --noEmit)
 
 ## Publishing workflow
 
-All work happens in the local repo at `~/Desktop/Personal/Writing/metaphysics-git/`.
+All work happens in the local repo at `~/Desktop/Personal/Projects/metaphysics-git/`.
 
 ```bash
-cd ~/Desktop/Personal/Writing/metaphysics-git
+cd ~/Desktop/Personal/Projects/metaphysics-git
 git add .
 git commit -m "Description of changes"
 git push origin main
 ```
 
-**Note:** AI agents cannot push to GitHub directly (no credentials). The agent outputs files → you download and replace locally → you push.
+**Note:** git is configured locally, so an agent can commit and push to `main` directly (remote `origin` → `github.com/streamrD/metaphysics`). Confirm with the user before pushing, since every push deploys to production.
 
 Railway **auto-deploys on every push to `main`**. Monitor at railway.app → your project → Deployments tab. Build takes ~1-2 minutes.
 
