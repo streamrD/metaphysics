@@ -83,7 +83,7 @@ D_MUTED = (168, 152, 120)
 D_CREAM = (240, 235, 224)
 D_QUOTE = (212, 200, 168)
 
-FOREST = (44, 61, 46)   # forest green — matches the apprentice slide deck
+APPRENTICE_BG = (42, 34, 24)   # dark brown — matches the Unity deck
 
 if __name__ == '__main__':
     folder = '/Users/tcs16/Desktop/Personal/Projects/metaphysics-git/public/slides/11-apprentice'
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         gold=GOLD, muted=MUTED, dark=DARK, quote_col=QUOTE,
         title_top=371, divider_y=788, quote_top=845)
 
-    make_cover(f'{folder}/essay11_cover_rollover.png', FOREST, header2, title, quote,
+    make_cover(f'{folder}/essay11_cover_rollover.png', APPRENTICE_BG, header2, title, quote,
         gold=D_GOLD, muted=D_MUTED, dark=None, cream=D_CREAM, quote_col=D_QUOTE,
         title_top=352, divider_y=750, quote_top=807,
         footer=['metaphysics.up.railway.app'],
