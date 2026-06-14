@@ -46,6 +46,46 @@ app.get('/essays/:folder', (req, res) => {
   res.send(essay ? essayHtml(essay) : indexHtml);
 });
 
+const escapeXml = (s) =>
+  String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// RSS 2.0 feed so the essays can be syndicated to feed readers.
+// Built from src/essays.json; uses each essay's quote as the item summary.
+function buildRss() {
+  const items = [...essays]
+    .sort((a, b) => (b.isoDate || '').localeCompare(a.isoDate || ''))
+    .map(e => {
+      const link = `${SITE_URL}/essays/${e.folder}`;
+      const pubDate = e.isoDate ? new Date(`${e.isoDate}T00:00:00Z`).toUTCString() : '';
+      return `    <item>
+      <title>${escapeXml(e.title)}</title>
+      <link>${escapeXml(link)}</link>
+      <guid isPermaLink="true">${escapeXml(link)}</guid>${pubDate ? `\n      <pubDate>${pubDate}</pubDate>` : ''}
+      <description>${escapeXml(e.quote || '')}</description>
+    </item>`;
+    })
+    .join('\n');
+
+  const lastBuildDate = new Date().toUTCString();
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>A Collection of Metaphysical Essays</title>
+    <link>${SITE_URL}</link>
+    <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />
+    <description>No one arrives here with a manual. These essays are an attempt to write the one I wish I'd had.</description>
+    <language>en-us</language>
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>
+${items}
+  </channel>
+</rss>
+`;
+}
+
+app.get('/rss.xml', (req, res) => {
+  res.type('application/rss+xml').send(buildRss());
+});
+
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
