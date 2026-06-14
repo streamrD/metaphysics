@@ -30,6 +30,14 @@ CREAM = (240, 235, 224)   # title
 TAN   = (212, 200, 168)   # subtitle / quote
 GOLD  = (200, 168, 74)    # divider
 
+# Inset frame in a darker shade of the deck colour
+BORDER = 32               # frame thickness in px
+BORDER_DARKEN = 0.6       # multiply the bg toward black (not all the way)
+
+
+def darken(rgb, factor):
+    return tuple(int(c * factor) for c in rgb)
+
 
 def sample_bg(img_path):
     im = Image.open(img_path).convert('RGB')
@@ -80,9 +88,11 @@ def draw_centered(draw, lines, font, y, fill, leading):
     return y
 
 
-def make_card(out, bg, title, quote):
-    img = Image.new('RGB', (W, H), bg)
+def make_card(out, bg, title, quote, border=BORDER):
+    # Darker inset frame: fill with the darkened shade, then the main field
+    img = Image.new('RGB', (W, H), darken(bg, BORDER_DARKEN))
     d = ImageDraw.Draw(img)
+    d.rectangle([border, border, W - 1 - border, H - 1 - border], fill=bg)
 
     f_title, title_lines = fit(d, title, REG, False, MAXW, 92, 56, 3)
     f_quote, quote_lines = fit(d, quote, ITAL, True, MAXW, 40, 28, 3)
