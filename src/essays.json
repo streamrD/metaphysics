@@ -113,7 +113,7 @@
     "id": "11", "num": "12", "date": "June 2026", "isoDate": "2026-06-01",
     "title": "Passengers",
     "quote": "This is what happens to rugged individualism after the frontier has closed.",
-    "folder": "12-passengers", "filePrefix": "essay12_slide_", "slideCount": 0,
+    "folder": "12-passengers", "filePrefix": "essay12_slide_", "slideCount": 8,
     "indexGray": "/slides/12-passengers/essay12_slide_01_gray.png",
     "indexRollover": "/slides/12-passengers/essay12_cover_rollover.png",
     "rssCard": "/slides/12-passengers/essay12_rss_card.png",

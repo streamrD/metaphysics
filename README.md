@@ -44,7 +44,7 @@ metaphysics/
 │       ├── 9-narcissism/ … (11 slides)
 │       ├── 10-curriculum/ … (11 slides)
 │       ├── 11-apprentice/ … (7 slides)
-│       └── 12-passengers/ … (cover thumbnails only — no slide deck yet; `slideCount: 0` hides the View Slides button)
+│       └── 12-passengers/ … (8 slides)
 ├── server.js            ← Express production server (static dist/ + per-essay OG meta injection)
 ├── vite.config.ts       ← Vite config
 ├── scripts/fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
