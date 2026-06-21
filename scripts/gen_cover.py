@@ -84,7 +84,7 @@ D_CREAM = (240, 235, 224)
 D_QUOTE = (212, 200, 168)
 
 APPRENTICE_BG = (42, 34, 24)   # dark brown — matches the Unity deck
-PASSENGERS_BG = (140, 58, 26)  # rust — same as essay 3's deck/hover slide
+PASSENGERS_BG = (31, 38, 43)   # deep slate blue-black (#1F262B)
 
 
 def gen_apprentice():

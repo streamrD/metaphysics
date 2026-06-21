@@ -33,7 +33,7 @@ metaphysics/
 │       ├── 9-narcissism/     …11 slides
 │       ├── 10-curriculum/    …11 slides
 │       ├── 11-apprentice/    …7 slides (dark-brown deck, recoloured to match Unity)
-│       └── 12-passengers/    …no deck yet (slideCount 0 → covers + RSS card only; rust hover, like essay 3)
+│       └── 12-passengers/    …no deck yet (slideCount 0 → covers + RSS card only; deep slate blue-black hover)
 ├── scripts/
 │   ├── fetch-essays.mjs   ← Snapshots published Google Docs into public/essay-content/
 │   ├── gen_cover.py       ← Generates cover thumbnails (index gray + rollover)
