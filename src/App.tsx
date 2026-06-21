@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, BookOpen, Layers } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, BookOpen, Layers } from 'lucide-react';
 import essaysData from './essays.json';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -47,11 +47,29 @@ function formatEssayContent(text: string): React.ReactNode[] {
   const renderInline = (line: string): React.ReactNode[] => {
     const out: React.ReactNode[] = [];
     let k = 0;
-    line.split(/(\[em\]|\[\/em\])/g).forEach(part => {
+    const pushText = (part: string) => {
       if (part === '[em]') { inEm = true; return; }
       if (part === '[/em]') { inEm = false; return; }
       if (!part) return;
       out.push(inEm ? <em key={k++}>{part}</em> : <span key={k++}>{part}</span>);
+    };
+    // Split out [link:url]text[/link] tokens, then handle [em] within the rest
+    line.split(/(\[link:[^\]]*\][\s\S]*?\[\/link\])/g).forEach(chunk => {
+      const link = chunk.match(/^\[link:([^\]]*)\]([\s\S]*?)\[\/link\]$/);
+      if (link) {
+        const href = link[1];
+        const external = /^https?:\/\//.test(href) && !href.startsWith('https://metaphysics.up.railway.app');
+        out.push(
+          <a key={k++} href={href}
+            {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+            className="font-medium text-zen-link underline decoration-1 decoration-zen-link/35 underline-offset-[3px] hover:text-zen-link-hover hover:decoration-zen-link-hover transition-colors">
+            {inEm ? <em>{link[2]}</em> : link[2]}
+            {external && <ArrowUpRight size={15} strokeWidth={2} className="inline-block ml-px -translate-y-[1px]" />}
+          </a>
+        );
+        return;
+      }
+      chunk.split(/(\[em\]|\[\/em\])/g).forEach(pushText);
     });
     return out;
   };
@@ -99,6 +117,38 @@ function formatEssayContent(text: string): React.ReactNode[] {
   return nodes;
 }
 
+// Google Docs wraps every link in a redirect: google.com/url?q=<real-url>&...
+function unwrapDocUrl(href: string): string {
+  try {
+    const u = new URL(href);
+    if (u.hostname.endsWith('google.com') && u.pathname === '/url') {
+      return u.searchParams.get('q') || href;
+    }
+  } catch { /* relative or malformed URL — leave as-is */ }
+  return href;
+}
+
+// Serialize a block element's inline content to text, converting hyperlinks
+// into [link:url]text[/link] tokens that formatEssayContent renders as <a>.
+function serializeInline(el: Node): string {
+  let out = '';
+  el.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      out += node.textContent ?? '';
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const child = node as Element;
+      if (child.tagName === 'A') {
+        const href = unwrapDocUrl(child.getAttribute('href') || '');
+        const txt = child.textContent ?? '';
+        out += href && txt.trim() ? `[link:${href}]${txt}[/link]` : txt;
+      } else {
+        out += serializeInline(child);
+      }
+    }
+  });
+  return out;
+}
+
 function extractTextFromDocHtml(html: string): string {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
@@ -106,7 +156,7 @@ function extractTextFromDocHtml(html: string): string {
   if (!content) return '';
   const blocks: string[] = [];
   content.querySelectorAll('p, h1, h2, h3, h4, h5, li').forEach(el => {
-    const text = el.textContent?.trim();
+    const text = serializeInline(el).trim();
     if (!text) return;
     const tag = el.tagName.toLowerCase();
     // Prefix list items and headings so the formatter can render them

@@ -84,8 +84,10 @@ D_CREAM = (240, 235, 224)
 D_QUOTE = (212, 200, 168)
 
 APPRENTICE_BG = (42, 34, 24)   # dark brown — matches the Unity deck
+PASSENGERS_BG = (140, 58, 26)  # rust — same as essay 3's deck/hover slide
 
-if __name__ == '__main__':
+
+def gen_apprentice():
     folder = '/Users/tcs16/Desktop/Personal/Projects/metaphysics-git/public/slides/11-apprentice'
     import os; os.makedirs(folder, exist_ok=True)
 
@@ -102,3 +104,28 @@ if __name__ == '__main__':
         title_top=352, divider_y=750, quote_top=807,
         footer=['metaphysics.up.railway.app'],
         footer_col=D_GOLD)
+
+
+def gen_passengers():
+    folder = '/Users/tcs16/Desktop/Personal/Projects/metaphysics-git/public/slides/12-passengers'
+    import os; os.makedirs(folder, exist_ok=True)
+
+    # Single-line title sits lower; divider/quote raised to balance the whitespace.
+    title = [('Passengers', False)]
+    quote = ['This is what happens to rugged individualism',
+             'after the frontier has closed.']
+    header2 = 'ESSAY 12 · PASSENGERS'
+
+    make_cover(f'{folder}/essay12_slide_01_gray.png', GRAY, header2, title, quote,
+        gold=GOLD, muted=MUTED, dark=DARK, quote_col=QUOTE,
+        title_top=440, divider_y=740, quote_top=797)
+
+    make_cover(f'{folder}/essay12_cover_rollover.png', PASSENGERS_BG, header2, title, quote,
+        gold=D_GOLD, muted=D_MUTED, dark=None, cream=D_CREAM, quote_col=D_QUOTE,
+        title_top=421, divider_y=702, quote_top=759,
+        footer=['metaphysics.up.railway.app'],
+        footer_col=D_GOLD)
+
+
+if __name__ == '__main__':
+    gen_passengers()

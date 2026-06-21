@@ -108,5 +108,15 @@
     "indexRollover": "/slides/11-apprentice/essay11_cover_rollover.png",
     "rssCard": "/slides/11-apprentice/essay11_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vQzD_cIS25kxCHZLRVibdc9LymrJwlPkUDWGFmrUEf39q8cVpqM8zoVPYYqdVToZsP9wWb9Q6zJZsV_/pub"
+  },
+  {
+    "id": "11", "num": "12", "date": "June 2026", "isoDate": "2026-06-01",
+    "title": "Passengers",
+    "quote": "This is what happens to rugged individualism after the frontier has closed.",
+    "folder": "12-passengers", "filePrefix": "essay12_slide_", "slideCount": 0,
+    "indexGray": "/slides/12-passengers/essay12_slide_01_gray.png",
+    "indexRollover": "/slides/12-passengers/essay12_cover_rollover.png",
+    "rssCard": "/slides/12-passengers/essay12_rss_card.png",
+    "docUrl": "https://docs.google.com/document/d/e/2PACX-1vR9aflGAn0q-2LguzJn9jBDHTR-2ap3-e1E6bRN1c5eXUQ-XTTXaAWJhBQDaBiDCnmAXfcQpm0q6kOW/pub"
   }
 ]

@@ -6,7 +6,7 @@ This file gives a new AI agent enough context to begin work on this project. Rea
 
 ## What this is
 
-A React/TypeScript/Vite single-page app that presents a collection of 11 metaphysical essays by Todd Stabley. Deployed on Railway at `metaphysics.up.railway.app`.
+A React/TypeScript/Vite single-page app that presents a collection of 12 metaphysical essays by Todd Stabley. Deployed on Railway at `metaphysics.up.railway.app`.
 
 ---
 
@@ -32,7 +32,8 @@ metaphysics/
 │       ├── 8-rocks/          …11 slides
 │       ├── 9-narcissism/     …11 slides
 │       ├── 10-curriculum/    …11 slides
-│       └── 11-apprentice/    …7 slides (dark-brown deck, recoloured to match Unity)
+│       ├── 11-apprentice/    …7 slides (dark-brown deck, recoloured to match Unity)
+│       └── 12-passengers/    …no deck yet (slideCount 0 → covers + RSS card only; rust hover, like essay 3)
 ├── scripts/
 │   ├── fetch-essays.mjs   ← Snapshots published Google Docs into public/essay-content/
 │   ├── gen_cover.py       ← Generates cover thumbnails (index gray + rollover)

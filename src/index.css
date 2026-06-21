@@ -8,6 +8,8 @@
   --color-zen-bg: #faf9f6;
   --color-zen-text: #2d2a2e;
   --color-zen-accent: #8e8d8a;
+  --color-zen-link: #9a7616;        /* burnished gold — echoes the cover accent */
+  --color-zen-link-hover: #6f540f;
 }
 
 @layer base {

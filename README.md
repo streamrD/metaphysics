@@ -1,6 +1,6 @@
 # Metaphysical Essays — README
 
-A collection of 11 metaphysical essays by Todd Stabley. Built as a React single-page application with a Zen-minimalist aesthetic, deployed on Railway.
+A collection of 12 metaphysical essays by Todd Stabley. Built as a React single-page application with a Zen-minimalist aesthetic, deployed on Railway.
 
 **Live site:** `metaphysics.up.railway.app`  
 **Repo:** `https://github.com/streamrD/metaphysics`
@@ -43,7 +43,8 @@ metaphysics/
 │       ├── 8-rocks/      … (11 slides)
 │       ├── 9-narcissism/ … (11 slides)
 │       ├── 10-curriculum/ … (11 slides)
-│       └── 11-apprentice/ … (cover thumbnails only — no slide deck yet; `slideCount: 0` hides the View Slides button)
+│       ├── 11-apprentice/ … (7 slides)
+│       └── 12-passengers/ … (cover thumbnails only — no slide deck yet; `slideCount: 0` hides the View Slides button)
 ├── server.js            ← Express production server (static dist/ + per-essay OG meta injection)
 ├── vite.config.ts       ← Vite config
 ├── scripts/fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
@@ -112,7 +113,23 @@ To refresh content after editing a doc: `npm run fetch-essays` locally, or simpl
 
 ### Parsing
 
-`extractTextFromDocHtml(html)` uses `DOMParser` to query `p, h1–h5, li` from `#contents`. List items get a `[li]` prefix. Returns newline-joined string.
+`extractTextFromDocHtml(html)` uses `DOMParser` to query `p, h1–h5, li` from `#contents`. List items get a `[li]` prefix. Each block is serialized inline (`serializeInline`) rather than flattened with `.textContent`, so hyperlinks survive (see below). Returns a newline-joined string.
+
+### Links
+
+Hyperlinks in any essay's Google Doc render automatically as styled links — **no code changes needed to add links to a new essay.** Just create the link in the Doc and refresh the snapshot (`npm run fetch-essays`, or redeploy — Railway re-snapshots every build). Until you re-fetch, the old snapshot (without the new links) is what shows.
+
+Behavior, all automatic:
+
+- **Google's redirect wrapper is unwrapped.** Docs rewrites every link to `google.com/url?q=<real-url>&…`; `unwrapDocUrl()` recovers the real destination, so you just link normally in the Doc.
+- **Internal vs external is auto-detected.** Links to `https://metaphysics.up.railway.app/...` render gold with no arrow and open in the same tab; everything else gets a `↗` arrow and opens in a new tab (`rel="noreferrer"`).
+- **Whitespace-only anchors** and Google's own page chrome (`/abuse`, `support.google.com`) are dropped.
+
+Gotchas:
+
+- **Internal cross-links do a full page reload** (real `<a href>` navigation → server serves the SPA → client opens the essay by pathname), not instant client-side routing. It lands on the right essay; it just isn't a snappy in-app transition.
+- **The internal-link match is an exact prefix** on `https://metaphysics.up.railway.app`. An `http://`, a `www.`, or a Railway preview domain will be treated as external (new tab + arrow). Use the canonical https URL for self-cross-links, e.g. `https://metaphysics.up.railway.app/essays/<folder>`.
+- **Avoid a literal `]` in a URL.** The internal `[link:url]text[/link]` token (emitted by `serializeInline`, rendered by `renderInline` inside `formatEssayContent`) stops at the first `]`, so such a URL would break that one link. Extremely rare; easy to harden if it ever comes up.
 
 ### Formatting tags in Google Docs source
 
