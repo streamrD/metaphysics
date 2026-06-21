@@ -38,7 +38,8 @@ metaphysics/
 │   ├── fetch-essays.mjs   ← Snapshots published Google Docs into public/essay-content/
 │   ├── gen_cover.py       ← Generates cover thumbnails (index gray + rollover)
 │   ├── gen_rss_cards.py   ← Generates 1200×630 RSS/OG cards (title + subtitle on the deck colour)
-│   └── recolor_deck.py    ← Lossless background recolour for a deck's PNGs (alpha-unmix → recomposite)
+│   ├── recolor_deck.py    ← Lossless background recolour for a deck's PNGs (alpha-unmix → recomposite)
+│   └── strip_counter.py   ← Paints out the "01/NN" slide counter from index cover thumbnails (idempotent)
 ├── source-material/     ← Drafts and source assets, not used by the app (intro deck variants, .docx source, alternate essay-10 deck)
 ├── server.js            ← Express production server (serves dist/ + /rss.xml feed + injects per-essay OG meta on /essays/:folder)
 ├── vite.config.ts       ← Vite config
