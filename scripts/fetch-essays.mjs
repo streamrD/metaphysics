@@ -23,8 +23,16 @@ for (const essay of essays) {
     continue;
   }
   try {
-    const res = await fetch(essay.docUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; essay-reader/1.0)' },
+    // Cache-bust: published-doc /pub URLs sit behind a 5-min Google cache and
+    // propagate across edge nodes after an edit. A unique query param + no-cache
+    // header makes each build more likely to pull the freshest version.
+    const sep = essay.docUrl.includes('?') ? '&' : '?';
+    const res = await fetch(`${essay.docUrl}${sep}cb=${Date.now()}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; essay-reader/1.0)',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+      },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
