@@ -165,8 +165,10 @@ and clipped on the 2-column phone grid — that's the bug this exists to prevent
 convert card type back to rem/px. Title buckets (values at the ~330px reference square):
 `8.6cqw ≈ 28px` (≤24 chars), `7cqw ≈ 23px` (25–42), `5.8cqw ≈ 19px` (>42); eyebrow and
 byline `2.8cqw ≈ 9px` Lato letterspaced caps. px fallbacks in `index.css` cover browsers
-without container-query units. The featured square uses the identical `cqw` values — the
-same cover, printed larger, so its type is bigger only in proportion to its square.
+without container-query units. The featured square (~1.3× the grid square at desktop)
+carries a `gallery-card-art--featured` modifier that scales its container units by ~0.77,
+so at desktop widths its type matches the wall's sizes — per creative direction, the
+featured type must equal the grid type, not enlarge with the square.
 Titles in a series should land in the same bucket (all three "First Principles" cards sit
 in the middle bucket; the 24-char threshold was chosen so essay 1 matches its siblings).
 

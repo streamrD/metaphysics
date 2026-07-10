@@ -394,10 +394,10 @@ function titleBucket(title: string): 's' | 'm' | 'l' {
 // The card art — an object from the collection's world, not a UI panel: it
 // keeps its deck's own ground and fixed deck colors in both themes, and its
 // type scales with the square (container units) like an image would.
-function CardArt({ essay }: { essay: Essay }) {
+function CardArt({ essay, featured = false }: { essay: Essay; featured?: boolean }) {
   const { upright, italic } = splitTitle(essay);
   return (
-    <div className="gallery-card-art" style={{ background: essay.ground }}>
+    <div className={`gallery-card-art${featured ? ' gallery-card-art--featured' : ''}`} style={{ background: essay.ground }}>
       <p className="card-eyebrow">
         A Collection of Metaphysical Essays<br />Essay {essay.num}
       </p>
@@ -466,7 +466,7 @@ function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void })
       style={{ maxWidth: '880px', margin: '0 auto 6.5rem' }}
       onClick={onClick}
     >
-      <CardArt essay={essay} />
+      <CardArt essay={essay} featured />
 
       <div className="text-center md:text-left">
         <p style={{
