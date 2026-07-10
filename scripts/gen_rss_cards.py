@@ -6,8 +6,9 @@ the square cover art. These purpose-built 1200x630 cards show just the title
 and subtitle (the essay's tagline quote) on the deck's own background colour,
 so they stay legible at thumbnail size and never get content cropped away.
 
-The background colour is sampled directly from each essay's existing cover
-rollover PNG, so cards always match their deck. Run from the repo root:
+The background colour comes from each essay's `ground` field in
+src/essays.json (the same hex the gallery card uses), so cards always match
+their essay. Run from the repo root:
 
     .venv/bin/python scripts/gen_rss_cards.py            # all essays
     .venv/bin/python scripts/gen_rss_cards.py 11 4       # only these essay nums
@@ -37,13 +38,6 @@ BORDER_DARKEN = 0.6       # multiply the bg toward black (not all the way)
 
 def darken(rgb, factor):
     return tuple(int(c * factor) for c in rgb)
-
-
-def sample_bg(img_path):
-    im = Image.open(img_path).convert('RGB')
-    w, h = im.size
-    corners = [im.getpixel(xy) for xy in [(4, 4), (w - 5, 4), (4, h - 5), (w - 5, h - 5)]]
-    return max(set(corners), key=corners.count)
 
 
 def wrap(draw, text, font, maxw):
@@ -133,9 +127,11 @@ def main():
     for e in essays:
         if only and e['num'] not in only and e['num'].lstrip('0') not in only:
             continue
-        rollover = ROOT / ('public' + e['indexRollover'])
-        bg = sample_bg(rollover)
-        out = rollover.parent / rollover.name.replace('cover_rollover', 'rss_card')
+        g = e['ground'].lstrip('#')
+        bg = tuple(int(g[i:i + 2], 16) for i in (0, 2, 4))
+        out_dir = ROOT / 'public/slides' / e['folder']
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out = out_dir / f"essay{e['num']}_rss_card.png"
         make_card(out, bg, e['title'], e['quote'])
         print(f"wrote {out.relative_to(ROOT)}  bg={bg}")
 

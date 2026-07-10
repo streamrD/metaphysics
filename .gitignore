@@ -11,3 +11,4 @@ coverage/
 
 # Generated essay snapshots (scripts/fetch-essays.mjs)
 public/essay-content/
+__pycache__/

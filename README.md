@@ -36,17 +36,15 @@ metaphysics/
 │   └── index.css        ← Theme tokens (night/day), Tailwind config, Google Fonts
 ├── public/
 │   ├── essay-content/   ← Google Docs snapshots (gitignored; built by fetch-essays)
-│   └── slides/          ← Deck PNG archive, one folder per essay (1-unity … 13-diminished)
-│                          NOT rendered by the app — kept for the 1200×630 RSS/OG cards
-│                          (essay{n}_rss_card.png) and as the online deck archive
+│   └── slides/          ← One folder per essay holding ONLY its 1200×630 RSS/OG card
+│                          (essay{n}_rss_card.png, served by server.js). The app renders
+│                          no images; deck PNGs live in instagram/ and git history.
 ├── instagram/           ← Instagram deck archive (NOT web-served); final slide keeps the CTA
 ├── scripts/
 │   ├── fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
-│   ├── gen_rss_cards.py ← 1200×630 RSS/OG cards (still used — server.js serves these)
+│   ├── gen_rss_cards.py ← 1200×630 RSS/OG cards (colors from essays.json `ground`)
 │   ├── gen_deck13.py    ← Essay 13 deck renderer (online + Instagram variants)
-│   ├── gen_cover.py     ← LEGACY: index thumbnails for the pre-Nocturne design
-│   ├── recolor_deck.py  ← Lossless deck background recolour
-│   └── strip_counter.py ← LEGACY: slide-counter removal for old thumbnails
+│   └── recolor_deck.py  ← Lossless deck background recolour
 ├── server.js            ← Express server (dist/ + /rss.xml + per-essay OG meta on /essays/:folder)
 ├── index.html           ← HTML shell: fonts, OG tags, pre-paint theme script
 ├── source-material/     ← Drafts and source assets (not used by the app)
@@ -163,12 +161,12 @@ interface Essay {
                         // for titles the splitTitle() heuristic breaks badly (see essay 06)
   folder: string;    // public/slides subfolder + URL slug, e.g. '13-diminished'
   docUrl: string;    // Google Docs /pub URL (essay text source)
-  // Legacy deck fields — unused by the app; server.js/scripts still read some:
+  // Legacy deck fields — unused by the app; kept in existing entries only:
   rssCard?: string;      // 1200×630 OG/RSS card — USED by server.js
   slideCount?: number;   // legacy
   filePrefix?: string;   // legacy
-  indexGray?: string;    // legacy (old PNG thumbnail)
-  indexRollover?: string;// legacy (old PNG thumbnail; gen_rss_cards.py samples its color)
+  indexGray?: string;    // legacy (old PNG thumbnail path; files removed from tree)
+  indexRollover?: string;// legacy (old PNG thumbnail path; files removed from tree)
 }
 ```
 
@@ -217,15 +215,15 @@ The app renders **no slide images**. What remains and why:
 
 - **`public/slides/{folder}/essay{n}_rss_card.png`** — 1200×630 landscape cards, served by
   `server.js` as the per-essay OG/Twitter image and in the RSS feed (Media RSS). Still
-  required for every essay. Generate with `.venv/bin/python scripts/gen_rss_cards.py {n}`.
-- **`public/slides/{folder}/*.png` (the decks)** — online-variant archive (final slide has
-  no Instagram CTA). Not referenced by the app.
-- **`instagram/{folder}/`** — the Instagram archive (final slide keeps the CTA); grab decks
-  here when posting. See `instagram/README.md`.
-- Python tooling runs from the gitignored `.venv/` (Pillow + numpy):
-  `gen_rss_cards.py` (current), `gen_deck13.py` (essay 13 deck renderer — adapt for future
-  decks), `recolor_deck.py` (utility), `gen_cover.py` / `strip_counter.py` (legacy, for the
-  retired PNG-thumbnail index; kept for history).
+  required for every essay. Generate with `.venv/bin/python scripts/gen_rss_cards.py {n}`
+  (background color comes from the essay's `ground` field).
+- **`instagram/{folder}/`** — the Instagram deck archive (final slide keeps the CTA); grab
+  decks here when posting. See `instagram/README.md`. The old "online variant" decks and
+  PNG index thumbnails were removed from the working tree in the post-redesign cleanup —
+  recover any of them from git history (pre-cleanup: `762ef44` and earlier).
+- Python tooling runs from the gitignored `.venv/` (Pillow + numpy): `gen_rss_cards.py`
+  (current), `gen_deck13.py` (essay 13 deck renderer — adapt for future decks),
+  `recolor_deck.py` (utility for deck PNGs).
 
 **RSS:** `server.js` serves `/rss.xml` from `essays.json` (newest first by `isoDate`), with
 `quote` as description and the rssCard via `media:content`. `index.html` carries the
@@ -283,12 +281,12 @@ npm start             # production server (requires a prior build)
    `/pub` URL.
 2. Choose a **ground color** for its card (a dark, muted hex in the family of the existing
    wall — see `ground` values in `essays.json`).
-3. Create the **RSS/OG card**: adapt `scripts/gen_rss_cards.py` (it historically sampled the
-   deck rollover PNG for color — pass/hard-code the new ground if there's no deck) →
-   `public/slides/{n}-{slug}/essay{n}_rss_card.png`.
-4. Add the entry to `src/essays.json`: `id`, `num` (next number — this automatically makes
+3. Add the entry to `src/essays.json`: `id`, `num` (next number — this automatically makes
    it the featured essay), `title`, `date`, `isoDate`, `quote` (this is the reading-page
    callout — make it strong), `ground`, `folder` (`{n}-{slug}`), `rssCard`, `docUrl`.
+4. Create the **RSS/OG card**: `.venv/bin/python scripts/gen_rss_cards.py {n}` — it reads
+   the title, quote, and `ground` color from the JSON entry and writes
+   `public/slides/{n}-{slug}/essay{n}_rss_card.png`.
 5. `npm run dev` to verify (fetches the snapshot), then commit and push — Railway deploys.
 6. *(Optional)* If an Instagram deck exists, archive it in `instagram/{n}-{slug}/` and put
    the online variant (no CTA on the final slide) in `public/slides/{n}-{slug}/`.

@@ -23,8 +23,9 @@ These came out of a full design review with the author (creative director). Chan
 requires his sign-off:
 
 1. **No slides/carousel in the app.** The slide decks were Instagram promos; embedding them
-   made it feel like clicking slides = reading the essay. Deck PNGs stay in `public/slides/`
-   only for the 1200×630 RSS/OG cards and as archive. Don't resurrect the carousel.
+   made it feel like clicking slides = reading the essay. `public/slides/` holds ONLY the
+   1200×630 RSS/OG cards; full decks live in `instagram/` and git history. Don't resurrect
+   the carousel.
 2. **Reader-owned ground.** ☼/☾ toggle flips the site between umber `#2A241E` (night,
    default) and cream `#F5F0E3` (day). Persisted in `localStorage('theme')`; first visit
    follows `prefers-color-scheme`; an inline script in `index.html` sets
@@ -100,9 +101,10 @@ git add . && git commit -m "…" && git push origin main
 
 1. Publish the Doc → get the `/pub` URL.
 2. Pick a dark `ground` hex for its card (match the family of existing `ground` values).
-3. Make its 1200×630 `rssCard` PNG (adapt `scripts/gen_rss_cards.py`).
-4. Append to `src/essays.json` (`num` = next number → it becomes the featured essay
+3. Append to `src/essays.json` (`num` = next number → it becomes the featured essay
    automatically; `quote` becomes the reading-page callout).
+4. Make its 1200×630 `rssCard` PNG: `.venv/bin/python scripts/gen_rss_cards.py {n}`
+   (reads title/quote/`ground` from the JSON entry).
 5. `npm run dev` to verify, commit, push.
 
 ---
