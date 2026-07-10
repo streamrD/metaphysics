@@ -16,13 +16,15 @@ interface Essay {
   title: string;
   ground: string;
   folder: string;
-  slideCount: number;
-  filePrefix: string;
   docUrl: string;
-  indexGray: string;
-  indexRollover: string;
   quote?: string;
   date?: string;
+  // Legacy deck fields — unused by the app (server.js/scripts still read some)
+  slideCount?: number;
+  filePrefix?: string;
+  indexGray?: string;
+  indexRollover?: string;
+  rssCard?: string;
 }
 
 // ─── Essay data ───────────────────────────────────────────────────────────────

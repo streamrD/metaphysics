@@ -1,9 +1,14 @@
 # Metaphysical Essays — README
 
-A collection of 13 metaphysical essays by Todd Stabley. Built as a React single-page application with a Zen-minimalist aesthetic, deployed on Railway.
+A collection of 13 metaphysical essays by Todd Stabley, presented as a React single-page
+application in the **"Nocturne"** design: a night-gallery index of typographic cover cards,
+a reader-owned umber/cream ground, and a distraction-free reading page. Deployed on Railway.
 
-**Live site:** `metaphysics.up.railway.app`  
+**Live site:** `metaphysics.up.railway.app`
 **Repo:** `https://github.com/streamrD/metaphysics`
+
+> For a fast handoff (key design decisions, gotchas, workflows), read **AGENTS.md** first.
+> This file is the full architectural reference.
 
 ---
 
@@ -13,11 +18,11 @@ A collection of 13 metaphysical essays by Todd Stabley. Built as a React single-
 |---|---|
 | Framework | React 18 + TypeScript |
 | Build tool | Vite 6 |
-| Styling | Tailwind CSS v4 + inline styles |
+| Styling | Tailwind CSS v4 + CSS custom-property theme tokens + inline styles |
 | Animation | Framer Motion |
 | Icons | Lucide React |
 | Production server | Express |
-| Deployment | Railway |
+| Deployment | Railway (auto-deploys `main`) |
 
 ---
 
@@ -26,114 +31,169 @@ A collection of 13 metaphysical essays by Todd Stabley. Built as a React single-
 ```
 metaphysics/
 ├── src/
-│   ├── App.tsx          ← All application logic (single file)
+│   ├── App.tsx          ← All application logic (single file, intentionally)
 │   ├── essays.json      ← Essay metadata (single source of truth)
-│   └── index.css        ← Global CSS, Tailwind config, Google Fonts
+│   └── index.css        ← Theme tokens (night/day), Tailwind config, Google Fonts
 ├── public/
 │   ├── essay-content/   ← Google Docs snapshots (gitignored; built by fetch-essays)
-│   └── slides/          ← Online carousel decks, one folder per essay (1-unity … 13-diminished)
-│       └── {n}-{slug}/      essay{n}_slide_01…NN.png            (carousel slides)
-│                            essay{n}_slide_01_gray.png          (index thumbnail, default)
-│                            essay{n}_cover_rollover.png         (index thumbnail, hover)
-│                            essay{n}_rss_card.png               (1200×630 RSS/OG card)
+│   └── slides/          ← Deck PNG archive, one folder per essay (1-unity … 13-diminished)
+│                          NOT rendered by the app — kept for the 1200×630 RSS/OG cards
+│                          (essay{n}_rss_card.png) and as the online deck archive
 ├── instagram/           ← Instagram deck archive (NOT web-served); final slide keeps the CTA
 ├── scripts/
 │   ├── fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
-│   ├── gen_cover.py     ← Index gray + rollover thumbnails
+│   ├── gen_rss_cards.py ← 1200×630 RSS/OG cards (still used — server.js serves these)
 │   ├── gen_deck13.py    ← Essay 13 deck renderer (online + Instagram variants)
-│   ├── gen_rss_cards.py ← 1200×630 RSS/OG cards
+│   ├── gen_cover.py     ← LEGACY: index thumbnails for the pre-Nocturne design
 │   ├── recolor_deck.py  ← Lossless deck background recolour
-│   └── strip_counter.py ← Removes the slide counter from index thumbnails
+│   └── strip_counter.py ← LEGACY: slide-counter removal for old thumbnails
 ├── server.js            ← Express server (dist/ + /rss.xml + per-essay OG meta on /essays/:folder)
-├── vite.config.ts       ← Vite config
+├── index.html           ← HTML shell: fonts, OG tags, pre-paint theme script
 ├── source-material/     ← Drafts and source assets (not used by the app)
-├── index.html           ← HTML shell
-├── package.json
-├── railway.toml         ← Railway deployment config
-├── README.md
-└── AGENTS.md            ← Quick-start / handoff context
+├── vite.config.ts / package.json / railway.toml
+├── README.md            ← This file
+└── AGENTS.md            ← Handoff / quick-start context for a fresh agent or chat
 ```
+
+---
+
+## The Nocturne design
+
+The current design (shipped July 2026) replaced the original parchment site. Its
+intentional decisions — do not "fix" these without checking with the author:
+
+1. **No slides in the app.** The carousel and "View Slides" UI were removed deliberately.
+   The slide decks were Instagram promotion for the essays; embedding them risked readers
+   feeling they'd "read" an essay by clicking through slides. Deck PNGs remain on disk only
+   for RSS/OG cards and as an archive.
+2. **The ground follows the reader.** A ☼/☾ toggle flips the whole site between umber
+   (`#2A241E`, night — the default) and cream (`#F5F0E3`, day). Choice persists in
+   `localStorage('theme')`; first visit follows `prefers-color-scheme`; an inline script in
+   `index.html` sets `data-theme` on `<html>` **before first paint** to avoid flash.
+3. **Index = gallery wall.** Cover cards are live HTML/CSS (no PNG thumbnails), each on its
+   deck's own ground color. Cards keep fixed deck colors (gold `#C9A227`, ivory `#EDE7D6`)
+   in **both** themes — they are objects from the collection's world, not UI panels.
+4. **Newest essay is featured** above the grid (square + title/date/quote) and excluded
+   from the grid below; it cycles down automatically when a newer essay ships.
+5. **Grid runs 01 → N** (a numbered contents page, not a feed).
+6. **The callout quote stands alone.** Each essay opens with its `quote` under a small
+   diamond rule — no label, no box, no quotation marks. `text-wrap: balance` prevents
+   orphan words.
+7. **One gold per theme:** night `#C9A227`, day `#9C7A28` — via the `--gold` token only.
+
+### Theme token system (`src/index.css`)
+
+Tokens are CSS custom properties on `:root` (night values) overridden by
+`:root[data-theme='day']`. Tailwind v4 `@theme` colors alias these vars
+(e.g. `--color-zen-bg: var(--ground)`), so utilities like `bg-zen-bg` and opacity
+modifiers like `text-zen-text/85` re-theme live when `data-theme` flips.
+
+| Token | Night (default) | Day |
+|---|---|---|
+| `--ground` | `#2A241E` umber | `#F5F0E3` cream |
+| `--ink` | `#EDE7D6` candle ivory | `#2A241E` |
+| `--ink-soft` | `rgba(237,231,214,.85)` | `#3A311F` |
+| `--muted` | `#8F8B7C` smoke | `#8B7B5E` sepia |
+| `--gold` / `--gold-strong` | `#C9A227` / `#E0B93E` | `#9C7A28` / `#7A5F1E` |
+| `--hairline` | `rgba(237,231,214,.14)` | `rgba(46,39,28,.16)` |
+
+Several component styles use `color-mix(in srgb, var(--gold) N%, transparent)` —
+modern-browser CSS is assumed throughout.
+
+### Typography
+
+| Use | Font | Notes |
+|---|---|---|
+| Display (cover, reading titles, card art) | Cormorant Garamond 300/400 | the only display serif |
+| Body (essays, quotes, dates) | EB Garamond 400 | 1.15rem / lh 1.85, ~66ch measure (650px) |
+| Labels / caps | Lato 300 | letterspaced uppercase |
+
+Playfair Display and the unused Inter declaration were removed in the redesign.
+Base font size is 18px (`html`).
 
 ---
 
 ## Application architecture
 
-### Single-file design
-
-All UI logic lives in `src/App.tsx`. Components, data, and utilities are co-located intentionally.
-
-### Component tree
+### Component tree (all in `src/App.tsx`)
 
 ```
 App
-├── Header (title, diamond divider, author name, tagline)
-├── Grid of EssayCard × 13 (newest first — sorted by num descending)
-│   └── (gray thumbnail → rollover + scale on hover → click → ReadingView)
-├── Footer
-└── ReadingView (fixed overlay, z-50)
-    ├── Sticky top bar (← Index | Essay N · Date)
-    ├── Title + Pull quote
-    ├── View Slides toggle button
-    │   └── InlineCarousel (animated expand/collapse)
-    │       ├── Fixed left zone (click = prev, scroll = page scroll)
-    │       ├── Fixed right zone (click = next, scroll = page scroll)
-    │       ├── Slide image frame (click = collapse, swipe = navigate)
-    │       └── Dot strip
-    ├── ◈ Divider
-    └── Essay body (paragraphs, lists, italic, right-aligned blocks)
+├── ThemeToggle (fixed top-right on the index; ReadingView carries its own)
+├── Cover section (full viewport: rules, title, diamond, byline, tagline, index cue)
+├── "Contents / The Essays" section header
+├── FeaturedCard (newest essay: cover square + title/date/quote/Read →)
+├── Grid of CoverCard × (N−1), ordered 01→N, newest excluded
+├── Footer (© + RSS link)
+└── ReadingView (fixed overlay, z-50) — rendered with a CONSTANT key ("reading")
+    ├── Sticky top bar (← Contents | Essay N · Date | ThemeToggle)
+    ├── Centered title (Cormorant, clamp 2.4–3.4rem)
+    ├── Callout quote (diamond rule + italic, unlabeled, text-wrap: balance)
+    ├── Essay body (fetched snapshot → formatEssayContent)
+    └── Vespers nav (← prev essay · ◆ ◆ ◆ · next essay →)
 ```
 
-### Data model
+**Why the constant key matters:** `ReadingView` sits inside `AnimatePresence`. If it were
+keyed by essay id, prev/next navigation would unmount one overlay and mount another; during
+the cross-fade both are semi-transparent and the index flashes through. With `key="reading"`
+the mounted view updates in place (its `useEffect` on `essay.id` resets scroll and refetches),
+and enter/exit animations run only on open/close.
+
+### Cover-card lockup
+
+`splitTitle()` splits a title into an upright lead + italic close, echoing the deck art:
+- `First Principles N: X` → upright "First Principles", italic "N: X"
+- titles with a colon → upright up to the colon, italic remainder
+- otherwise → last word italic (`A Diminished *World*`)
+
+Card title font size steps down for long titles (>26, >42 chars).
+
+### Data model (`src/essays.json`)
 
 ```typescript
 interface Essay {
-  id: string;            // '0'–'12'
-  num: string;           // '01'–'13'
+  id: string;        // '0'–'12'
+  num: string;       // '01'–'13' — drives ordering and the featured spot (highest wins)
   title: string;
-  date: string;          // human display date, e.g. 'July 2026'
-  isoDate: string;       // machine date 'YYYY-MM-DD' (RSS pubDate)
-  quote: string;         // tagline; OG/feed description + RSS card subtitle
-  folder: string;        // public/slides subfolder, e.g. '13-diminished'
-  filePrefix: string;    // e.g. 'essay13_slide_'
-  slideCount: number;
-  indexGray: string;     // default index thumbnail (#EFEFED)
-  indexRollover: string; // hover index thumbnail (essay{xx}_cover_rollover.png)
-  rssCard: string;       // 1200×630 RSS/OG landscape card
-  docUrl: string;        // Google Docs /pub URL
+  date?: string;     // display date, e.g. 'July 2026'
+  isoDate: string;   // 'YYYY-MM-DD' (RSS pubDate)
+  quote?: string;    // the callout line; also OG/feed description
+  ground: string;    // deck ground hex — card background on the gallery wall
+  folder: string;    // public/slides subfolder + URL slug, e.g. '13-diminished'
+  docUrl: string;    // Google Docs /pub URL (essay text source)
+  // Legacy deck fields — unused by the app; server.js/scripts still read some:
+  rssCard?: string;      // 1200×630 OG/RSS card — USED by server.js
+  slideCount?: number;   // legacy
+  filePrefix?: string;   // legacy
+  indexGray?: string;    // legacy (old PNG thumbnail)
+  indexRollover?: string;// legacy (old PNG thumbnail; gen_rss_cards.py samples its color)
 }
 ```
 
-Data lives in `src/essays.json` (imported by `App.tsx` as `ESSAYS`, by `server.js` for OG meta, and by `scripts/fetch-essays.mjs`). The array is stored oldest→newest; the index grid renders newest-first by sorting a copy on `num` descending.
+The array is stored oldest→newest. The app derives everything from `num`: the grid sorts
+ascending, and `LATEST_NUM` (max `num`) selects the featured essay.
 
----
+### Essay text pipeline
 
-## Essay text pipeline
+Essay text lives in published Google Docs but is **snapshotted at build time**:
+`scripts/fetch-essays.mjs` downloads each doc's HTML into `public/essay-content/<folder>.html`
+(gitignored; `prebuild` refreshes all, `predev` fetches only missing). The client fetches the
+static snapshot — no CORS, no runtime Google dependency. After editing a doc:
+`npm run fetch-essays` locally, or just redeploy (Railway re-snapshots every build).
 
-### Fetching
+`extractTextFromDocHtml(html)` queries `p, h1–h5, li` from `#contents`, serializing each
+block inline (`serializeInline`) so hyperlinks survive as `[link:url]text[/link]` tokens.
 
-Essay text lives in published Google Docs but is snapshotted at build time rather than fetched at runtime: `scripts/fetch-essays.mjs` downloads each doc's HTML into `public/essay-content/<folder>.html` (gitignored, regenerated on every build via the `prebuild` script; `predev` fetches only missing files). The client fetches the static snapshot — no CORS issue, no runtime dependency on Google.
+### Links in essays
 
-To refresh content after editing a doc: `npm run fetch-essays` locally, or simply redeploy (Railway re-snapshots during the build).
-
-### Parsing
-
-`extractTextFromDocHtml(html)` uses `DOMParser` to query `p, h1–h5, li` from `#contents`. List items get a `[li]` prefix. Each block is serialized inline (`serializeInline`) rather than flattened with `.textContent`, so hyperlinks survive (see below). Returns a newline-joined string.
-
-### Links
-
-Hyperlinks in any essay's Google Doc render automatically as styled links — **no code changes needed to add links to a new essay.** Just create the link in the Doc and refresh the snapshot (`npm run fetch-essays`, or redeploy — Railway re-snapshots every build). Until you re-fetch, the old snapshot (without the new links) is what shows.
-
-Behavior, all automatic:
-
-- **Google's redirect wrapper is unwrapped.** Docs rewrites every link to `google.com/url?q=<real-url>&…`; `unwrapDocUrl()` recovers the real destination, so you just link normally in the Doc.
-- **Internal vs external is auto-detected.** Links to `https://metaphysics.up.railway.app/...` render gold with no arrow and open in the same tab; everything else gets a `↗` arrow and opens in a new tab (`rel="noreferrer"`).
-- **Whitespace-only anchors** and Google's own page chrome (`/abuse`, `support.google.com`) are dropped.
-
-Gotchas:
-
-- **Internal cross-links do a full page reload** (real `<a href>` navigation → server serves the SPA → client opens the essay by pathname), not instant client-side routing. It lands on the right essay; it just isn't a snappy in-app transition.
-- **The internal-link match is an exact prefix** on `https://metaphysics.up.railway.app`. An `http://`, a `www.`, or a Railway preview domain will be treated as external (new tab + arrow). Use the canonical https URL for self-cross-links, e.g. `https://metaphysics.up.railway.app/essays/<folder>`.
-- **Avoid a literal `]` in a URL.** The internal `[link:url]text[/link]` token (emitted by `serializeInline`, rendered by `renderInline` inside `formatEssayContent`) stops at the first `]`, so such a URL would break that one link. Extremely rare; easy to harden if it ever comes up.
+Hyperlinks in any essay's Doc render automatically — no code changes needed:
+- Google's `google.com/url?q=…` redirect wrapper is unwrapped (`unwrapDocUrl`).
+- Links to `https://metaphysics.up.railway.app/...` render gold, same tab; everything else
+  gets a ↗ arrow and `target="_blank" rel="noreferrer"`.
+- Internal cross-links do a full page reload (server serves the SPA, which opens the essay
+  by pathname) — correct destination, just not a client-side transition.
+- The internal-link match is an exact prefix on `https://metaphysics.up.railway.app`; use
+  the canonical https URL for self-links. Avoid a literal `]` inside a URL.
 
 ### Formatting tags in Google Docs source
 
@@ -142,84 +202,36 @@ Gotchas:
 | `[em]...[/em]` | Italic paragraphs |
 | `[right]...[/right]` | Right-aligned paragraphs (supports nested `[em]`) |
 | `[li]` (auto-tagged) | Grouped into `<ul>` with bullets |
+| `[h1]`–`[h5]` (auto-tagged from Doc headings) | Section headings |
 | Plain text | Standard `<p>` blocks |
 
-To add a new tag: update the split regex and add a handler in `formatEssayContent()`.
+To add a tag: update the split regex and add a handler in `formatEssayContent()`.
 
 ---
 
-## Cover page
+## Slides, RSS, and social imagery
 
-The landing page is a full-viewport cover section that mirrors the v1 static site exactly, using the same CSS values, fonts, and animation timings sourced directly from `v1/index.html`.
+The app renders **no slide images**. What remains and why:
 
-Structure (top to bottom):
-1. Thin vertical gold gradient line (80px)
-2. "A COLLECTION OF" — Lato 300, gold, letter-spaced, fade-up at 0.2s
-3. "Metaphysical / *Essays*" — Cormorant Garamond 300, clamp(3rem–5.5rem), at 0.4s
-4. ✦ diamond divider with gold hairlines, at 0.55s
-5. "TODD STABLEY" — Lato 300, muted, at 0.6s
-6. Italic tagline — EB Garamond italic, at 0.8s
-7. "INDEX OF ESSAYS" anchor link — scrolls to `#index`, at 1.2s
-8. Descending gold gradient line + bottom vertical rule
+- **`public/slides/{folder}/essay{n}_rss_card.png`** — 1200×630 landscape cards, served by
+  `server.js` as the per-essay OG/Twitter image and in the RSS feed (Media RSS). Still
+  required for every essay. Generate with `.venv/bin/python scripts/gen_rss_cards.py {n}`.
+- **`public/slides/{folder}/*.png` (the decks)** — online-variant archive (final slide has
+  no Instagram CTA). Not referenced by the app.
+- **`instagram/{folder}/`** — the Instagram archive (final slide keeps the CTA); grab decks
+  here when posting. See `instagram/README.md`.
+- Python tooling runs from the gitignored `.venv/` (Pillow + numpy):
+  `gen_rss_cards.py` (current), `gen_deck13.py` (essay 13 deck renderer — adapt for future
+  decks), `recolor_deck.py` (utility), `gen_cover.py` / `strip_counter.py` (legacy, for the
+  retired PNG-thumbnail index; kept for history).
 
-Below the cover, a "Contents / The Essays" section header (Cormorant Garamond italic) introduces the thumbnail grid.
+**RSS:** `server.js` serves `/rss.xml` from `essays.json` (newest first by `isoDate`), with
+`quote` as description and the rssCard via `media:content`. `index.html` carries the
+autodiscovery `<link>`; the footer links the feed.
 
-The cover uses inline `style` props rather than Tailwind to precisely match v1 CSS values. Do not convert these to Tailwind classes.
-
----
-
-## Slide thumbnail system
-
-Each folder has:
-- `essay{n}_slide_01.png` … `essay{n}_slide_{count}.png` — carousel slides
-- `essay{n}_slide_01_gray.png` — index default thumbnail (`#EFEFED`)
-- `essay{n}_cover_rollover.png` — index hover thumbnail (on the deck's own bg colour)
-- `essay{n}_rss_card.png` — 1200×630 RSS/OG landscape card
-
-Card behavior: default gray → hover fades to the rollover + scales to 106% → click opens ReadingView.
-
----
-
-## Online vs Instagram decks
-
-Every essay's deck exists in two variants that share all slides **except the last**:
-
-- **Online** — `public/slides/{folder}/`, served in the site carousel. The final slide has **no Instagram CTA** (the reader is already online). Essays 1–9 close on quote + diamond divider + author, 11–12 on framed closing text, 13 on an asterism tailpiece.
-- **Instagram** — `instagram/{folder}/` (repo root, **not web-served**). The archive to grab from when posting; its final slide keeps the call to action (`METAPHYSICS.UP.RAILWAY.APP` on older decks, `READ THE ESSAY ONLINE → LINK IN BIO` on 13).
-
-Essay 13's two variants are both rendered by `scripts/gen_deck13.py` in one run. For decks 1–12 (external-pipeline PNGs, no generator) the online final slide was made by painting the CTA/URL footer out of the archived original. See `instagram/README.md`.
-
----
-
-## Carousel navigation
-
-Four input methods: mouse drag/swipe (>40px), keyboard ← →, dot strip, fixed side zones. Side zones are `<div onClick>` (not `<button>`) to avoid focus outlines. `onWheel` on side zones forwards scroll to the reading view's `scrollRef`.
-
----
-
-## Styling
-
-### Tailwind theme
-
-```
---font-serif: Playfair Display
---color-zen-bg: #faf9f6  (matches v1 warm parchment)
---color-zen-text: #2d2a2e
---color-zen-accent: #8e8d8a
-```
-
-### Typography
-
-| Use | Font | Size |
-|---|---|---|
-| Cover title | Cormorant Garamond 300 | clamp(3rem → 5.5rem) |
-| Cover labels | Lato 300 | .72rem–.85rem |
-| Index section header | Cormorant Garamond italic | 2rem |
-| Card titles | EB Garamond 400 | 1.2rem |
-| Card labels | Lato 300 | .65rem (gold) / .75rem (muted) |
-| Essay body | EB Garamond 400 | 1.15rem / lh 1.85 |
-| Reading view titles | Playfair Display 400 | clamp(2rem → 3rem) |
-| Slide cover images | Gelasio (Georgia-compatible) | 112px (72px essay 3, 56px essay 4) |
+**OG meta:** `server.js` intercepts `/essays/:folder` and injects per-essay OpenGraph/Twitter
+tags (title, quote, rssCard) into `dist/index.html`, so shared essay links unfurl with their
+own cards. The homepage keeps site-wide tags from `index.html` (`og-image.jpg`).
 
 ---
 
@@ -227,16 +239,17 @@ Four input methods: mouse drag/swipe (>40px), keyboard ← →, dot strip, fixed
 
 ```toml
 # railway.toml
-[build]
-buildCommand = "npm run build"
-
-[deploy]
-startCommand = "npm start"
+[build]  buildCommand = "npm run build"
+[deploy] startCommand = "npm start"
 ```
 
-`server.js` serves `dist/` static files + SPA fallback, serves the `/rss.xml` feed, and injects per-essay OpenGraph/Twitter meta tags on `/essays/:folder` routes (title, pull quote, and the 1200×630 `rssCard` image from `src/essays.json`) so shared essay links unfurl with their own cards.
+Railway auto-deploys **every push to `main`** (~1–2 min build, which re-snapshots the Docs).
 
-Branch strategy: `main` = v2 React app (production), `v1` = original static HTML site (preserved).
+Branch strategy:
+- `main` — Nocturne React app, production
+- `nocturne` — the redesign branch (now merged; same commit as main)
+- `v1` — original static HTML site (preserved, not deployed)
+- The pre-Nocturne parchment app lives in `main` history at `74a02c5` and earlier
 
 ---
 
@@ -251,172 +264,31 @@ npm run lint          # tsc --noEmit
 npm start             # production server (requires a prior build)
 ```
 
-**Quirks:** Changes to `index.html`/`index.css` require full dev server restart. `#root` must have `width: 100%` for centering. `scrollbar-gutter: stable` on body prevents layout shift.
+**Quirks**
+- Changes to `index.html` / `index.css` require a dev-server restart.
+- `#root` must have `width: 100%`; `scrollbar-gutter: stable` prevents layout shift.
+- The theme is set pre-paint by the inline script in `index.html` — don't move theme
+  initialization into React or the first frame will flash the wrong ground.
+- The cover section and cards use inline styles referencing `var(--…)` tokens on purpose;
+  don't convert to hard-coded hexes.
+- On touch devices (`hover: none`) the gallery cards skip the hover lift.
 
 ---
 
-## Adding a new essay
+## Adding a new essay (no deck required)
 
-1. Build the slide deck into `public/slides/{n}-{slug}/` (for essay 13's style, adapt `scripts/gen_deck13.py`; older decks came from an external pipeline).
-2. Generate index thumbnails: `.venv/bin/python scripts/gen_cover.py` → `essay{n}_slide_01_gray.png` + `essay{n}_cover_rollover.png`.
-3. Generate the RSS/OG card: `.venv/bin/python scripts/gen_rss_cards.py {n}` → `essay{n}_rss_card.png`.
-4. Add an entry to `src/essays.json` (title, `date`, `isoDate`, `quote`, `folder`, `filePrefix`, `slideCount`, the thumbnail/card paths, and the Google Docs `/pub` `docUrl`).
-5. Archive the Instagram variant into `instagram/{n}-{slug}/` and remove the CTA from the online final slide (see **Online vs Instagram decks**).
-6. `npm run dev` to verify, then commit/push — Railway re-snapshots the doc and deploys.
+1. Write and **publish** the essay in Google Docs (File → Share → Publish to web); note the
+   `/pub` URL.
+2. Choose a **ground color** for its card (a dark, muted hex in the family of the existing
+   wall — see `ground` values in `essays.json`).
+3. Create the **RSS/OG card**: adapt `scripts/gen_rss_cards.py` (it historically sampled the
+   deck rollover PNG for color — pass/hard-code the new ground if there's no deck) →
+   `public/slides/{n}-{slug}/essay{n}_rss_card.png`.
+4. Add the entry to `src/essays.json`: `id`, `num` (next number — this automatically makes
+   it the featured essay), `title`, `date`, `isoDate`, `quote` (this is the reading-page
+   callout — make it strong), `ground`, `folder` (`{n}-{slug}`), `rssCard`, `docUrl`.
+5. `npm run dev` to verify (fetches the snapshot), then commit and push — Railway deploys.
+6. *(Optional)* If an Instagram deck exists, archive it in `instagram/{n}-{slug}/` and put
+   the online variant (no CTA on the final slide) in `public/slides/{n}-{slug}/`.
 
----
-
-## Generating cover slide thumbnails
-
-**Current tool: `scripts/gen_cover.py`** (Pillow + macOS system Georgia). It renders the two 1080×1080 index thumbnails per essay:
-- `essay{n}_slide_01_gray.png` — default state, cool-gray background `#EFEFED`
-- `essay{n}_cover_rollover.png` — hover state, on the deck's own dark bg colour
-
-To add an essay, add a `gen_<name>()` config and call it from `__main__` (see `gen_passengers` / `gen_diminished`). Then build the 1200×630 RSS/OG card with `scripts/gen_rss_cards.py {n}`.
-
-> **Historical reference (below).** The remainder of this section documents the original standalone approach and its exact colour/font/layout values. It is kept for reference only — the shipping `gen_cover.py` differs: it uses system **Georgia** (not Gelasio), names the hover thumbnail `essay{n}_cover_rollover.png` (not `_cream.png`), and its palette/positions live in the script itself.
-
-### Why Gelasio, not Georgia
-
-Georgia is a proprietary Microsoft font unavailable in server/container environments. **Gelasio** is a free, metric-compatible substitute that renders identically. It is available via `@fontsource/gelasio` on npm.
-
-### Environment setup
-
-```bash
-pip install Pillow fonttools
-
-# Download Gelasio via npm fontsource
-npm pack @fontsource/gelasio
-tar xzf fontsource-gelasio-*.tgz
-
-# Convert woff → ttf (Pillow requires TTF, not woff)
-python3 -c "
-from fontTools.ttLib import TTFont
-TTFont('package/files/gelasio-latin-400-normal.woff').save('/tmp/Gelasio-Regular.ttf')
-TTFont('package/files/gelasio-latin-400-italic.woff').save('/tmp/Gelasio-Italic.ttf')
-"
-
-# Install into system font cache so cairosvg/Pillow can find them by name
-cp /tmp/Gelasio-*.ttf /usr/share/fonts/truetype/
-fc-cache -f
-```
-
-### Exact color values
-
-| Name | Hex | Usage |
-|---|---|---|
-| Gray background | `#EFEFED` | Default index thumbnail bg |
-| Cream background | `#F5F0E6` | Hover index thumbnail bg |
-| Gold accent | `#B8960C` as RGB `(184, 150, 12)` | Header text, diamond, divider lines |
-| Dark text | `#2a2520` as RGB `(42, 37, 32)` | Title text |
-| Muted label | `#8a7a5a` as RGB `(138, 122, 90)` | "TODD STABLEY", slide counter |
-
-### Font sizes at 1080×1080px
-
-| Element | Font | Size |
-|---|---|---|
-| Header label ("A COLLECTION OF...") | Gelasio Regular | 22px |
-| Title upright lines ("First", "Principles") | Gelasio Regular | 112px |
-| Title italic line ("1: Unity") | Gelasio Italic | 112px |
-| Essay 3 italic line (longer subtitle) | Gelasio Italic | 72px |
-| Essay 4 italic line (longer subtitle) | Gelasio Italic | 56px |
-| Author name ("TODD STABLEY") | Gelasio Regular | 22px |
-
-### Layout positions (1080×1080px canvas)
-
-| Element | Position |
-|---|---|
-| Header line 1 ("A COLLECTION OF...") | x=75, y=68 |
-| Header line 2 ("ESSAY 01 · UNITY") | x=75, y=100 |
-| Title line 1 ("First") | x=70, y=260 |
-| Title line 2 ("Principles") | x=70, y=390 |
-| Italic subtitle | x=70, y=545 |
-| Divider line left | (75,760) → (225,760) |
-| Diamond center | x=250, y=760 (polygon points: 250,752 258,760 250,768 242,760) |
-| Divider line right | (265,760) → (415,760) |
-| Author name | x=75, y=985 |
-
-### Working Python code
-
-```python
-from PIL import Image, ImageDraw, ImageFont
-import os
-
-GRAY  = (239, 239, 237)   # #EFEFED
-CREAM = (245, 240, 230)   # #F5F0E6
-GOLD  = (184, 150, 12)    # #B8960C
-DARK  = (42, 37, 32)      # #2a2520
-MUTED = (138, 122, 90)    # #8a7a5a
-
-REG  = '/usr/share/fonts/truetype/Gelasio-Regular.ttf'
-ITAL = '/usr/share/fonts/truetype/Gelasio-Italic.ttf'
-
-def spaced_text(draw, pos, text, font, fill, spacing=4):
-    """Draw text with letter spacing (Pillow has no native letter-spacing)."""
-    x, y = pos
-    for ch in text:
-        draw.text((x, y), ch, font=font, fill=fill)
-        bbox = font.getbbox(ch)
-        x += (bbox[2] - bbox[0]) + spacing
-
-def make_cover(essay_num, header, line1, line2, line3, italic_size, bg, outpath):
-    """
-    essay_num: int, e.g. 1
-    header:    str, e.g. 'UNITY'  (used in "ESSAY 01 · UNITY")
-    line1:     str, e.g. 'First'
-    line2:     str, e.g. 'Principles'
-    line3:     str, e.g. '1: Unity'  (rendered italic)
-    italic_size: int, 112 for essays 1-2, 72 for essay 3, 56 for essay 4
-    bg:        tuple, e.g. GRAY or CREAM
-    outpath:   str, output file path
-    """
-    img = Image.new('RGB', (1080, 1080), bg)
-    d = ImageDraw.Draw(img)
-
-    f_sm   = ImageFont.truetype(REG,  22)
-    f_lg   = ImageFont.truetype(REG,  112)
-    f_ital = ImageFont.truetype(ITAL, italic_size)
-
-    # Header (letter-spaced gold caps)
-    spaced_text(d, (75, 68),  'A COLLECTION OF METAPHYSICAL ESSAYS', f_sm, GOLD, spacing=4)
-    spaced_text(d, (75, 100), f'ESSAY {essay_num:02d} \u00b7 {header}', f_sm, GOLD, spacing=3)
-
-    # Title — two upright lines + one italic line
-    d.text((70, 260), line1, font=f_lg, fill=DARK)
-    d.text((70, 390), line2, font=f_lg, fill=DARK)
-    d.text((70, 545), line3, font=f_ital, fill=DARK)
-
-    # Divider line + diamond
-    d.line([(75, 760), (225, 760)], fill=GOLD, width=2)
-    d.polygon([(250, 752), (258, 760), (250, 768), (242, 760)], fill=GOLD)
-    d.line([(265, 760), (415, 760)], fill=GOLD, width=2)
-
-    # Author (letter-spaced muted caps)
-    spaced_text(d, (75, 985), 'TODD STABLEY', f_sm, MUTED, spacing=4)
-
-    img.save(outpath)
-
-# Example — generate both variants for all 4 First Principles essays
-essays = [
-    dict(num=1, header='UNITY',                     l1='First', l2='Principles', l3='1: Unity',                     isize=112),
-    dict(num=2, header='FREE WILL',                  l1='First', l2='Principles', l3='2: Free Will',                  isize=112),
-    dict(num=3, header='THE IMPULSE TO CREATE',      l1='First', l2='Principles', l3='3: The Impulse to Create',      isize=72),
-    dict(num=4, header='SERVICE TO OTHERS VS. SELF', l1='First', l2='Principles', l3='4: Service to Others vs. Self', isize=56),
-]
-
-folders = {1:'1-unity', 2:'2-free', 3:'3-create', 4:'4-service'}
-base = 'public/slides'
-
-for e in essays:
-    folder = f"{base}/{folders[e['num']]}"
-    make_cover(e['num'], e['header'], e['l1'], e['l2'], e['l3'], e['isize'],
-               GRAY,  f"{folder}/essay{e['num']}_slide_01_gray.png")
-    make_cover(e['num'], e['header'], e['l1'], e['l2'], e['l3'], e['isize'],
-               CREAM, f"{folder}/essay{e['num']}_slide_01_cream.png")
-    print(f"Essay {e['num']} done")
-```
-
-### Notes for essays 5–10
-
-Essays 5–10 use dark-background slides in the carousel (navy, forest green, warm black) but their index covers should still use the gray/cream system. The same `make_cover()` function works — just adjust `header`, `line1`, `line2`, `line3` to match the essay title. For essays with a single-word or two-word title that doesn't need three lines, use `line1=''` and adjust `line2`/`line3` positions accordingly, or reduce font size to fit.
-
+The previous featured essay drops into the grid automatically; no other changes needed.

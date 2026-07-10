@@ -6,9 +6,11 @@ each a complete set of `essay{n}_slide_01…NN.png` (1080×1080).
 These are the **Instagram** versions: the final slide carries a
 `READ THE ESSAY ONLINE → LINK IN BIO` call to action.
 
-The **online** versions the website serves live in `public/slides/{n}-{slug}/`
-and are identical except the final slide drops the CTA (the reader is already
-online) and closes with the deck's asterism tailpiece instead.
+The **online** variants live in `public/slides/{n}-{slug}/` and are identical
+except the final slide drops the CTA and closes with the deck's tailpiece
+instead. Since the Nocturne redesign (July 2026) the website no longer displays
+slide decks at all — `public/slides/` is kept as the online-variant archive and
+for the `essay{n}_rss_card.png` OG/RSS cards, which the server still serves.
 
 This folder is **not web-served** — it's a local archive to grab from when
 publishing to Instagram.

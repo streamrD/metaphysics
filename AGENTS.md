@@ -1,177 +1,120 @@
-# AGENTS.md — Quick-Start Context
+# AGENTS.md — Handoff & Quick-Start Context
 
-This file gives a new AI agent enough context to begin work on this project. Read README.md for full architectural detail.
+Read this first. It gives a fresh chat window or AI agent enough context to work on this
+project without re-deriving decisions. Full architectural detail lives in **README.md**.
 
 ---
 
 ## What this is
 
-A React/TypeScript/Vite single-page app that presents a collection of 13 metaphysical essays by Todd Stabley. Deployed on Railway at `metaphysics.up.railway.app`.
+A React 18 / TypeScript / Vite SPA presenting 13 metaphysical essays by Todd Stabley,
+in the **"Nocturne"** design (shipped July 2026). Express serves the build plus an RSS
+feed and per-essay OG meta. Deployed on Railway at `metaphysics.up.railway.app`;
+Railway auto-deploys every push to `main`.
+
+**All application code is in `src/App.tsx` (single file, intentionally).**
+Essay metadata is in `src/essays.json`. Theme tokens are in `src/index.css`.
 
 ---
 
-## Repo structure
+## Design decisions that are INTENTIONAL — don't "fix" these
 
-```
-metaphysics/
-├── src/
-│   ├── App.tsx          ← ENTIRE application logic (single file)
-│   ├── essays.json      ← Essay metadata (single source of truth; imported by App.tsx, server.js, and scripts/fetch-essays.mjs)
-│   └── index.css        ← Global styles + Tailwind config + Google Fonts import
-├── public/
-│   ├── essay-content/   ← Generated Google Docs snapshots (gitignored; created by scripts/fetch-essays.mjs)
-│   └── slides/          ← Online carousel slides served statically (final slide has NO
-│       │                  Instagram CTA — see "Online vs Instagram decks" below)
-│       │                  (each folder: essay[n]_slide_01…NN.png + _slide_01_gray.png + _cover_rollover.png + _rss_card.png)
-│       ├── 1-unity/          …12 slides
-│       ├── 2-free/           …11 slides
-│       ├── 3-create/         …12 slides
-│       ├── 4-service/        …14 slides
-│       ├── 5-supervillain/   …9 slides
-│       ├── 6-id/             …10 slides
-│       ├── 7-paths/          …13 slides
-│       ├── 8-rocks/          …11 slides
-│       ├── 9-narcissism/     …11 slides
-│       ├── 10-curriculum/    …11 slides
-│       ├── 11-apprentice/    …7 slides (dark-brown deck, recoloured to match Unity)
-│       ├── 12-passengers/    …8 slides (deep slate blue-black deck)
-│       └── 13-diminished/    …10 slides (ashen moss-grey #2D322C; generated in-repo by gen_deck13.py)
-├── instagram/           ← Instagram deck archive, one folder per essay (NOT web-served);
-│                          final slide keeps the "LINK IN BIO" CTA. Grab decks here to post.
-├── scripts/
-│   ├── fetch-essays.mjs   ← Snapshots published Google Docs into public/essay-content/
-│   ├── gen_cover.py       ← Generates cover thumbnails (index gray + rollover)
-│   ├── gen_deck13.py      ← Renders essay 13's full deck (both online + Instagram variants)
-│   ├── gen_rss_cards.py   ← Generates 1200×630 RSS/OG cards (title + subtitle on the deck colour)
-│   ├── recolor_deck.py    ← Lossless background recolour for a deck's PNGs (alpha-unmix → recomposite)
-│   └── strip_counter.py   ← Paints out the "01/NN" slide counter from index cover thumbnails (idempotent)
-├── source-material/     ← Drafts and source assets, not used by the app (intro deck variants, .docx source, alternate essay-10 deck)
-├── server.js            ← Express production server (serves dist/ + /rss.xml feed + injects per-essay OG meta on /essays/:folder)
-├── vite.config.ts       ← Vite config
-├── index.html           ← HTML entry point (html/body/#root all width:100%, 18px base font)
-├── package.json
-├── railway.toml         ← Railway deploy config
-├── README.md            ← Full architecture documentation
-└── AGENTS.md            ← This file
-```
+These came out of a full design review with the author (creative director). Changing them
+requires his sign-off:
 
-**All application code lives in `src/App.tsx`.**
+1. **No slides/carousel in the app.** The slide decks were Instagram promos; embedding them
+   made it feel like clicking slides = reading the essay. Deck PNGs stay in `public/slides/`
+   only for the 1200×630 RSS/OG cards and as archive. Don't resurrect the carousel.
+2. **Reader-owned ground.** ☼/☾ toggle flips the site between umber `#2A241E` (night,
+   default) and cream `#F5F0E3` (day). Persisted in `localStorage('theme')`; first visit
+   follows `prefers-color-scheme`; an inline script in `index.html` sets
+   `document.documentElement.dataset.theme` **before first paint** — keep it there.
+3. **Index is a gallery wall**: live HTML/CSS cover cards (no PNG thumbnails), each on its
+   deck's own `ground` color from `essays.json`. Cards keep fixed deck colors (gold
+   `#C9A227`, ivory `#EDE7D6`) in BOTH themes — they're artwork, not UI panels.
+4. **Newest essay is featured at the top** (`FeaturedCard`, chosen by highest `num`) and
+   **excluded from the grid below**; it cycles down automatically when a newer essay ships.
+5. **Grid is ordered 01→N** (a numbered contents page, not a feed).
+6. **The callout quote at the top of each essay is unlabeled** — diamond rule + italic line,
+   no "Excerpt" label, no box, no quotation marks. `text-wrap: balance` prevents orphans.
+7. **One gold token per theme** (`--gold`: night `#C9A227`, day `#9C7A28`). Don't introduce
+   new gold hexes; use the token.
+8. **Typography is consolidated**: Cormorant Garamond (display), EB Garamond (body),
+   Lato (caps labels). Playfair was removed — don't reintroduce a second display serif.
 
 ---
 
-## Key concepts for any new task
+## How the pieces fit
 
-### Essay data
-All essays are defined in `src/essays.json` (imported by `App.tsx` as the `ESSAYS` array, by `server.js` for OG meta, and by `scripts/fetch-essays.mjs` for snapshots). Each essay has:
-- `folder` — matches the `public/slides/` subdirectory name
-- `filePrefix` — e.g. `essay1_slide_` (files zero-padded: `essay1_slide_01.png`)
-- `slideCount` — total number of slides
-- `date` — human display date (e.g. `"June 2026"`); `isoDate` — machine date (`YYYY-MM-DD`) for the RSS `pubDate`
-- `quote` — tagline; used as the OG/feed description and rendered on the RSS card
-- `indexGray` — default index thumbnail (cool gray `#EFEFED`)
-- `indexRollover` — hover index thumbnail (named `essay[xx]_cover_rollover.png`)
-- `rssCard` — 1200×630 landscape card (`essay[xx]_rss_card.png`); used for the RSS feed thumbnail **and** OG/Twitter images
-- `docUrl` — Google Docs published URL for essay text
-
-The `essays.json` array is stored oldest→newest, but the index **grid renders newest first** (`App.tsx` sorts a copy by `num` descending); the array order itself is unchanged.
-
-### Essay text pipeline
-Essay text lives in published Google Docs (the `docUrl` field) but is **snapshotted at build time**, not fetched at runtime. `scripts/fetch-essays.mjs` downloads each doc's HTML into `public/essay-content/<folder>.html`; the client fetches that static file and parses it with `extractTextFromDocHtml`. The script runs automatically via `prebuild` (every build/deploy) and `predev` (only fetches missing files). **After editing an essay in Google Docs, run `npm run fetch-essays` locally to refresh, or just redeploy — Railway re-snapshots on every build.**
-
-### Social sharing (OG tags)
-`server.js` intercepts `/essays/:folder` and injects per-essay OpenGraph/Twitter meta (title, quote as description, **the 1200×630 `rssCard` as the image**) into `dist/index.html`. The landscape card is the universally safe 1.91:1 ratio that unfurls uncropped everywhere (iMessage, X, Slack, Feedly). The homepage keeps the site-wide tags from `index.html` (including `og-image.jpg`).
-
-### RSS feed
-`server.js` serves an RSS 2.0 feed at `/rss.xml`, generated from `essays.json` (newest first by `isoDate`, `pubDate` stamped at noon UTC). Each item carries the `quote` as its description and the `rssCard` via Media RSS (`media:content`/`media:thumbnail`). `index.html` advertises it with a `<link rel="alternate" type="application/rss+xml">` autodiscovery tag. Feed readers cache aggressively — test changes in a fresh reader (Feedly reuses cached visuals).
-
-### Slide / card image generation (Python)
-The cover, card, and recolour scripts use **Pillow + numpy** in a gitignored `.venv/` (run them as `.venv/bin/python scripts/<name>.py`). `gen_cover.py` makes the index gray + rollover thumbnails; `gen_rss_cards.py` makes the landscape RSS/OG cards (sampling each deck's bg colour from its rollover); `recolor_deck.py` repaints a deck's flat background to a new colour losslessly. Decks **1–12** were produced by an external pipeline (only their PNGs live here) — recolour or edit the existing PNGs rather than expecting to regenerate them. **Essay 13's deck is generated in-repo by `scripts/gen_deck13.py`** (a Passengers-style renderer using local `~/Library/Fonts` Cormorant Garamond + EB Garamond, with a reusable literary-ornament kit: all-caps lead-in, drop caps, hairline–diamond–hairline divider, asterism tailpiece). Adapt/copy it for future essay decks.
-
-### Online vs Instagram decks
-Each essay's slide deck exists in two variants that share every slide **except the last**:
-- **Online** (`public/slides/{folder}/`) — served in the site carousel. The final slide has **no Instagram CTA** (the reader is already online): essays 1–9 end on quote + divider + author, 11–12 on framed closing text, 13 on an asterism tailpiece.
-- **Instagram** (`instagram/{folder}/`, repo root, **not web-served**) — the archive to grab from when posting. Its final slide keeps the call to action (`METAPHYSICS.UP.RAILWAY.APP` on older decks, `READ THE ESSAY ONLINE → LINK IN BIO` on 13).
-
-For essay 13, `gen_deck13.py` renders both variants in one run. For decks 1–12 (no generator), the online final slide was produced by painting the CTA/URL footer out of the archived PNG. See `instagram/README.md`.
-
-### Custom text formatting tags
-The Google Docs source uses custom markup:
-- `[em]...[/em]` — italic paragraphs
-- `[right]...[/right]` — right-aligned paragraphs (supports nested `[em]`)
-- `[li]` — auto-tagged list items, rendered as `<ul>`
-
-### Index thumbnail system
-Each essay has two cover images:
-- `essay{n}_slide_01_gray.png` — default state
-- `essay[xx]_cover_rollover.png` — hover state (scales to 106% on hover)
-
-### Navigation flow
-1. Cover page (full viewport) → "Index of Essays" scrolls to grid
-2. Click card → ReadingView opens
-3. "View Slides" button → expands InlineCarousel inline
-4. Click slide image → collapses carousel
-5. Click whitespace left/right of carousel → navigates slides (fixed-position zones)
-6. Keyboard ← → also navigates slides
-
-### Typography
-- **Cover title:** Cormorant Garamond 300 (clamp 3rem–5.5rem)
-- **Cover labels:** Lato 300
-- **Essay body:** EB Garamond 400, 1.15rem, line-height 1.85
-- **Index section header:** Cormorant Garamond italic 2rem
-- **Card titles:** EB Garamond 400, 1.2rem
-- **Card labels:** Lato 300, .65rem gold / .75rem muted
-
-### Color palette
-- Background: `#faf9f6` (warm parchment, matches v1)
-- Ink: `#1a1a18`
-- Ink light: `#3d3d38`
-- Ink faint: `#7a7a72`
-- Gold: `#b08d57`
-- Rule: `#d8d4ca`
+- **Theme system** — CSS custom properties on `:root` (night) overridden by
+  `:root[data-theme='day']` in `index.css`. Tailwind v4 `@theme` colors alias the vars
+  (`--color-zen-bg: var(--ground)` …), so `bg-zen-bg`, `text-zen-text/85` etc. re-theme
+  live. Components also use `var(--gold)` / `color-mix(...)` in inline styles.
+- **ReadingView has a constant React key (`"reading"`)** inside `AnimatePresence`. Keying
+  it per-essay makes prev/next navigation cross-fade two overlays and flash the index
+  behind them (that was a real bug). Navigation updates the mounted view in place.
+- **Essay text** is snapshotted from published Google Docs at build time
+  (`scripts/fetch-essays.mjs` → `public/essay-content/<folder>.html`, gitignored).
+  After editing a Doc: `npm run fetch-essays`, or just redeploy.
+- **Vespers nav** — prev/next essay links at the foot of every essay, by `num`.
+- **`splitTitle()`** renders card titles as upright lead + italic close (last word, or the
+  part after a colon, or the "N: X" of First Principles essays).
+- **server.js** reads `essays.json` for `/rss.xml` and injects per-essay OG tags
+  (title, `quote`, `rssCard`) on `/essays/:folder`.
+- **Legacy fields** in `essays.json` (`slideCount`, `filePrefix`, `indexGray`,
+  `indexRollover`) are unused by the app and optional in the TS interface; `rssCard` IS
+  still used by server.js. New essays don't need the legacy fields.
 
 ---
 
 ## Commands
 
 ```bash
-npm run dev           # Start dev server at localhost:3000 (fetches missing essay snapshots first)
-npm run fetch-essays  # Force-refresh all essay snapshots from Google Docs
-npm run build         # Build to dist/ (re-snapshots all essays first)
-npm start             # Run production Express server (requires dist/ from a prior build)
-npm run lint          # TypeScript check (tsc --noEmit)
+npm run dev           # localhost:3000 (fetches missing essay snapshots first)
+npm run fetch-essays  # force-refresh all essay snapshots from Google Docs
+npm run build         # → dist/ (re-snapshots all essays first)
+npm run lint          # tsc --noEmit
+npm start             # production Express server (needs a prior build)
 ```
+
+Python asset tooling (RSS cards, deck utilities) runs from the gitignored `.venv/`:
+`.venv/bin/python scripts/gen_rss_cards.py {n}`.
 
 ---
 
 ## Publishing workflow
 
-All work happens in the local repo at `~/Desktop/Personal/Projects/metaphysics-git/`.
-
 ```bash
-cd ~/Desktop/Personal/Projects/metaphysics-git
-git add .
-git commit -m "Description of changes"
-git push origin main
+git add . && git commit -m "…" && git push origin main
 ```
 
-**Note:** git is configured locally, so an agent can commit and push to `main` directly (remote `origin` → `github.com/streamrD/metaphysics`). Confirm with the user before pushing, since every push deploys to production.
-
-Railway **auto-deploys on every push to `main`**. Monitor at railway.app → your project → Deployments tab. Build takes ~1-2 minutes.
-
-### Branch strategy
-- `main` — v2 React app, production
-- `v1` — original static HTML site (preserved, not deployed)
-
-**Always test locally with `npm run dev` before pushing.**
+- **Every push to `main` deploys to production** (~1–2 min). Confirm with the user before
+  pushing unless they've already asked for the change to be published.
+- Test locally with `npm run dev` first.
+- Branches: `main` = production (Nocturne) · `nocturne` = merged redesign branch ·
+  `v1` = original static site (preserved) · pre-Nocturne app = `main` history ≤ `74a02c5`.
 
 ---
 
-## Things to know before making changes
+## Adding a new essay (short version — full steps in README)
 
-- After editing `index.html` or `index.css`, **restart** `npm run dev`
-- `#root` in `index.html` must have `width: 100%` for centering to work
-- `scrollbar-gutter: stable` on body prevents layout shift
-- Fixed-position carousel nav zones use `<div onClick>` not `<button>` to avoid focus outlines
-- `SLIDE_VARIANTS` is outside `InlineCarousel` to avoid recreation on every render
-- The cover section uses inline styles (not Tailwind) to match v1 CSS exactly
-- The `[em]` branch in `formatEssayContent` has a `listBuffer` that's unused — harmless, low priority
+1. Publish the Doc → get the `/pub` URL.
+2. Pick a dark `ground` hex for its card (match the family of existing `ground` values).
+3. Make its 1200×630 `rssCard` PNG (adapt `scripts/gen_rss_cards.py`).
+4. Append to `src/essays.json` (`num` = next number → it becomes the featured essay
+   automatically; `quote` becomes the reading-page callout).
+5. `npm run dev` to verify, commit, push.
+
+---
+
+## Gotchas
+
+- Restart the dev server after editing `index.html` or `index.css`.
+- Don't move theme init out of the `index.html` inline script (pre-paint = no flash).
+- `#root` needs `width: 100%`; `scrollbar-gutter: stable` on body prevents layout shift.
+- Cover/cards use inline styles referencing `var(--…)` tokens deliberately.
+- `color-mix()` and `text-wrap: balance` are used — modern-browser CSS is assumed.
+- Touch devices (`hover: none`) skip the gallery hover lift.
+- Feed readers cache aggressively — test RSS changes in a fresh reader.
+- The `[em]` handling in `formatEssayContent` carries state across lines on purpose
+  (a tag pair can wrap multiple paragraphs).
