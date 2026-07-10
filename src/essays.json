@@ -63,6 +63,7 @@
   {
     "id": "6", "num": "07", "date": "January 2026", "isoDate": "2026-01-01",
     "title": "The Two Paths",
+    "cardTitle": ["", "The Two Paths"],
     "quote": "The further you go, the harder it becomes to leave.",
     "ground": "#2C3820", "folder": "7-paths", "filePrefix": "essay7_slide_", "slideCount": 13,
     "indexGray": "/slides/7-paths/essay7_slide_01_gray.png",
@@ -73,6 +74,7 @@
   {
     "id": "7", "num": "08", "date": "January 2025", "isoDate": "2025-01-01",
     "title": "The First Rock",
+    "cardTitle": ["", "The First Rock"],
     "quote": "When you feel indignation rise, how do you respond?",
     "ground": "#1E3040", "folder": "8-rocks", "filePrefix": "essay8_slide_", "slideCount": 11,
     "indexGray": "/slides/8-rocks/essay8_slide_01_gray.png",
