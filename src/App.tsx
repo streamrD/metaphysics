@@ -647,7 +647,7 @@ export default function App() {
           variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
           className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14"
         >
-          {ESSAYS.map(essay => (
+          {[...ESSAYS].sort((a, b) => Number(b.num) - Number(a.num)).map(essay => (
             <EssayCard
               key={essay.id}
               essay={essay}
