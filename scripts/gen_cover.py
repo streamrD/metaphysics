@@ -85,6 +85,7 @@ D_QUOTE = (212, 200, 168)
 
 APPRENTICE_BG = (42, 34, 24)   # dark brown — matches the Unity deck
 PASSENGERS_BG = (31, 38, 43)   # deep slate blue-black (#1F262B)
+DIMINISHED_BG = (45, 50, 44)   # ashen moss-grey (#2D322C)
 
 
 def gen_apprentice():
@@ -127,5 +128,25 @@ def gen_passengers():
         footer_col=D_GOLD)
 
 
+def gen_diminished():
+    folder = '/Users/tcs16/Desktop/Personal/Projects/metaphysics-git/public/slides/13-diminished'
+    import os; os.makedirs(folder, exist_ok=True)
+
+    title = [('A Diminished', False), ('World', True)]
+    quote = ['An extractive mindset asks what can be removed.',
+             'A stewardship mindset asks what can endure.']
+    header2 = 'ESSAY 13 · A DIMINISHED WORLD'
+
+    make_cover(f'{folder}/essay13_slide_01_gray.png', GRAY, header2, title, quote,
+        gold=GOLD, muted=MUTED, dark=DARK, quote_col=QUOTE,
+        title_top=371, divider_y=788, quote_top=845)
+
+    make_cover(f'{folder}/essay13_cover_rollover.png', DIMINISHED_BG, header2, title, quote,
+        gold=D_GOLD, muted=D_MUTED, dark=None, cream=D_CREAM, quote_col=D_QUOTE,
+        title_top=352, divider_y=750, quote_top=807,
+        footer=['metaphysics.up.railway.app'],
+        footer_col=D_GOLD)
+
+
 if __name__ == '__main__':
-    gen_passengers()
+    gen_diminished()

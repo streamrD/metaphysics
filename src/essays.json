@@ -118,5 +118,15 @@
     "indexRollover": "/slides/12-passengers/essay12_cover_rollover.png",
     "rssCard": "/slides/12-passengers/essay12_rss_card.png",
     "docUrl": "https://docs.google.com/document/d/e/2PACX-1vR9aflGAn0q-2LguzJn9jBDHTR-2ap3-e1E6bRN1c5eXUQ-XTTXaAWJhBQDaBiDCnmAXfcQpm0q6kOW/pub"
+  },
+  {
+    "id": "12", "num": "13", "date": "July 2026", "isoDate": "2026-07-10",
+    "title": "A Diminished World",
+    "quote": "An extractive mindset asks what can be removed. A stewardship mindset asks what can endure.",
+    "folder": "13-diminished", "filePrefix": "essay13_slide_", "slideCount": 10,
+    "indexGray": "/slides/13-diminished/essay13_slide_01_gray.png",
+    "indexRollover": "/slides/13-diminished/essay13_cover_rollover.png",
+    "rssCard": "/slides/13-diminished/essay13_rss_card.png",
+    "docUrl": "https://docs.google.com/document/d/e/2PACX-1vSKEu97zjsFNB6u0kW0a-Ku6Ich9Sn_z7eP4CZhPDArj7_zFsBEyNuX64mlhXO6ZnO76pxERM1jn9S3/pub"
   }
 ]
