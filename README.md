@@ -159,6 +159,8 @@ interface Essay {
   isoDate: string;   // 'YYYY-MM-DD' (RSS pubDate)
   quote?: string;    // the callout line; also OG/feed description
   ground: string;    // deck ground hex — card background on the gallery wall
+  cardTitle?: string[]; // optional [upright, italic] cover-card lockup override,
+                        // for titles the splitTitle() heuristic breaks badly (see essay 06)
   folder: string;    // public/slides subfolder + URL slug, e.g. '13-diminished'
   docUrl: string;    // Google Docs /pub URL (essay text source)
   // Legacy deck fields — unused by the app; server.js/scripts still read some:

@@ -52,6 +52,7 @@
   {
     "id": "5", "num": "06", "date": "August 2025", "isoDate": "2025-08-01",
     "title": "The Upside-Down World of the Id",
+    "cardTitle": ["The Upside-Down World", "of the Id"],
     "quote": "The child's tantrum has become a spectacle of adult insurrection playing out everywhere across the national stage.",
     "ground": "#3D2240", "folder": "6-id", "filePrefix": "essay6_slide_", "slideCount": 10,
     "indexGray": "/slides/6-id/essay6_slide_01_gray.png",

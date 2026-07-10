@@ -19,6 +19,7 @@ interface Essay {
   docUrl: string;
   quote?: string;
   date?: string;
+  cardTitle?: string[];  // optional [upright, italic] override for the cover-card lockup
   // Legacy deck fields — unused by the app (server.js/scripts still read some)
   slideCount?: number;
   filePrefix?: string;
@@ -77,7 +78,12 @@ function ThemeToggle() {
 
 // Split a title for the cover-card lockup: upright lead + italic close,
 // echoing the deck art ("A Diminished / World", "First Principles / 1: Unity").
-function splitTitle(title: string): { upright: string; italic: string } {
+// An essay's cardTitle field overrides the heuristic when it breaks badly.
+function splitTitle(essay: Essay): { upright: string; italic: string } {
+  if (essay.cardTitle?.length === 2) {
+    return { upright: essay.cardTitle[0], italic: essay.cardTitle[1] };
+  }
+  const title = essay.title;
   const fp = title.match(/^First Principles (\d+): ([\s\S]*)$/);
   if (fp) return { upright: 'First Principles', italic: `${fp[1]}: ${fp[2]}` };
   const colon = title.indexOf(':');
@@ -381,7 +387,7 @@ function ReadingView({ essay, onClose, onOpen }: {
 // ─── Index card — live HTML deck cover on the gallery wall ────────────────────
 
 function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
-  const { upright, italic } = splitTitle(essay.title);
+  const { upright, italic } = splitTitle(essay);
   const len = essay.title.length;
   const titleSize = len > 42 ? '1.05rem' : len > 26 ? '1.3rem' : '1.55rem';
 
@@ -456,7 +462,7 @@ function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
 // into the wall when a newer essay takes this spot.
 
 function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
-  const { upright, italic } = splitTitle(essay.title);
+  const { upright, italic } = splitTitle(essay);
   const len = essay.title.length;
   const titleSize = len > 42 ? '1.5rem' : len > 26 ? '1.9rem' : '2.2rem';
 
