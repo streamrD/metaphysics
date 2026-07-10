@@ -80,6 +80,19 @@ def draw_divider(d, cx, cy):
     d.line([(cx-120, cy), (cx-24, cy)], fill=lc, width=2)
     d.line([(cx+24, cy), (cx+120, cy)], fill=lc, width=2)
 
+def draw_asterism_lines(d, cx, cy):
+    # the three-diamond asterism flanked by two horizontal rules
+    draw_asterism(d, cx, cy, GOLD)
+    lc = blend(GOLD, BG, 0.5)
+    d.line([(cx-128, cy), (cx-34, cy)], fill=lc, width=2)
+    d.line([(cx+34, cy), (cx+128, cy)], fill=lc, width=2)
+
+def draw_tail(d, kind, cx, cy):
+    if kind == 'asterism_lines':
+        draw_asterism_lines(d, cx, cy)
+    else:
+        draw_asterism(d, cx, cy, GOLD)
+
 # ---------- mixed-run text engine ----------
 def tok_font(style, S):
     if style == 'caps':     return ImageFont.truetype(EBG_MED, int(S*0.84)), max(2, int(S*0.055))
@@ -198,7 +211,7 @@ def render_dropcap(slide, idx):
     if tail:
         right = max((100 + indent if i < 2 else 100) + bf.getlength(ln)
                     for i, ln in enumerate(lines))
-        draw_asterism(d, int((100 + right)/2), y_after + 26, GOLD)
+        draw_tail(d, tail, int((100 + right)/2), y_after + 40)
         y_after += tail_block
     if cta:
         spaced(d, (100, y_after + 42), cta, ImageFont.truetype(EBG_MED, 22), GOLD, 4)
@@ -242,7 +255,7 @@ def render_reading(slide, idx):
         y += leading
     if tail:
         cx = W//2 if center else int(100 + maxlw/2)
-        draw_asterism(d, cx, y + 26, GOLD); y += tail_block
+        draw_tail(d, tail, cx, y + 40); y += tail_block
     if cta:
         y += 42
         fc = ImageFont.truetype(EBG_MED, 22)
@@ -296,7 +309,7 @@ SLIDES = [
  dict(k='read', dropcap=True, text='Ecological loss rarely arrives all at once. It comes one clearing, one road, one mine, one justification at a time, until the survivors remember abundance only as legend.'),
  dict(k='read', tail='asterism', text='Our forests, rivers, national parks and public lands occupy a critical place in our cultural imagination. They are not simply recreational spaces or economic assets. They are repositories of memory, biodiversity, beauty, and identity. They remind us that there are parts of the world whose greatest value lies precisely in remaining more than raw material.'),
  dict(k='call', head='An extractive mindset asks what can be removed. A stewardship mindset asks what can endure.', ornament='divider'),
- dict(k='call', head='Do we belong to the natural world, or does it belong to us?', ornament='divider'),
+ dict(k='call', head='Do we belong to the natural world, or does it belong to us?'),
  dict(k='read', dropcap=True, text='How we answer that question will determine whether future generations inherit a living world—or merely stories of the one we lost.'),
 ]
 
@@ -308,7 +321,7 @@ import re
 REPO = '/Users/tcs16/Desktop/Personal/Projects/metaphysics-git'
 CTA = 'READ THE ESSAY ONLINE   →   LINK IN BIO'
 TARGETS = {
-    'online': (f'{REPO}/public/slides/13-diminished', dict(tail='asterism')),
+    'online': (f'{REPO}/public/slides/13-diminished', dict(tail='asterism_lines')),
     'ig':     (f'{REPO}/instagram/13-diminished',     dict(cta=CTA)),
 }
 
