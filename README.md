@@ -158,12 +158,17 @@ field in `essays.json` rather than bending the heuristic:
 - **short titles (two–three words) set as a single italic line** — empty upright part:
   essays 07/08/11 `["", "The Two Paths"]` etc., matching "Passengers"
 
-**One type scale for every square, featured included.** Title: `1.55rem` (≤24 chars),
-`1.3rem` (25–42), `1.05rem` (>42); eyebrow and byline labels: `.5rem` Lato letterspaced
-caps. The featured square is the same object as the wall's, just hung larger — it must
-never carry its own bigger type. Titles in a series should land in the same size bucket
-(all three "First Principles" cards sit at 1.3rem; the 24-char threshold was chosen so
-essay 1 matches its siblings).
+**One type scale for every square, featured included — and it scales with the square.**
+Card typography is **container-relative** (`cqw` units; the `.gallery-card-art` div is a
+size container), so a card behaves like an image at any width. Fixed rem type overflowed
+and clipped on the 2-column phone grid — that's the bug this exists to prevent; don't
+convert card type back to rem/px. Title buckets (values at the ~330px reference square):
+`8.6cqw ≈ 28px` (≤24 chars), `7cqw ≈ 23px` (25–42), `5.8cqw ≈ 19px` (>42); eyebrow and
+byline `2.8cqw ≈ 9px` Lato letterspaced caps. px fallbacks in `index.css` cover browsers
+without container-query units. The featured square uses the identical `cqw` values — the
+same cover, printed larger, so its type is bigger only in proportion to its square.
+Titles in a series should land in the same bucket (all three "First Principles" cards sit
+in the middle bucket; the 24-char threshold was chosen so essay 1 matches its siblings).
 
 **Fixed colors in both themes** — gold `#C9A227` eyebrow/ornament, ivory `#EDE7D6`
 title, on the essay's own `ground`. Cards never re-theme.

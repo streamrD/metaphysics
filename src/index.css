@@ -78,17 +78,69 @@
   }
 
   /* Gallery wall — live HTML deck covers. Each card keeps its own
-     deck ground in both themes; hover switches on the picture light. */
+     deck ground in both themes; hover switches on the picture light.
+     The card is a size container: all type inside scales with the square
+     (cqw units below), so it behaves like an image at any width — the
+     2-column phone grid included. px values are pre-container-query
+     fallbacks tuned to the ~330px desktop square. */
   .gallery-card-art {
     position: relative;
+    container-type: inline-size;
     aspect-ratio: 1;
     display: flex;
     flex-direction: column;
-    padding: 1.3rem 1.4rem;
+    padding: 23px 25px;
     box-sizing: border-box;
     overflow: hidden;
     border: 1px solid var(--card-border);
     transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  }
+
+  .card-eyebrow {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #C9A227;
+    line-height: 1.9;
+    margin: 0;
+  }
+
+  .card-title {
+    font-weight: 400;
+    line-height: 1.25;
+    color: #EDE7D6;
+    margin: auto 0;
+  }
+  .card-title--l { font-size: 28px; }  /* title ≤ 24 chars */
+  .card-title--m { font-size: 23px; }  /* 25–42 chars */
+  .card-title--s { font-size: 19px; }  /* > 42 chars */
+
+  .card-rule { display: flex; align-items: center; gap: 8px; }
+  .card-rule .ln { height: 1px; width: 33px; background: rgba(201, 162, 39, 0.55); }
+  .card-rule .di { width: 5px; height: 5px; transform: rotate(45deg); background: #C9A227; }
+
+  .card-author {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(237, 231, 214, 0.55);
+    margin: 12px 0 0;
+  }
+
+  @supports (width: 1cqw) {
+    .gallery-card-art { padding: 7cqw 7.5cqw; }
+    .card-eyebrow { font-size: 2.8cqw; }
+    .card-title--l { font-size: 8.6cqw; }
+    .card-title--m { font-size: 7cqw; }
+    .card-title--s { font-size: 5.8cqw; }
+    .card-rule { gap: 2.4cqw; }
+    .card-rule .ln { width: 10cqw; }
+    .card-rule .di { width: 1.5cqw; height: 1.5cqw; }
+    .card-author { font-size: 2.8cqw; margin-top: 3.6cqw; }
   }
 
   .gallery-card-art::after {

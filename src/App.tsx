@@ -386,13 +386,36 @@ function ReadingView({ essay, onClose, onOpen }: {
 
 // ─── Index card — live HTML deck cover on the gallery wall ────────────────────
 
-function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
-  const { upright, italic } = splitTitle(essay);
-  const len = essay.title.length;
-  const titleSize = len > 42 ? '1.05rem' : len > 24 ? '1.3rem' : '1.55rem';
+// Title size bucket — shared by grid and featured cards (see index.css)
+function titleBucket(title: string): 's' | 'm' | 'l' {
+  return title.length > 42 ? 's' : title.length > 24 ? 'm' : 'l';
+}
 
-  // The card keeps its deck's own ground and fixed deck colors in both
-  // themes — it is an object from the collection's world, not a UI panel.
+// The card art — an object from the collection's world, not a UI panel: it
+// keeps its deck's own ground and fixed deck colors in both themes, and its
+// type scales with the square (container units) like an image would.
+function CardArt({ essay }: { essay: Essay }) {
+  const { upright, italic } = splitTitle(essay);
+  return (
+    <div className="gallery-card-art" style={{ background: essay.ground }}>
+      <p className="card-eyebrow">
+        A Collection of Metaphysical Essays<br />Essay {essay.num}
+      </p>
+      <h3 className={`font-serif card-title card-title--${titleBucket(essay.title)}`}>
+        {upright && <>{upright}<br /></>}
+        <em>{italic}</em>
+      </h3>
+      <div>
+        <div className="card-rule" aria-hidden="true">
+          <span className="ln" /><span className="di" /><span className="ln" />
+        </div>
+        <p className="card-author">Todd Stabley</p>
+      </div>
+    </div>
+  );
+}
+
+function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
   return (
     <motion.article
       variants={{
@@ -402,36 +425,7 @@ function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
       className="group cursor-pointer w-full"
       onClick={onClick}
     >
-      <div className="gallery-card-art" style={{ background: essay.ground }}>
-        <p style={{
-          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.5rem',
-          letterSpacing: '.22em', textTransform: 'uppercase', color: '#C9A227',
-          lineHeight: 1.9, margin: 0,
-        }}>
-          A Collection of Metaphysical Essays<br />Essay {essay.num}
-        </p>
-        <h3 className="font-serif" style={{
-          fontSize: titleSize, fontWeight: 400, lineHeight: 1.25,
-          color: '#EDE7D6', margin: 'auto 0',
-        }}>
-          {upright && <>{upright}<br /></>}
-          <em>{italic}</em>
-        </h3>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} aria-hidden="true">
-            <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
-            <span style={{ width: '5px', height: '5px', transform: 'rotate(45deg)', background: '#C9A227' }} />
-            <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
-          </div>
-          <p style={{
-            fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.5rem',
-            letterSpacing: '.2em', textTransform: 'uppercase',
-            color: 'rgba(237,231,214,.55)', margin: '12px 0 0',
-          }}>
-            Todd Stabley
-          </p>
-        </div>
-      </div>
+      <CardArt essay={essay} />
 
       {/* Caption — number, date, title; the metadata appears exactly once */}
       <div className="flex items-baseline justify-between mt-4">
@@ -462,12 +456,6 @@ function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
 // into the wall when a newer essay takes this spot.
 
 function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
-  const { upright, italic } = splitTitle(essay);
-  const len = essay.title.length;
-  // Same type scale as the grid cards — the featured square is the same
-  // object as the wall's, just hung larger
-  const titleSize = len > 42 ? '1.05rem' : len > 24 ? '1.3rem' : '1.55rem';
-
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -478,36 +466,7 @@ function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void })
       style={{ maxWidth: '880px', margin: '0 auto 6.5rem' }}
       onClick={onClick}
     >
-      <div className="gallery-card-art" style={{ background: essay.ground, padding: '1.8rem 2rem' }}>
-        <p style={{
-          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.5rem',
-          letterSpacing: '.22em', textTransform: 'uppercase', color: '#C9A227',
-          lineHeight: 1.9, margin: 0,
-        }}>
-          A Collection of Metaphysical Essays<br />Essay {essay.num}
-        </p>
-        <h3 className="font-serif" style={{
-          fontSize: titleSize, fontWeight: 400, lineHeight: 1.25,
-          color: '#EDE7D6', margin: 'auto 0',
-        }}>
-          {upright && <>{upright}<br /></>}
-          <em>{italic}</em>
-        </h3>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} aria-hidden="true">
-            <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
-            <span style={{ width: '5px', height: '5px', transform: 'rotate(45deg)', background: '#C9A227' }} />
-            <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
-          </div>
-          <p style={{
-            fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.5rem',
-            letterSpacing: '.2em', textTransform: 'uppercase',
-            color: 'rgba(237,231,214,.55)', margin: '12px 0 0',
-          }}>
-            Todd Stabley
-          </p>
-        </div>
-      </div>
+      <CardArt essay={essay} />
 
       <div className="text-center md:text-left">
         <p style={{
