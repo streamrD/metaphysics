@@ -297,23 +297,35 @@ SLIDES = [
  dict(k='read', tail='asterism', text='Our forests, rivers, national parks and public lands occupy a critical place in our cultural imagination. They are not simply recreational spaces or economic assets. They are repositories of memory, biodiversity, beauty, and identity. They remind us that there are parts of the world whose greatest value lies precisely in remaining more than raw material.'),
  dict(k='call', head='An extractive mindset asks what can be removed. A stewardship mindset asks what can endure.', ornament='divider'),
  dict(k='call', head='Do we belong to the natural world, or does it belong to us?', ornament='divider'),
- dict(k='read', dropcap=True, text='How we answer that question will determine whether future generations inherit a living world—or merely stories of the one we lost.',
-      cta='READ THE ESSAY ONLINE   →   LINK IN BIO'),
+ dict(k='read', dropcap=True, text='How we answer that question will determine whether future generations inherit a living world—or merely stories of the one we lost.'),
 ]
 
-OUT = '/Users/tcs16/Desktop/Personal/Projects/metaphysics-git/public/slides/13-diminished'
-os.makedirs(OUT, exist_ok=True)
-for old in os.listdir(OUT):
-    if old.startswith('essay13_slide_') and old.endswith('.png'):
-        os.remove(os.path.join(OUT, old))
+# Two closing variants share slides 1-9; only the final slide differs.
+#   online — served in the site carousel: no CTA (the reader is already online),
+#            closes with the deck's asterism tailpiece like other paragraph-ends.
+#   ig     — archived for Instagram: carries the link-in-bio call to action.
+import re
+REPO = '/Users/tcs16/Desktop/Personal/Projects/metaphysics-git'
+CTA = 'READ THE ESSAY ONLINE   →   LINK IN BIO'
+TARGETS = {
+    'online': (f'{REPO}/public/slides/13-diminished', dict(tail='asterism')),
+    'ig':     (f'{REPO}/instagram/13-diminished',     dict(cta=CTA)),
+}
 
-for i, s in enumerate(SLIDES, start=1):
-    if s['k'] == 'cover':
-        img = render_cover(s['title'], s['support'], i)
-    elif s['k'] == 'read':
-        img = render_reading(s, i)
-    else:
-        img = render_callout(s['head'], i, ornament=s.get('ornament'))
-    img.save(f'{OUT}/essay13_slide_{i:02d}.png')
-    print(f'wrote essay13_slide_{i:02d}.png ({s["k"]})')
+for mode, (outdir, closing_extra) in TARGETS.items():
+    os.makedirs(outdir, exist_ok=True)
+    for old in os.listdir(outdir):
+        if re.fullmatch(r'essay13_slide_\d{2}\.png', old):   # keep _gray thumbnail
+            os.remove(os.path.join(outdir, old))
+    slides = [dict(s) for s in SLIDES]
+    slides[-1] = {**slides[-1], **closing_extra}
+    for i, s in enumerate(slides, start=1):
+        if s['k'] == 'cover':
+            img = render_cover(s['title'], s['support'], i)
+        elif s['k'] == 'read':
+            img = render_reading(s, i)
+        else:
+            img = render_callout(s['head'], i, ornament=s.get('ornament'))
+        img.save(f'{outdir}/essay13_slide_{i:02d}.png')
+    print(f'{mode}: wrote 10 slides -> {outdir}')
 print('done')
