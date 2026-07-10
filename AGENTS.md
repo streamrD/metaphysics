@@ -123,9 +123,17 @@ git add . && git commit -m "…" && git push origin main
 - Cover/cards use inline styles referencing `var(--…)` tokens deliberately.
 - `color-mix()` and `text-wrap: balance` are used — modern-browser CSS is assumed.
 - Touch devices (`hover: none`) skip the gallery hover lift.
-- Card typography is container-relative (`cqw`, `.gallery-card-art` is a size container)
-  so the squares scale like images. Fixed rem type overflowed the 2-column phone grid
-  (real iOS bug) — never convert card type back to rem/px.
+- **Card typography is a solved iOS bug — don't unsettle it.** The cards failed twice on
+  iOS Safari's 2-column grid (~150px squares): fixed rem type overflowed and clipped;
+  then bare-`cqw` proportional type rendered ~4px and unreadable. The shipped fix is
+  three interlocking parts in `index.css`, all required: container-relative sizes
+  (`.gallery-card-art` is a size container), `max(Ncqw, px)` legibility floors, and an
+  `@container (max-width: 230px)` rule that simplifies small cards to essay number +
+  title + diamond rule. Regression check after touching card CSS: ~390px viewport →
+  nothing clipped, titles ≥ 11px, miniature cards simplified; desktop unchanged.
+  Full history: README → "The iOS thumbnail bug".
+- The ☼/☾ toggle on the index is `absolute` on the cover, NOT `fixed` — a fixed toggle
+  floated over content while scrolling on phones. The reading view has its own toggle.
 - Feed readers cache aggressively — test RSS changes in a fresh reader.
 - The `[em]` handling in `formatEssayContent` carries state across lines on purpose
   (a tag pair can wrap multiple paragraphs).
