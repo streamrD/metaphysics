@@ -8,14 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
     <title>A Collection of Metaphysical Essays</title>
 
-    <!-- Theme (night = umber, day = cream) — set before first paint to avoid flash -->
+    <!-- Theme (night = umber, day = cream) — set before first paint to avoid flash.
+         First visit always opens in night; the ☼/☾ toggle persists the reader's choice. -->
     <script>
       (function () {
         var t;
         try { t = localStorage.getItem('theme'); } catch (e) { /* private mode */ }
-        if (t !== 'day' && t !== 'night') {
-          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night';
-        }
+        if (t !== 'day' && t !== 'night') t = 'night';
         document.documentElement.dataset.theme = t;
       })();
     </script>

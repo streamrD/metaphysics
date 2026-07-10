@@ -26,10 +26,11 @@ requires his sign-off:
    made it feel like clicking slides = reading the essay. `public/slides/` holds ONLY the
    1200×630 RSS/OG cards; full decks live in `instagram/` and git history. Don't resurrect
    the carousel.
-2. **Reader-owned ground.** ☼/☾ toggle flips the site between umber `#2A241E` (night,
-   default) and cream `#F5F0E3` (day). Persisted in `localStorage('theme')`; first visit
-   follows `prefers-color-scheme`; an inline script in `index.html` sets
-   `document.documentElement.dataset.theme` **before first paint** — keep it there.
+2. **Reader-owned ground.** ☼/☾ toggle flips the site between umber `#2A241E` (night)
+   and cream `#F5F0E3` (day). **First visit always opens in night** (deliberate — not
+   `prefers-color-scheme`); the toggle choice persists in `localStorage('theme')`; an
+   inline script in `index.html` sets `document.documentElement.dataset.theme`
+   **before first paint** — keep it there.
 3. **Index is a gallery wall**: live HTML/CSS cover cards (no PNG thumbnails), each on its
    deck's own `ground` color from `essays.json`. Cards keep fixed deck colors (gold
    `#C9A227`, ivory `#EDE7D6`) in BOTH themes — they're artwork, not UI panels.

@@ -65,9 +65,10 @@ intentional decisions — do not "fix" these without checking with the author:
    feeling they'd "read" an essay by clicking through slides. Deck PNGs remain on disk only
    for RSS/OG cards and as an archive.
 2. **The ground follows the reader.** A ☼/☾ toggle flips the whole site between umber
-   (`#2A241E`, night — the default) and cream (`#F5F0E3`, day). Choice persists in
-   `localStorage('theme')`; first visit follows `prefers-color-scheme`; an inline script in
-   `index.html` sets `data-theme` on `<html>` **before first paint** to avoid flash.
+   (`#2A241E`, night) and cream (`#F5F0E3`, day). **First visit always opens in night** —
+   the house register — regardless of OS preference; the reader's toggle choice persists
+   in `localStorage('theme')`. An inline script in `index.html` sets `data-theme` on
+   `<html>` **before first paint** to avoid flash.
 3. **Index = gallery wall.** Cover cards are live HTML/CSS (no PNG thumbnails), each on its
    deck's own ground color. Cards keep fixed deck colors (gold `#C9A227`, ivory `#EDE7D6`)
    in **both** themes — they are objects from the collection's world, not UI panels.
