@@ -389,7 +389,7 @@ function ReadingView({ essay, onClose, onOpen }: {
 function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
   const { upright, italic } = splitTitle(essay);
   const len = essay.title.length;
-  const titleSize = len > 42 ? '1.05rem' : len > 26 ? '1.3rem' : '1.55rem';
+  const titleSize = len > 42 ? '1.05rem' : len > 24 ? '1.3rem' : '1.55rem';
 
   // The card keeps its deck's own ground and fixed deck colors in both
   // themes — it is an object from the collection's world, not a UI panel.
@@ -464,7 +464,7 @@ function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
 function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
   const { upright, italic } = splitTitle(essay);
   const len = essay.title.length;
-  const titleSize = len > 42 ? '1.5rem' : len > 26 ? '1.9rem' : '2.2rem';
+  const titleSize = len > 42 ? '1.5rem' : len > 24 ? '1.9rem' : '2.2rem';
 
   return (
     <motion.article
