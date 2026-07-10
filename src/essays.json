@@ -104,6 +104,7 @@
   {
     "id": "10", "num": "11", "date": "June 2026", "isoDate": "2026-06-01",
     "title": "The Apprentice",
+    "cardTitle": ["", "The Apprentice"],
     "quote": "We all choose our path. But others step in to help.",
     "ground": "#2A2218", "folder": "11-apprentice", "filePrefix": "essay11_slide_", "slideCount": 7,
     "indexGray": "/slides/11-apprentice/essay11_slide_01_gray.png",
