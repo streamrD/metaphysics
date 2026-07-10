@@ -72,6 +72,11 @@
     font-style: italic;
   }
 
+  /* Centered callout quotes balance their line breaks — no orphan words */
+  .callout-quote {
+    text-wrap: balance;
+  }
+
   /* Gallery wall — live HTML deck covers. Each card keeps its own
      deck ground in both themes; hover switches on the picture light. */
   .gallery-card-art {

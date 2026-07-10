@@ -315,7 +315,7 @@ function ReadingView({ essay, onClose, onOpen }: {
           <div className="text-center mb-16">
             <DiamondRule />
             <p
-              className="italic mx-auto mt-6 text-zen-soft"
+              className="callout-quote italic mx-auto mt-6 text-zen-soft"
               style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '1.3rem', lineHeight: 1.7, maxWidth: '30em' }}
             >
               {essay.quote}
@@ -432,15 +432,6 @@ function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
           letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--gold)',
         }}>
           № {essay.num}
-          {Number(essay.num) === LATEST_NUM && (
-            <span style={{
-              marginLeft: '.6rem', fontSize: '.55rem', letterSpacing: '.18em',
-              border: '1px solid color-mix(in srgb, var(--gold) 50%, transparent)',
-              padding: '.12rem .4rem .08rem',
-            }}>
-              New
-            </span>
-          )}
         </span>
         {essay.date && (
           <span className="italic" style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '.85rem', color: 'var(--muted)' }}>
@@ -454,6 +445,92 @@ function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
       >
         {essay.title}
       </h2>
+    </motion.article>
+  );
+}
+
+// ─── Featured card — the newest essay's cover, presented at the top ───────────
+// The featured essay does not repeat in the grid below; it cycles down
+// into the wall when a newer essay takes this spot.
+
+function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
+  const { upright, italic } = splitTitle(essay.title);
+  const len = essay.title.length;
+  const titleSize = len > 42 ? '1.5rem' : len > 26 ? '1.9rem' : '2.2rem';
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="group cursor-pointer grid gap-8 md:gap-12 md:grid-cols-2 items-center"
+      style={{ maxWidth: '880px', margin: '0 auto 6.5rem' }}
+      onClick={onClick}
+    >
+      <div className="gallery-card-art" style={{ background: essay.ground, padding: '1.8rem 2rem' }}>
+        <p style={{
+          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.6rem',
+          letterSpacing: '.22em', textTransform: 'uppercase', color: '#C9A227',
+          lineHeight: 1.9, margin: 0,
+        }}>
+          A Collection of Metaphysical Essays<br />Essay {essay.num}
+        </p>
+        <h3 className="font-serif" style={{
+          fontSize: titleSize, fontWeight: 400, lineHeight: 1.25,
+          color: '#EDE7D6', margin: 'auto 0',
+        }}>
+          {upright && <>{upright}<br /></>}
+          <em>{italic}</em>
+        </h3>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} aria-hidden="true">
+            <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
+            <span style={{ width: '5px', height: '5px', transform: 'rotate(45deg)', background: '#C9A227' }} />
+            <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
+          </div>
+          <p style={{
+            fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.6rem',
+            letterSpacing: '.2em', textTransform: 'uppercase',
+            color: 'rgba(237,231,214,.55)', margin: '12px 0 0',
+          }}>
+            Todd Stabley
+          </p>
+        </div>
+      </div>
+
+      <div className="text-center md:text-left">
+        <p style={{
+          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.68rem',
+          letterSpacing: '.22em', textTransform: 'uppercase', color: 'var(--gold)',
+          marginBottom: '1rem',
+        }}>
+          Latest · № {essay.num}
+        </p>
+        <h2
+          className="font-serif text-zen-text group-hover:text-zen-gold transition-colors duration-300"
+          style={{ fontSize: '2rem', fontWeight: 400, lineHeight: 1.2 }}
+        >
+          {essay.title}
+        </h2>
+        {essay.date && (
+          <p className="italic" style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '.95rem', color: 'var(--muted)', margin: '.6rem 0 0' }}>
+            {essay.date}
+          </p>
+        )}
+        {essay.quote && (
+          <p className="italic text-zen-soft" style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '1.1rem', lineHeight: 1.75, margin: '1.4rem 0 0' }}>
+            {essay.quote}
+          </p>
+        )}
+        <p style={{
+          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.68rem',
+          letterSpacing: '.22em', textTransform: 'uppercase', color: 'var(--gold)',
+          margin: '1.6rem 0 0',
+        }}>
+          Read →
+        </p>
+      </div>
     </motion.article>
   );
 }
@@ -488,6 +565,8 @@ export default function App() {
     window.history.pushState({}, '', '/');
     setSelected(null);
   }, []);
+
+  const latest = ESSAYS.find(e => Number(e.num) === LATEST_NUM);
 
   return (
     <div className="min-h-screen bg-zen-bg text-zen-text">
@@ -590,15 +669,16 @@ export default function App() {
         </motion.div>
       </div>
 
-      {/* Gallery wall — essays in order, first to last */}
+      {/* Gallery wall — newest essay featured, the rest in order below */}
       <main style={{ maxWidth: '1100px', width: '100%', margin: '0 auto', paddingLeft: '2rem', paddingRight: '2rem', paddingBottom: '8rem', boxSizing: 'border-box' }}>
+        {latest && <FeaturedCard essay={latest} onClick={() => openEssay(latest)} />}
         <motion.div
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
           className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16"
         >
-          {[...ESSAYS].sort((a, b) => Number(a.num) - Number(b.num)).map(essay => (
+          {[...ESSAYS].filter(e => Number(e.num) !== LATEST_NUM).sort((a, b) => Number(a.num) - Number(b.num)).map(essay => (
             <CoverCard
               key={essay.id}
               essay={essay}
@@ -618,8 +698,10 @@ export default function App() {
       {/* Reading overlay */}
       <AnimatePresence>
         {selected && (
+          // Constant key: essay-to-essay navigation updates the mounted view in
+          // place instead of cross-fading two overlays (which flashed the index)
           <ReadingView
-            key={selected.id}
+            key="reading"
             essay={selected}
             onClose={closeEssay}
             onOpen={openEssay}
