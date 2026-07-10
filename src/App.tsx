@@ -464,7 +464,9 @@ function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
 function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
   const { upright, italic } = splitTitle(essay);
   const len = essay.title.length;
-  const titleSize = len > 42 ? '1.5rem' : len > 24 ? '1.9rem' : '2.2rem';
+  // Same type scale as the grid cards — the featured square is the same
+  // object as the wall's, just hung larger
+  const titleSize = len > 42 ? '1.05rem' : len > 24 ? '1.3rem' : '1.55rem';
 
   return (
     <motion.article
@@ -478,7 +480,7 @@ function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void })
     >
       <div className="gallery-card-art" style={{ background: essay.ground, padding: '1.8rem 2rem' }}>
         <p style={{
-          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.6rem',
+          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.5rem',
           letterSpacing: '.22em', textTransform: 'uppercase', color: '#C9A227',
           lineHeight: 1.9, margin: 0,
         }}>
@@ -498,7 +500,7 @@ function FeaturedCard({ essay, onClick }: { essay: Essay; onClick: () => void })
             <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
           </div>
           <p style={{
-            fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.6rem',
+            fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.5rem',
             letterSpacing: '.2em', textTransform: 'uppercase',
             color: 'rgba(237,231,214,.55)', margin: '12px 0 0',
           }}>
