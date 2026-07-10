@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowUpRight, BookOpen, Layers } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, BookOpen } from 'lucide-react';
 import essaysData from './essays.json';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -14,6 +14,7 @@ interface Essay {
   id: string;
   num: string;
   title: string;
+  ground: string;
   folder: string;
   slideCount: number;
   filePrefix: string;
@@ -27,11 +28,71 @@ interface Essay {
 // ─── Essay data ───────────────────────────────────────────────────────────────
 
 const ESSAYS: Essay[] = essaysData;
+const LATEST_NUM = Math.max(...ESSAYS.map(e => Number(e.num)));
+
+// ─── Theme (night = umber, day = cream) ───────────────────────────────────────
+
+type Theme = 'night' | 'day';
+
+function currentTheme(): Theme {
+  return document.documentElement.dataset.theme === 'day' ? 'day' : 'night';
+}
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState<Theme>(currentTheme);
+  const apply = (t: Theme) => {
+    document.documentElement.dataset.theme = t;
+    try { localStorage.setItem('theme', t); } catch { /* private mode */ }
+    setTheme(t);
+  };
+  const option = (t: Theme, label: string) => (
+    <button
+      key={t}
+      onClick={() => apply(t)}
+      aria-pressed={theme === t}
+      className="focus:outline-none"
+      style={{
+        fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.6rem',
+        letterSpacing: '.14em', textTransform: 'uppercase',
+        padding: '.34rem .65rem .3rem', cursor: 'pointer', border: 'none',
+        color: theme === t ? 'var(--gold)' : 'var(--muted)',
+        background: theme === t ? 'color-mix(in srgb, var(--gold) 16%, transparent)' : 'transparent',
+        transition: 'color .25s, background .25s',
+      }}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div style={{ display: 'flex', border: '1px solid var(--hairline)', borderRadius: '999px', overflow: 'hidden' }}>
+      {option('day', '☼ Day')}
+      {option('night', '☾ Night')}
+    </div>
+  );
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function slideUrl(essay: Essay, n: number): string {
-  return `/slides/${essay.folder}/${essay.filePrefix}${String(n).padStart(2, '0')}.png`;
+// Split a title for the cover-card lockup: upright lead + italic close,
+// echoing the deck art ("A Diminished / World", "First Principles / 1: Unity").
+function splitTitle(title: string): { upright: string; italic: string } {
+  const fp = title.match(/^First Principles (\d+): ([\s\S]*)$/);
+  if (fp) return { upright: 'First Principles', italic: `${fp[1]}: ${fp[2]}` };
+  const colon = title.indexOf(':');
+  if (colon > -1) return { upright: title.slice(0, colon + 1), italic: title.slice(colon + 1).trim() };
+  const words = title.split(' ');
+  if (words.length < 2) return { upright: '', italic: title };
+  return { upright: words.slice(0, -1).join(' '), italic: words[words.length - 1] };
+}
+
+function DiamondRule({ width = 36 }: { width?: number }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px' }} aria-hidden="true">
+      <span style={{ height: '1px', width, background: 'color-mix(in srgb, var(--gold) 55%, transparent)' }} />
+      <span style={{ width: '5px', height: '5px', transform: 'rotate(45deg)', background: 'var(--gold)' }} />
+      <span style={{ height: '1px', width, background: 'color-mix(in srgb, var(--gold) 55%, transparent)' }} />
+    </div>
+  );
 }
 
 function formatEssayContent(text: string): React.ReactNode[] {
@@ -187,160 +248,16 @@ async function fetchEssayText(essay: Essay): Promise<string> {
   throw new Error('Could not load');
 }
 
-// ─── Carousel slide animation variants (defined once, outside component) ────────
-const SLIDE_VARIANTS = {
-  enter: (d: number) => ({ opacity: 0, x: d > 0 ? 50 : -50 }),
-  center: { opacity: 1, x: 0 },
-  exit: (d: number) => ({ opacity: 0, x: d > 0 ? -50 : 50 }),
-};
+// ─── Reading view ─────────────────────────────────────────────────────────────
 
-// ─── Inline Carousel (used inside ReadingView) ────────────────────────────────
-
-function InlineCarousel({ essay, onCollapse, scrollRef }: {
+function ReadingView({ essay, onClose, onOpen }: {
   essay: Essay;
-  onCollapse: () => void;
-  scrollRef: React.RefObject<HTMLDivElement>;
+  onClose: () => void;
+  onOpen: (essay: Essay) => void;
 }) {
-  const [slide, setSlide] = useState(0);
-  const [dir, setDir] = useState(0);
-  const dragX = useRef(0);
-  const frameRef = useRef<HTMLDivElement>(null);
-  const [frameRect, setFrameRect] = useState<DOMRect | null>(null);
-
-  // Track carousel position for fixed arrow placement
-  useEffect(() => {
-    const update = () => {
-      if (frameRef.current) setFrameRect(frameRef.current.getBoundingClientRect());
-    };
-    update();
-    window.addEventListener('resize', update);
-    window.addEventListener('scroll', update, true);
-    return () => { window.removeEventListener('resize', update); window.removeEventListener('scroll', update, true); };
-  }, []);
-
-  const go = useCallback((d: number) => {
-    const next = slide + d;
-    if (next < 0 || next >= essay.slideCount) return;
-    setDir(d); setSlide(next);
-  }, [slide, essay.slideCount]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') go(1);
-      if (e.key === 'ArrowLeft') go(-1);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [go]);
-
-  const forwardScroll = (e: React.WheelEvent) => {
-    if (scrollRef.current) scrollRef.current.scrollTop += e.deltaY;
-  };
-
-  return (
-    <div className="w-full">
-
-      {/* Fixed left zone — full viewport whitespace left of carousel, scrollable */}
-      {frameRect && frameRect.left > 10 && (
-        <div
-          onClick={() => go(-1)}
-          onWheel={forwardScroll}
-          style={{
-            position: 'fixed', top: frameRect.top, left: 0,
-            width: frameRect.left, height: frameRect.height,
-            zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: slide === 0 ? 'default' : 'pointer',
-            opacity: slide === 0 ? 0 : 1, transition: 'opacity 0.2s',
-          }}
-          className="group"
-        >
-          <svg width="60" height="10" viewBox="0 0 60 10" fill="none"
-            style={{ opacity: 0.2, transition: 'opacity 0.2s' }}
-            className="group-hover:opacity-60">
-            <line x1="60" y1="5" x2="1" y2="5" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round"/>
-            <line x1="1" y1="5" x2="8" y2="1" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round"/>
-            <line x1="1" y1="5" x2="8" y2="9" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round"/>
-          </svg>
-        </div>
-      )}
-
-      {/* Fixed right zone — full viewport whitespace right of carousel, scrollable */}
-      {frameRect && (window.innerWidth - frameRect.right) > 10 && (
-        <div
-          onClick={() => go(1)}
-          onWheel={forwardScroll}
-          style={{
-            position: 'fixed', top: frameRect.top, left: frameRect.right,
-            width: window.innerWidth - frameRect.right, height: frameRect.height,
-            zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: slide === essay.slideCount - 1 ? 'default' : 'pointer',
-            opacity: slide === essay.slideCount - 1 ? 0 : 1, transition: 'opacity 0.2s',
-          }}
-          className="group"
-        >
-          <svg width="60" height="10" viewBox="0 0 60 10" fill="none"
-            style={{ opacity: 0.2, transition: 'opacity 0.2s' }}
-            className="group-hover:opacity-60">
-            <line x1="0" y1="5" x2="59" y2="5" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round"/>
-            <line x1="59" y1="5" x2="52" y2="1" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round"/>
-            <line x1="59" y1="5" x2="52" y2="9" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round"/>
-          </svg>
-        </div>
-      )}
-
-      {/* Carousel frame */}
-      <div
-        ref={frameRef}
-        className="relative aspect-square bg-neutral-50 border border-neutral-200 overflow-hidden select-none cursor-pointer"
-        onMouseDown={e => { dragX.current = e.clientX; }}
-        onMouseUp={e => {
-          const d = e.clientX - dragX.current;
-          if (Math.abs(d) > 40) { go(d < 0 ? 1 : -1); return; }
-          if (!(e.target as HTMLElement).closest('button')) onCollapse();
-        }}
-        onTouchStart={e => { dragX.current = e.touches[0].clientX; }}
-        onTouchEnd={e => { const d = e.changedTouches[0].clientX - dragX.current; if (Math.abs(d) > 40) go(d < 0 ? 1 : -1); }}
-      >
-        <AnimatePresence mode="wait" custom={dir}>
-          <motion.img
-            key={slide}
-            custom={dir}
-            variants={SLIDE_VARIANTS}
-            initial="enter" animate="center" exit="exit"
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            src={slideUrl(essay, slide + 1)}
-            alt={`${essay.title} — slide ${slide + 1}`}
-            className="absolute inset-0 w-full h-full object-cover"
-            draggable={false}
-          />
-        </AnimatePresence>
-        <div className="absolute bottom-3 right-4 text-[10px] tracking-widest text-white/70 mix-blend-difference">
-          {String(slide + 1).padStart(2, '0')} / {String(essay.slideCount).padStart(2, '0')}
-        </div>
-      </div>
-
-      {/* Dots */}
-      <div className="flex justify-center gap-1.5 mt-3">
-        {Array.from({ length: essay.slideCount }).map((_, i) => (
-          <button
-            key={i}
-            onClick={() => { setDir(i > slide ? 1 : -1); setSlide(i); }}
-            className="rounded-full bg-zen-accent transition-all duration-300 focus:outline-none"
-            style={{ width: i === slide ? '18px' : '5px', height: '5px', opacity: i === slide ? 0.7 : 0.2 }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── Reading view — primary essay view, with expandable slides ────────────────
-
-function ReadingView({ essay, onClose }: { essay: Essay; onClose: () => void }) {
   const [text, setText] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [slidesOpen, setSlidesOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -350,6 +267,10 @@ function ReadingView({ essay, onClose }: { essay: Essay; onClose: () => void }) 
       .then(t => { setText(t); setLoading(false); })
       .catch(() => { setError(true); setLoading(false); });
   }, [essay.id]);
+
+  const n = Number(essay.num);
+  const prev = ESSAYS.find(e => Number(e.num) === n - 1);
+  const next = ESSAYS.find(e => Number(e.num) === n + 1);
 
   return (
     <motion.div
@@ -361,88 +282,59 @@ function ReadingView({ essay, onClose }: { essay: Essay; onClose: () => void }) 
       className="fixed inset-0 bg-zen-bg overflow-y-auto z-50"
     >
       {/* Sticky top bar */}
-      <div className="sticky top-0 z-10 bg-zen-bg/90 backdrop-blur-md border-b border-neutral-100">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div
+        className="sticky top-0 z-10 backdrop-blur-md"
+        style={{ background: 'color-mix(in srgb, var(--ground) 88%, transparent)', borderBottom: '1px solid var(--hairline)' }}
+      >
+        <div className="max-w-3xl mx-auto px-6 py-3.5 flex items-center justify-between gap-4">
           <button
             onClick={onClose}
-            className="flex items-center gap-2 text-sm tracking-widest uppercase text-zen-text/40 hover:text-zen-text transition-colors group"
+            className="flex items-center gap-2 text-sm tracking-widest uppercase text-zen-accent hover:text-zen-text transition-colors group"
           >
             <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
-            Index
+            Contents
           </button>
-          <span className="text-[10px] tracking-[0.2em] uppercase text-zen-text/30">
+          <span className="text-[10px] tracking-[0.2em] uppercase text-zen-accent hidden sm:block">
             Essay {essay.num} · {essay.date}
           </span>
+          <ThemeToggle />
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-6 py-16 pb-32">
+      <div className="max-w-2xl mx-auto px-6 py-16 pb-24">
         {/* Title */}
-        <h1 className="font-serif text-4xl md:text-5xl font-light leading-tight tracking-tight text-zen-text mb-8">
+        <h1
+          className="font-serif font-light leading-tight tracking-tight text-zen-text text-center mb-10"
+          style={{ fontSize: 'clamp(2.4rem, 6vw, 3.4rem)' }}
+        >
           {essay.title}
         </h1>
 
-        {/* Pull quote */}
+        {/* Callout — the essay's key line, standing on its own */}
         {essay.quote && (
-          <blockquote className="font-serif italic text-xl leading-relaxed text-zen-text/45 border-l-2 border-zen-accent/40 pl-6 mb-10">
-            "{essay.quote}"
-          </blockquote>
-        )}
-
-        {/* View Slides toggle (hidden for essays without a slide deck) */}
-        {essay.slideCount > 0 && <div className="mb-14">
-          <button
-            onClick={() => setSlidesOpen(v => !v)}
-            tabIndex={-1}
-            className="flex items-center gap-2.5 text-[11px] tracking-[0.2em] uppercase text-zen-text/35 hover:text-zen-accent/70 transition-colors duration-200 group focus:outline-none"
-          >
-            <Layers size={13} className="transition-transform duration-300 group-hover:scale-110" />
-            {slidesOpen ? 'Hide Slides' : 'View Slides'}
-            <motion.span
-              animate={{ rotate: slidesOpen ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-[10px] opacity-50"
+          <div className="text-center mb-16">
+            <DiamondRule />
+            <p
+              className="italic mx-auto mt-6 text-zen-soft"
+              style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '1.3rem', lineHeight: 1.7, maxWidth: '30em' }}
             >
-              ▾
-            </motion.span>
-          </button>
-
-          <AnimatePresence>
-            {slidesOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="overflow-hidden"
-              >
-                <div className="pt-6">
-                  <InlineCarousel essay={essay} onCollapse={() => setSlidesOpen(false)} scrollRef={scrollRef} />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>}
-
-        {/* Divider */}
-        <div className="flex items-center gap-4 mb-14">
-          <div className="flex-1 bg-neutral-200" style={{ height: '1.5px' }} />
-          <span className="text-zen-accent/50 text-sm">◈</span>
-          <div className="flex-1 bg-neutral-200" style={{ height: '1.5px' }} />
-        </div>
+              {essay.quote}
+            </p>
+          </div>
+        )}
 
         {/* Essay body */}
         {loading && (
-          <div className="flex flex-col items-center gap-3 py-20 text-zen-text/20">
+          <div className="flex flex-col items-center gap-3 py-20 text-zen-text/25">
             <div className="w-8 h-px bg-current animate-pulse" />
             <p className="text-[10px] tracking-[0.3em] uppercase">Gathering thoughts…</p>
           </div>
         )}
         {error && (
-          <div className="rounded border border-amber-100 bg-amber-50/50 p-6 text-sm text-amber-800/70 leading-relaxed">
+          <div className="p-6 text-sm leading-relaxed text-zen-soft" style={{ border: '1px solid var(--hairline)' }}>
             <p className="mb-3 font-medium">Essay text could not be loaded automatically.</p>
             <a href={essay.docUrl} target="_blank" rel="noreferrer"
-              className="inline-flex items-center gap-2 text-xs tracking-widest uppercase hover:underline">
+              className="inline-flex items-center gap-2 text-xs tracking-widest uppercase text-zen-link hover:underline">
               <BookOpen size={12} /> Open on Google Docs
             </a>
           </div>
@@ -452,14 +344,47 @@ function ReadingView({ essay, onClose }: { essay: Essay; onClose: () => void }) 
             {formatEssayContent(text)}
           </motion.div>
         )}
+
+        {/* Vespers — the turn of the page */}
+        {!loading && (
+          <div className="mt-24 pt-8 flex items-baseline justify-between gap-6" style={{ borderTop: '1px solid var(--hairline)' }}>
+            {prev ? (
+              <button
+                onClick={() => onOpen(prev)}
+                className="italic text-left text-zen-soft hover:text-zen-gold transition-colors"
+                style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '.95rem', maxWidth: '38%' }}
+              >
+                ← {prev.title}
+              </button>
+            ) : <span style={{ maxWidth: '38%' }} />}
+            <span className="text-zen-gold" style={{ fontSize: '.55rem', whiteSpace: 'nowrap' }} aria-hidden="true">
+              ◆&nbsp;&nbsp;◆&nbsp;&nbsp;◆
+            </span>
+            {next ? (
+              <button
+                onClick={() => onOpen(next)}
+                className="italic text-right text-zen-soft hover:text-zen-gold transition-colors"
+                style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '.95rem', maxWidth: '38%' }}
+              >
+                {next.title} →
+              </button>
+            ) : <span style={{ maxWidth: '38%' }} />}
+          </div>
+        )}
       </div>
     </motion.div>
   );
 }
 
-// ─── Index card ───────────────────────────────────────────────────────────────
+// ─── Index card — live HTML deck cover on the gallery wall ────────────────────
 
-function EssayCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
+function CoverCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
+  const { upright, italic } = splitTitle(essay.title);
+  const len = essay.title.length;
+  const titleSize = len > 42 ? '1.05rem' : len > 26 ? '1.3rem' : '1.55rem';
+
+  // The card keeps its deck's own ground and fixed deck colors in both
+  // themes — it is an object from the collection's world, not a UI panel.
   return (
     <motion.article
       variants={{
@@ -469,45 +394,66 @@ function EssayCard({ essay, onClick }: { essay: Essay; onClick: () => void }) {
       className="group cursor-pointer w-full"
       onClick={onClick}
     >
-      {/* Thumbnail */}
-      <div className="aspect-square mb-5 overflow-hidden border border-neutral-200 relative">
-        <img
-          src={essay.indexGray}
-          alt={essay.title}
-          className="thumb-gray absolute inset-0 w-full h-full object-cover opacity-100 group-hover:opacity-0 transition-all duration-500"
-          draggable={false}
-        />
-        <img
-          src={essay.indexRollover}
-          alt=""
-          className="thumb-rollover absolute inset-0 w-full h-full object-cover opacity-0 scale-100 group-hover:opacity-100 group-hover:scale-[1.06] transition-all duration-500 ease-out"
-          draggable={false}
-        />
+      <div className="gallery-card-art" style={{ background: essay.ground }}>
+        <p style={{
+          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.5rem',
+          letterSpacing: '.22em', textTransform: 'uppercase', color: '#C9A227',
+          lineHeight: 1.9, margin: 0,
+        }}>
+          A Collection of Metaphysical Essays<br />Essay {essay.num}
+        </p>
+        <h3 className="font-serif" style={{
+          fontSize: titleSize, fontWeight: 400, lineHeight: 1.25,
+          color: '#EDE7D6', margin: 'auto 0',
+        }}>
+          {upright && <>{upright}<br /></>}
+          <em>{italic}</em>
+        </h3>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} aria-hidden="true">
+            <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
+            <span style={{ width: '5px', height: '5px', transform: 'rotate(45deg)', background: '#C9A227' }} />
+            <span style={{ height: '1px', width: '34px', background: 'rgba(201,162,39,.55)' }} />
+          </div>
+          <p style={{
+            fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.5rem',
+            letterSpacing: '.2em', textTransform: 'uppercase',
+            color: 'rgba(237,231,214,.55)', margin: '12px 0 0',
+          }}>
+            Todd Stabley
+          </p>
+        </div>
       </div>
 
-      {/* Meta */}
-      <div className="flex items-center gap-3 mb-2.5">
-        <span style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.65rem', letterSpacing: '.2em', color: '#b08d57', textTransform: 'uppercase' as const, display: 'block', marginBottom: '.25rem' }}>
-          #{essay.num}
+      {/* Caption — number, date, title; the metadata appears exactly once */}
+      <div className="flex items-baseline justify-between mt-4">
+        <span style={{
+          fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.68rem',
+          letterSpacing: '.18em', textTransform: 'uppercase', color: 'var(--gold)',
+        }}>
+          № {essay.num}
+          {Number(essay.num) === LATEST_NUM && (
+            <span style={{
+              marginLeft: '.6rem', fontSize: '.55rem', letterSpacing: '.18em',
+              border: '1px solid color-mix(in srgb, var(--gold) 50%, transparent)',
+              padding: '.12rem .4rem .08rem',
+            }}>
+              New
+            </span>
+          )}
         </span>
         {essay.date && (
-          <span style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.75rem', letterSpacing: '.1em', color: '#7a7a72', whiteSpace: 'nowrap' as const }}>{essay.date}</span>
+          <span className="italic" style={{ fontFamily: "'EB Garamond', Georgia, serif", fontSize: '.85rem', color: 'var(--muted)' }}>
+            {essay.date}
+          </span>
         )}
       </div>
-
-      <h2 className="font-serif leading-snug mb-3 group-hover:text-zen-accent transition-colors duration-300" style={{ fontSize: '1.2rem', fontWeight: 400 }}>
+      <h2
+        className="font-serif mt-1.5 text-zen-text group-hover:text-zen-gold transition-colors duration-300"
+        style={{ fontSize: '1.15rem', fontWeight: 400, lineHeight: 1.35 }}
+      >
         {essay.title}
       </h2>
-
-      {essay.quote && (
-        <p className="font-serif italic text-sm text-zen-text/40 line-clamp-4 border-l-2 border-zen-accent/20 pl-3.5 leading-relaxed mb-4">
-          {essay.quote}
-        </p>
-      )}
-
-      <div className="text-[10px] tracking-[0.2em] uppercase text-transparent group-hover:text-zen-accent/50 transition-colors duration-300">
-        Read →
-      </div>
     </motion.article>
   );
 }
@@ -544,22 +490,27 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-zen-bg text-zen-text selection:bg-zen-accent/15">
-      {/* Cover — matches v1 site exactly */}
+    <div className="min-h-screen bg-zen-bg text-zen-text">
+      {/* Theme toggle — sits above the cover; the reading overlay carries its own */}
+      <div className="fixed top-5 right-5 z-40">
+        <ThemeToggle />
+      </div>
+
+      {/* Cover */}
       <section style={{
         minHeight: '100vh', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         textAlign: 'center', padding: '4rem 2rem', position: 'relative',
-        background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(176,141,87,.07) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(176,141,87,.05) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 0%, color-mix(in srgb, var(--gold) 7%, transparent) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 50% 100%, color-mix(in srgb, var(--gold) 5%, transparent) 0%, transparent 70%)',
       }}>
         {/* Top rule */}
-        <div style={{ width: '1px', height: '80px', background: 'linear-gradient(to bottom, transparent, #b08d57, transparent)', margin: '0 auto' }} />
+        <div style={{ width: '1px', height: '80px', background: 'linear-gradient(to bottom, transparent, var(--gold), transparent)', margin: '0 auto' }} />
 
         {/* "A Collection of" */}
         <motion.p
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.2 }}
-          style={{ fontSize: '.85rem', color: '#b08d57', letterSpacing: '.35em', textTransform: 'uppercase', fontFamily: "'Lato', sans-serif", fontWeight: 300, margin: '2rem 0 1.2rem' }}
+          style={{ fontSize: '.85rem', color: 'var(--gold)', letterSpacing: '.35em', textTransform: 'uppercase', fontFamily: "'Lato', sans-serif", fontWeight: 300, margin: '2rem 0 1.2rem' }}
         >
           A Collection of
         </motion.p>
@@ -568,27 +519,27 @@ export default function App() {
         <motion.h1
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.4 }}
-          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(3rem, 8vw, 5.5rem)', fontWeight: 300, lineHeight: 1.1, color: '#1a1a18' }}
+          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(3rem, 8vw, 5.5rem)', fontWeight: 300, lineHeight: 1.1, color: 'var(--ink)' }}
         >
-          Metaphysical<br /><em style={{ fontStyle: 'italic', color: '#3d3d38' }}>Essays</em>
+          Metaphysical<br /><em style={{ fontStyle: 'italic', color: 'var(--ink-soft)' }}>Essays</em>
         </motion.h1>
 
         {/* Diamond divider */}
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.55 }}
-          style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#b08d57', margin: '1.5rem auto 1rem', width: '100%', maxWidth: '320px', justifyContent: 'center' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--gold)', margin: '1.5rem auto 1rem', width: '100%', maxWidth: '320px', justifyContent: 'center' }}
         >
-          <div style={{ flex: 1, height: '1px', background: 'rgba(176,141,87,0.5)' }} />
+          <div style={{ flex: 1, height: '1px', background: 'color-mix(in srgb, var(--gold) 50%, transparent)' }} />
           <span>✦</span>
-          <div style={{ flex: 1, height: '1px', background: 'rgba(176,141,87,0.5)' }} />
+          <div style={{ flex: 1, height: '1px', background: 'color-mix(in srgb, var(--gold) 50%, transparent)' }} />
         </motion.div>
 
         {/* Byline */}
         <motion.p
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.6 }}
-          style={{ fontSize: '.85rem', color: '#7a7a72', letterSpacing: '.2em', textTransform: 'uppercase', fontFamily: "'Lato', sans-serif", fontWeight: 300 }}
+          style={{ fontSize: '.85rem', color: 'var(--muted)', letterSpacing: '.2em', textTransform: 'uppercase', fontFamily: "'Lato', sans-serif", fontWeight: 300 }}
         >
           Todd Stabley
         </motion.p>
@@ -597,7 +548,7 @@ export default function App() {
         <motion.p
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.8 }}
-          style={{ maxWidth: '520px', fontSize: '1.1rem', color: '#3d3d38', lineHeight: 1.85, fontStyle: 'italic', margin: '2rem auto 2.5rem', fontFamily: "'EB Garamond', Georgia, serif" }}
+          style={{ maxWidth: '520px', fontSize: '1.1rem', color: 'var(--ink-soft)', lineHeight: 1.85, fontStyle: 'italic', margin: '2rem auto 2.5rem', fontFamily: "'EB Garamond', Georgia, serif" }}
         >
           No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I&apos;d had. May they help you remember what you already know <span style={{ whiteSpace: 'nowrap' }}>— now, when it matters most.</span>
         </motion.p>
@@ -607,16 +558,16 @@ export default function App() {
           href="#index"
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 1.2 }}
-          style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.8rem', letterSpacing: '.2em', textTransform: 'uppercase', color: '#7a7a72', textDecoration: 'none', display: 'inline-block' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#b08d57')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#7a7a72')}
+          style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.8rem', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', display: 'inline-block' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
         >
           Index of Essays
-          <div style={{ display: 'block', margin: '.5rem auto 0', width: '1px', height: '40px', background: 'linear-gradient(to bottom, #c9a96e, transparent)' }} />
+          <div style={{ display: 'block', margin: '.5rem auto 0', width: '1px', height: '40px', background: 'linear-gradient(to bottom, var(--gold), transparent)' }} />
         </motion.a>
 
         {/* Bottom rule */}
-        <div style={{ width: '1px', height: '80px', background: 'linear-gradient(to bottom, transparent, #b08d57, transparent)', margin: '2rem auto 0' }} />
+        <div style={{ width: '1px', height: '80px', background: 'linear-gradient(to bottom, transparent, var(--gold), transparent)', margin: '2rem auto 0' }} />
       </section>
 
       {/* Index section header */}
@@ -625,30 +576,30 @@ export default function App() {
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }} viewport={{ once: true }}
         >
-          <p style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.72rem', letterSpacing: '.3em', textTransform: 'uppercase', color: '#b08d57', marginBottom: '.8rem' }}>
+          <p style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.72rem', letterSpacing: '.3em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '.8rem' }}>
             Contents
           </p>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, fontSize: '2rem', color: '#1a1a18', fontStyle: 'italic' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, fontSize: '2rem', color: 'var(--ink)', fontStyle: 'italic' }}>
             The Essays
           </h2>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.8rem', marginTop: '1.2rem', color: '#b08d57' }}>
-            <div style={{ height: '1px', width: '80px', background: 'linear-gradient(to right, transparent, #d8d4ca)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.8rem', marginTop: '1.2rem', color: 'var(--gold)' }}>
+            <div style={{ height: '1px', width: '80px', background: 'linear-gradient(to right, transparent, var(--hairline))' }} />
             <span>✦</span>
-            <div style={{ height: '1px', width: '80px', background: 'linear-gradient(to left, transparent, #d8d4ca)' }} />
+            <div style={{ height: '1px', width: '80px', background: 'linear-gradient(to left, transparent, var(--hairline))' }} />
           </div>
         </motion.div>
       </div>
 
-      {/* Grid */}
+      {/* Gallery wall — essays in order, first to last */}
       <main style={{ maxWidth: '1100px', width: '100%', margin: '0 auto', paddingLeft: '2rem', paddingRight: '2rem', paddingBottom: '8rem', boxSizing: 'border-box' }}>
         <motion.div
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-14"
+          className="grid grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16"
         >
-          {[...ESSAYS].sort((a, b) => Number(b.num) - Number(a.num)).map(essay => (
-            <EssayCard
+          {[...ESSAYS].sort((a, b) => Number(a.num) - Number(b.num)).map(essay => (
+            <CoverCard
               key={essay.id}
               essay={essay}
               onClick={() => openEssay(essay)}
@@ -657,9 +608,10 @@ export default function App() {
         </motion.div>
       </main>
 
-      <footer className="py-12 border-t border-neutral-100 text-center">
-        <p className="text-[10px] uppercase tracking-[0.25em] text-zen-text/20">
-          © {new Date().getFullYear()} Essays on Metaphysics
+      <footer className="py-12 text-center" style={{ borderTop: '1px solid var(--hairline)' }}>
+        <p className="text-[10px] uppercase tracking-[0.25em] text-zen-text/30">
+          © {new Date().getFullYear()} Essays on Metaphysics&ensp;·&ensp;
+          <a href="/rss.xml" className="hover:text-zen-gold transition-colors" style={{ textDecoration: 'none', color: 'inherit' }}>RSS</a>
         </p>
       </footer>
 
@@ -670,6 +622,7 @@ export default function App() {
             key={selected.id}
             essay={selected}
             onClose={closeEssay}
+            onOpen={openEssay}
           />
         )}
       </AnimatePresence>

@@ -1,34 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-body: "EB Garamond", Georgia, serif;
+  --font-sans: "Lato", system-ui, sans-serif;
 
-  --color-zen-bg: #faf9f6;
-  --color-zen-text: #2d2a2e;
-  --color-zen-accent: #8e8d8a;
-  --color-zen-link: #9a7616;        /* burnished gold — echoes the cover accent */
-  --color-zen-link-hover: #6f540f;
+  /* Semantic colors resolve through the theme tokens below,
+     so Tailwind utilities re-theme live when data-theme flips. */
+  --color-zen-bg: var(--ground);
+  --color-zen-text: var(--ink);
+  --color-zen-soft: var(--ink-soft);
+  --color-zen-accent: var(--muted);
+  --color-zen-gold: var(--gold);
+  --color-zen-link: var(--gold);
+  --color-zen-link-hover: var(--gold-strong);
+  --color-zen-hairline: var(--hairline);
 }
 
 @layer base {
+  /* Night (umber) — the house register. index.html sets data-theme
+     before first paint (localStorage, else prefers-color-scheme). */
+  :root {
+    --ground: #2A241E;
+    --ink: #EDE7D6;
+    --ink-soft: rgba(237, 231, 214, 0.85);
+    --muted: #8F8B7C;
+    --gold: #C9A227;
+    --gold-strong: #E0B93E;
+    --hairline: rgba(237, 231, 214, 0.14);
+    --card-border: rgba(237, 231, 214, 0.08);
+    --lift-shadow: 0 26px 40px -22px rgba(0, 0, 0, 0.7);
+  }
+
+  :root[data-theme='day'] {
+    --ground: #F5F0E3;
+    --ink: #2A241E;
+    --ink-soft: #3A311F;
+    --muted: #8B7B5E;
+    --gold: #9C7A28;
+    --gold-strong: #7A5F1E;
+    --hairline: rgba(46, 39, 28, 0.16);
+    --card-border: rgba(46, 39, 28, 0.14);
+    --lift-shadow: 0 26px 40px -24px rgba(46, 39, 28, 0.35);
+  }
+
   html { font-size: 18px; }
   body {
     @apply bg-zen-bg text-zen-text font-sans antialiased;
     -webkit-font-smoothing: antialiased;
     scrollbar-gutter: stable;
+    transition: background-color 0.35s ease, color 0.35s ease;
   }
 
   ::selection {
-    background: rgba(142, 141, 138, 0.15);
+    background: color-mix(in srgb, var(--gold) 24%, transparent);
   }
 }
 
 @layer components {
-  /* Essay body — matches v1 site: EB Garamond, 1.05rem, 1.85 line-height */
+  /* Essay body — EB Garamond at a ~66-character measure */
   .essay-content {
-    max-width: 680px;
+    max-width: 650px;
     margin: 0 auto;
     font-family: 'EB Garamond', Georgia, serif;
     font-size: 1.15rem;
@@ -39,10 +72,47 @@
     font-style: italic;
   }
 
-  /* On touch devices (no hover support), show rollover image by default
-     and hide the gray thumbnail — since there's no hover state on mobile */
+  /* Gallery wall — live HTML deck covers. Each card keeps its own
+     deck ground in both themes; hover switches on the picture light. */
+  .gallery-card-art {
+    position: relative;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.3rem 1.4rem;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  }
+
+  .gallery-card-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(237, 225, 180, 0.10), transparent 65%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+
+  .group:hover .gallery-card-art {
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+    box-shadow: var(--lift-shadow), 0 0 0 1px color-mix(in srgb, var(--gold) 12%, transparent);
+  }
+
+  .group:hover .gallery-card-art::after {
+    opacity: 1;
+  }
+
+  /* No lift on touch devices — cards are already in full color */
   @media (hover: none) {
-    .thumb-gray { opacity: 0 !important; }
-    .thumb-rollover { opacity: 1 !important; transform: none !important; }
+    .group:hover .gallery-card-art { transform: none; box-shadow: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-card-art, .gallery-card-art::after { transition: none; }
+    .group:hover .gallery-card-art { transform: none; }
   }
 }
