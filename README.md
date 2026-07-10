@@ -137,14 +137,38 @@ the cross-fade both are semi-transparent and the index flashes through. With `ke
 the mounted view updates in place (its `useEffect` on `essay.id` resets scroll and refetches),
 and enter/exit animations run only on open/close.
 
-### Cover-card lockup
+### Cover-card lockup & type treatment
 
-`splitTitle()` splits a title into an upright lead + italic close, echoing the deck art:
+The colored squares are typographic covers, and their font treatment is deliberate.
+The standard to hold every card to:
+
+**The lockup** — an upright lead line closing on an italic line, echoing the deck art
+("A Diminished / *World*", "First Principles / *1: Unity*"). `splitTitle()` derives it:
 - `First Principles N: X` → upright "First Principles", italic "N: X"
 - titles with a colon → upright up to the colon, italic remainder
-- otherwise → last word italic (`A Diminished *World*`)
+- otherwise → last word italic
 
-Card title font size steps down for long titles (>26, >42 chars).
+**No one-word lines.** A line carrying a single word — whether an orphaned italic close
+("…of the / *Id*") or a lone upright lead ("The / *Apprentice*") — is a bad break. When
+the heuristic produces one, override it with the essay's `cardTitle: [upright, italic]`
+field in `essays.json` rather than bending the heuristic:
+- long titles break as two substantial lines — essay 06 `["The Upside-Down World", "of the Id"]`,
+  essay 10 `["The Curriculum", "and the Veil"]`
+- **short titles (two–three words) set as a single italic line** — empty upright part:
+  essays 07/08/11 `["", "The Two Paths"]` etc., matching "Passengers"
+
+**One type scale for every square, featured included.** Title: `1.55rem` (≤24 chars),
+`1.3rem` (25–42), `1.05rem` (>42); eyebrow and byline labels: `.5rem` Lato letterspaced
+caps. The featured square is the same object as the wall's, just hung larger — it must
+never carry its own bigger type. Titles in a series should land in the same size bucket
+(all three "First Principles" cards sit at 1.3rem; the 24-char threshold was chosen so
+essay 1 matches its siblings).
+
+**Fixed colors in both themes** — gold `#C9A227` eyebrow/ornament, ivory `#EDE7D6`
+title, on the essay's own `ground`. Cards never re-theme.
+
+When adding an essay, eyeball its card on the wall at desktop and mobile widths; if the
+break or size looks wrong, reach for `cardTitle` first.
 
 ### Data model (`src/essays.json`)
 
@@ -287,7 +311,9 @@ npm start             # production server (requires a prior build)
 4. Create the **RSS/OG card**: `.venv/bin/python scripts/gen_rss_cards.py {n}` — it reads
    the title, quote, and `ground` color from the JSON entry and writes
    `public/slides/{n}-{slug}/essay{n}_rss_card.png`.
-5. `npm run dev` to verify (fetches the snapshot), then commit and push — Railway deploys.
+5. `npm run dev` to verify (fetches the snapshot). Check the new card on the wall against
+   the type-treatment spec above — no one-word lines; add a `cardTitle` override if the
+   heuristic breaks the title badly. Then commit and push — Railway deploys.
 6. *(Optional)* If an Instagram deck exists, archive it in `instagram/{n}-{slug}/` and put
    the online variant (no CTA on the final slide) in `public/slides/{n}-{slug}/`.
 

@@ -33,6 +33,11 @@ requires his sign-off:
 3. **Index is a gallery wall**: live HTML/CSS cover cards (no PNG thumbnails), each on its
    deck's own `ground` color from `essays.json`. Cards keep fixed deck colors (gold
    `#C9A227`, ivory `#EDE7D6`) in BOTH themes — they're artwork, not UI panels.
+   Card titles follow a strict lockup: upright lead + italic close, **no one-word lines**
+   (fix bad breaks with the `cardTitle: [upright, italic]` override in essays.json; short
+   titles set as ONE italic line via an empty upright part), and one shared type scale —
+   the featured square uses the same sizes as the grid. Full spec: README →
+   "Cover-card lockup & type treatment".
 4. **Newest essay is featured at the top** (`FeaturedCard`, chosen by highest `num`) and
    **excluded from the grid below**; it cycles down automatically when a newer essay ships.
 5. **Grid is ordered 01→N** (a numbered contents page, not a feed).
