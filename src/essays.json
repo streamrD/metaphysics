@@ -93,6 +93,7 @@
   {
     "id": "9", "num": "10", "date": "July 2025", "isoDate": "2025-07-01",
     "title": "The Curriculum and the Veil",
+    "cardTitle": ["The Curriculum", "and the Veil"],
     "quote": "We pressed the cup of forgetting to our lips and let its strange taste drift us to sleep.",
     "ground": "#4A2020", "folder": "10-curriculum", "filePrefix": "essay10_slide_", "slideCount": 11,
     "indexGray": "/slides/10-curriculum/essay10_slide_01_gray.png",
