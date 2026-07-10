@@ -13,8 +13,13 @@ online) and closes with the deck's asterism tailpiece instead.
 This folder is **not web-served** — it's a local archive to grab from when
 publishing to Instagram.
 
-## Regenerating (essay 13 only, for now)
+## What differs from the online (`public/slides/`) version
 
-`scripts/gen_deck13.py` renders both variants in one run — the online deck into
-`public/slides/13-diminished/` and the Instagram deck here. Older decks were
-produced by an external pipeline and only exist as the PNGs already committed.
+- **Essay 13** — the Instagram final slide carries the `READ THE ESSAY ONLINE →
+  LINK IN BIO` CTA; the online one drops it and closes with an asterism
+  tailpiece. Both are rendered from `scripts/gen_deck13.py` in one run.
+- **Essays 1–12** — produced by an external pipeline (no generator here). Their
+  Instagram final slides keep their original footer (`METAPHYSICS.UP.RAILWAY.APP`
+  on 1–9, `LINK IN BIO` promo on 11–12; essay 10 had no footer). The online
+  versions in `public/slides/` had that footer painted out. This folder holds
+  the untouched originals.
