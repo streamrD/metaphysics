@@ -399,7 +399,8 @@ function CardArt({ essay, featured = false }: { essay: Essay; featured?: boolean
   return (
     <div className={`gallery-card-art${featured ? ' gallery-card-art--featured' : ''}`} style={{ background: essay.ground }}>
       <p className="card-eyebrow">
-        A Collection of Metaphysical Essays<br />Essay {essay.num}
+        <span className="card-eyebrow-collection">A Collection of Metaphysical Essays<br /></span>
+        Essay {essay.num}
       </p>
       <h3 className={`font-serif card-title card-title--${titleBucket(essay.title)}`}>
         {upright && <>{upright}<br /></>}
@@ -538,9 +539,10 @@ export default function App() {
   const latest = ESSAYS.find(e => Number(e.num) === LATEST_NUM);
 
   return (
-    <div className="min-h-screen bg-zen-bg text-zen-text">
-      {/* Theme toggle — sits above the cover; the reading overlay carries its own */}
-      <div className="fixed top-5 right-5 z-40">
+    <div className="relative min-h-screen bg-zen-bg text-zen-text">
+      {/* Theme toggle — anchored to the cover (scrolls away with it);
+          the reading overlay carries its own copy in its top bar */}
+      <div className="absolute top-5 right-5 z-40">
         <ThemeToggle />
       </div>
 

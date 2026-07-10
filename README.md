@@ -118,7 +118,7 @@ Base font size is 18px (`html`).
 
 ```
 App
-├── ThemeToggle (fixed top-right on the index; ReadingView carries its own)
+├── ThemeToggle (anchored top-right of the cover, scrolls away; ReadingView carries its own)
 ├── Cover section (full viewport: rules, title, diamond, byline, tagline, index cue)
 ├── "Contents / The Essays" section header
 ├── FeaturedCard (newest essay: cover square + title/date/quote/Read →)
@@ -162,7 +162,11 @@ field in `essays.json` rather than bending the heuristic:
 Card typography is **container-relative** (`cqw` units; the `.gallery-card-art` div is a
 size container), so a card behaves like an image at any width. Fixed rem type overflowed
 and clipped on the 2-column phone grid — that's the bug this exists to prevent; don't
-convert card type back to rem/px. Title buckets (values at the ~330px reference square):
+convert card type back to rem/px. Two mobile refinements: every card size has a **px
+floor** (`max(Ncqw, px)` — titles never drop below 11–15px), and **below a 230px
+container the card simplifies to a miniature cover** — essay number, title, diamond
+rule — hiding the "A Collection of…" line and the byline (`@container` rule in
+`index.css`); the caption below the card carries that information anyway. Title buckets (values at the ~330px reference square):
 `8.6cqw ≈ 28px` (≤24 chars), `7cqw ≈ 23px` (25–42), `5.8cqw ≈ 19px` (>42); eyebrow and
 byline `2.8cqw ≈ 9px` Lato letterspaced caps. px fallbacks in `index.css` cover browsers
 without container-query units. The featured square (~1.3× the grid square at desktop)
