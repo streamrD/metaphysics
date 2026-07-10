@@ -1,6 +1,6 @@
 # Metaphysical Essays — README
 
-A collection of 12 metaphysical essays by Todd Stabley. Built as a React single-page application with a Zen-minimalist aesthetic, deployed on Railway.
+A collection of 13 metaphysical essays by Todd Stabley. Built as a React single-page application with a Zen-minimalist aesthetic, deployed on Railway.
 
 **Live site:** `metaphysics.up.railway.app`  
 **Repo:** `https://github.com/streamrD/metaphysics`
@@ -26,32 +26,32 @@ A collection of 12 metaphysical essays by Todd Stabley. Built as a React single-
 ```
 metaphysics/
 ├── src/
-│   ├── App.tsx          ← All application logic (~606 lines)
+│   ├── App.tsx          ← All application logic (single file)
+│   ├── essays.json      ← Essay metadata (single source of truth)
 │   └── index.css        ← Global CSS, Tailwind config, Google Fonts
 ├── public/
-│   └── slides/
-│       ├── 1-unity/
-│       │   ├── essay1_slide_01.png … essay1_slide_12.png
-│       │   ├── essay1_slide_01_gray.png   ← index thumbnail (default)
-│       │   └── essay1_slide_01_cream.png  ← index thumbnail (hover)
-│       ├── 2-free/       … (same pattern, 11 slides)
-│       ├── 3-create/     … (12 slides)
-│       ├── 4-service/    … (14 slides)
-│       ├── 5-supervillain/ … (9 slides)
-│       ├── 6-id/         … (9 slides)
-│       ├── 7-paths/      … (13 slides)
-│       ├── 8-rocks/      … (11 slides)
-│       ├── 9-narcissism/ … (11 slides)
-│       ├── 10-curriculum/ … (11 slides)
-│       ├── 11-apprentice/ … (7 slides)
-│       └── 12-passengers/ … (8 slides)
-├── server.js            ← Express production server (static dist/ + per-essay OG meta injection)
+│   ├── essay-content/   ← Google Docs snapshots (gitignored; built by fetch-essays)
+│   └── slides/          ← Online carousel decks, one folder per essay (1-unity … 13-diminished)
+│       └── {n}-{slug}/      essay{n}_slide_01…NN.png            (carousel slides)
+│                            essay{n}_slide_01_gray.png          (index thumbnail, default)
+│                            essay{n}_cover_rollover.png         (index thumbnail, hover)
+│                            essay{n}_rss_card.png               (1200×630 RSS/OG card)
+├── instagram/           ← Instagram deck archive (NOT web-served); final slide keeps the CTA
+├── scripts/
+│   ├── fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
+│   ├── gen_cover.py     ← Index gray + rollover thumbnails
+│   ├── gen_deck13.py    ← Essay 13 deck renderer (online + Instagram variants)
+│   ├── gen_rss_cards.py ← 1200×630 RSS/OG cards
+│   ├── recolor_deck.py  ← Lossless deck background recolour
+│   └── strip_counter.py ← Removes the slide counter from index thumbnails
+├── server.js            ← Express server (dist/ + /rss.xml + per-essay OG meta on /essays/:folder)
 ├── vite.config.ts       ← Vite config
-├── scripts/fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
 ├── source-material/     ← Drafts and source assets (not used by the app)
 ├── index.html           ← HTML shell
 ├── package.json
-└── railway.toml         ← Railway deployment config
+├── railway.toml         ← Railway deployment config
+├── README.md
+└── AGENTS.md            ← Quick-start / handoff context
 ```
 
 ---
@@ -67,8 +67,8 @@ All UI logic lives in `src/App.tsx`. Components, data, and utilities are co-loca
 ```
 App
 ├── Header (title, diamond divider, author name, tagline)
-├── Grid of EssayCard × 10
-│   └── (gray thumbnail → cream + scale on hover → click → ReadingView)
+├── Grid of EssayCard × 13 (newest first — sorted by num descending)
+│   └── (gray thumbnail → rollover + scale on hover → click → ReadingView)
 ├── Footer
 └── ReadingView (fixed overlay, z-50)
     ├── Sticky top bar (← Index | Essay N · Date)
@@ -87,19 +87,23 @@ App
 
 ```typescript
 interface Essay {
-  id: string;           // '0'–'9'
-  num: string;          // '01'–'10'
+  id: string;            // '0'–'12'
+  num: string;           // '01'–'13'
   title: string;
-  date: string;
-  quote: string;
-  folder: string;       // public/slides subfolder, e.g. '1-unity'
-  filePrefix: string;   // e.g. 'essay1_slide_'
+  date: string;          // human display date, e.g. 'July 2026'
+  isoDate: string;       // machine date 'YYYY-MM-DD' (RSS pubDate)
+  quote: string;         // tagline; OG/feed description + RSS card subtitle
+  folder: string;        // public/slides subfolder, e.g. '13-diminished'
+  filePrefix: string;    // e.g. 'essay13_slide_'
   slideCount: number;
-  indexGray: string;    // path to default index thumbnail
-  indexRollover: string; // path to hover index thumbnail
-  docUrl: string;       // Google Docs /pub URL
+  indexGray: string;     // default index thumbnail (#EFEFED)
+  indexRollover: string; // hover index thumbnail (essay{xx}_cover_rollover.png)
+  rssCard: string;       // 1200×630 RSS/OG landscape card
+  docUrl: string;        // Google Docs /pub URL
 }
 ```
+
+Data lives in `src/essays.json` (imported by `App.tsx` as `ESSAYS`, by `server.js` for OG meta, and by `scripts/fetch-essays.mjs`). The array is stored oldest→newest; the index grid renders newest-first by sorting a copy on `num` descending.
 
 ---
 
@@ -168,10 +172,22 @@ The cover uses inline `style` props rather than Tailwind to precisely match v1 C
 
 Each folder has:
 - `essay{n}_slide_01.png` … `essay{n}_slide_{count}.png` — carousel slides
-- `essay{n}_slide_01_gray.png` — index default (`#EFEFED`)
-- `essay{n}_slide_01_cream.png` — index hover (`#F5F0E6`)
+- `essay{n}_slide_01_gray.png` — index default thumbnail (`#EFEFED`)
+- `essay{n}_cover_rollover.png` — index hover thumbnail (on the deck's own bg colour)
+- `essay{n}_rss_card.png` — 1200×630 RSS/OG landscape card
 
-Card behavior: default gray → hover fades to cream + scales to 106% → click opens ReadingView.
+Card behavior: default gray → hover fades to the rollover + scales to 106% → click opens ReadingView.
+
+---
+
+## Online vs Instagram decks
+
+Every essay's deck exists in two variants that share all slides **except the last**:
+
+- **Online** — `public/slides/{folder}/`, served in the site carousel. The final slide has **no Instagram CTA** (the reader is already online). Essays 1–9 close on quote + diamond divider + author, 11–12 on framed closing text, 13 on an asterism tailpiece.
+- **Instagram** — `instagram/{folder}/` (repo root, **not web-served**). The archive to grab from when posting; its final slide keeps the call to action (`METAPHYSICS.UP.RAILWAY.APP` on older decks, `READ THE ESSAY ONLINE → LINK IN BIO` on 13).
+
+Essay 13's two variants are both rendered by `scripts/gen_deck13.py` in one run. For decks 1–12 (external-pipeline PNGs, no generator) the online final slide was made by painting the CTA/URL footer out of the archived original. See `instagram/README.md`.
 
 ---
 
@@ -218,7 +234,7 @@ buildCommand = "npm run build"
 startCommand = "npm start"
 ```
 
-`server.js` serves `dist/` static files + SPA fallback, and injects per-essay OpenGraph/Twitter meta tags on `/essays/:folder` routes (title, pull quote, and cover rollover image from `src/essays.json`) so shared essay links unfurl with their own cards.
+`server.js` serves `dist/` static files + SPA fallback, serves the `/rss.xml` feed, and injects per-essay OpenGraph/Twitter meta tags on `/essays/:folder` routes (title, pull quote, and the 1200×630 `rssCard` image from `src/essays.json`) so shared essay links unfurl with their own cards.
 
 Branch strategy: `main` = v2 React app (production), `v1` = original static HTML site (preserved).
 
@@ -241,18 +257,24 @@ npm start             # production server (requires a prior build)
 
 ## Adding a new essay
 
-1. Add slides to `public/slides/{n}-{slug}/` as `essay{n}_slide_01.png` etc.
-2. Create `_gray.png` and `_cream.png` index thumbnails
-3. Add entry to `ESSAYS` array in `App.tsx`
-4. Add Google Docs `/pub` URL to `docUrl`
+1. Build the slide deck into `public/slides/{n}-{slug}/` (for essay 13's style, adapt `scripts/gen_deck13.py`; older decks came from an external pipeline).
+2. Generate index thumbnails: `.venv/bin/python scripts/gen_cover.py` → `essay{n}_slide_01_gray.png` + `essay{n}_cover_rollover.png`.
+3. Generate the RSS/OG card: `.venv/bin/python scripts/gen_rss_cards.py {n}` → `essay{n}_rss_card.png`.
+4. Add an entry to `src/essays.json` (title, `date`, `isoDate`, `quote`, `folder`, `filePrefix`, `slideCount`, the thumbnail/card paths, and the Google Docs `/pub` `docUrl`).
+5. Archive the Instagram variant into `instagram/{n}-{slug}/` and remove the CTA from the online final slide (see **Online vs Instagram decks**).
+6. `npm run dev` to verify, then commit/push — Railway re-snapshots the doc and deploys.
 
 ---
 
 ## Generating cover slide thumbnails
 
-Each essay needs two 1080×1080px cover images for the index page:
-- `essay{n}_slide_01_gray.png` — default state, background `#EFEFED`
-- `essay{n}_slide_01_cream.png` — hover state, background `#F5F0E6`
+**Current tool: `scripts/gen_cover.py`** (Pillow + macOS system Georgia). It renders the two 1080×1080 index thumbnails per essay:
+- `essay{n}_slide_01_gray.png` — default state, cool-gray background `#EFEFED`
+- `essay{n}_cover_rollover.png` — hover state, on the deck's own dark bg colour
+
+To add an essay, add a `gen_<name>()` config and call it from `__main__` (see `gen_passengers` / `gen_diminished`). Then build the 1200×630 RSS/OG card with `scripts/gen_rss_cards.py {n}`.
+
+> **Historical reference (below).** The remainder of this section documents the original standalone approach and its exact colour/font/layout values. It is kept for reference only — the shipping `gen_cover.py` differs: it uses system **Georgia** (not Gelasio), names the hover thumbnail `essay{n}_cover_rollover.png` (not `_cream.png`), and its palette/positions live in the script itself.
 
 ### Why Gelasio, not Georgia
 

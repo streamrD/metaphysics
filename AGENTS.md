@@ -6,7 +6,7 @@ This file gives a new AI agent enough context to begin work on this project. Rea
 
 ## What this is
 
-A React/TypeScript/Vite single-page app that presents a collection of 12 metaphysical essays by Todd Stabley. Deployed on Railway at `metaphysics.up.railway.app`.
+A React/TypeScript/Vite single-page app that presents a collection of 13 metaphysical essays by Todd Stabley. Deployed on Railway at `metaphysics.up.railway.app`.
 
 ---
 
@@ -20,23 +20,28 @@ metaphysics/
 │   └── index.css        ← Global styles + Tailwind config + Google Fonts import
 ├── public/
 │   ├── essay-content/   ← Generated Google Docs snapshots (gitignored; created by scripts/fetch-essays.mjs)
-│   └── slides/          ← Slide images served statically
+│   └── slides/          ← Online carousel slides served statically (final slide has NO
+│       │                  Instagram CTA — see "Online vs Instagram decks" below)
 │       │                  (each folder: essay[n]_slide_01…NN.png + _slide_01_gray.png + _cover_rollover.png + _rss_card.png)
 │       ├── 1-unity/          …12 slides
 │       ├── 2-free/           …11 slides
 │       ├── 3-create/         …12 slides
 │       ├── 4-service/        …14 slides
 │       ├── 5-supervillain/   …9 slides
-│       ├── 6-id/             …9 slides
+│       ├── 6-id/             …10 slides
 │       ├── 7-paths/          …13 slides
 │       ├── 8-rocks/          …11 slides
 │       ├── 9-narcissism/     …11 slides
 │       ├── 10-curriculum/    …11 slides
 │       ├── 11-apprentice/    …7 slides (dark-brown deck, recoloured to match Unity)
-│       └── 12-passengers/    …8 slides (deep slate blue-black deck + hover)
+│       ├── 12-passengers/    …8 slides (deep slate blue-black deck)
+│       └── 13-diminished/    …10 slides (ashen moss-grey #2D322C; generated in-repo by gen_deck13.py)
+├── instagram/           ← Instagram deck archive, one folder per essay (NOT web-served);
+│                          final slide keeps the "LINK IN BIO" CTA. Grab decks here to post.
 ├── scripts/
 │   ├── fetch-essays.mjs   ← Snapshots published Google Docs into public/essay-content/
 │   ├── gen_cover.py       ← Generates cover thumbnails (index gray + rollover)
+│   ├── gen_deck13.py      ← Renders essay 13's full deck (both online + Instagram variants)
 │   ├── gen_rss_cards.py   ← Generates 1200×630 RSS/OG cards (title + subtitle on the deck colour)
 │   ├── recolor_deck.py    ← Lossless background recolour for a deck's PNGs (alpha-unmix → recomposite)
 │   └── strip_counter.py   ← Paints out the "01/NN" slide counter from index cover thumbnails (idempotent)
@@ -68,6 +73,8 @@ All essays are defined in `src/essays.json` (imported by `App.tsx` as the `ESSAY
 - `rssCard` — 1200×630 landscape card (`essay[xx]_rss_card.png`); used for the RSS feed thumbnail **and** OG/Twitter images
 - `docUrl` — Google Docs published URL for essay text
 
+The `essays.json` array is stored oldest→newest, but the index **grid renders newest first** (`App.tsx` sorts a copy by `num` descending); the array order itself is unchanged.
+
 ### Essay text pipeline
 Essay text lives in published Google Docs (the `docUrl` field) but is **snapshotted at build time**, not fetched at runtime. `scripts/fetch-essays.mjs` downloads each doc's HTML into `public/essay-content/<folder>.html`; the client fetches that static file and parses it with `extractTextFromDocHtml`. The script runs automatically via `prebuild` (every build/deploy) and `predev` (only fetches missing files). **After editing an essay in Google Docs, run `npm run fetch-essays` locally to refresh, or just redeploy — Railway re-snapshots on every build.**
 
@@ -78,7 +85,14 @@ Essay text lives in published Google Docs (the `docUrl` field) but is **snapshot
 `server.js` serves an RSS 2.0 feed at `/rss.xml`, generated from `essays.json` (newest first by `isoDate`, `pubDate` stamped at noon UTC). Each item carries the `quote` as its description and the `rssCard` via Media RSS (`media:content`/`media:thumbnail`). `index.html` advertises it with a `<link rel="alternate" type="application/rss+xml">` autodiscovery tag. Feed readers cache aggressively — test changes in a fresh reader (Feedly reuses cached visuals).
 
 ### Slide / card image generation (Python)
-The cover, card, and recolour scripts use **Pillow + numpy** in a gitignored `.venv/` (run them as `.venv/bin/python scripts/<name>.py`). `gen_cover.py` makes the index gray + rollover thumbnails; `gen_rss_cards.py` makes the landscape RSS/OG cards (sampling each deck's bg colour from its rollover); `recolor_deck.py` repaints a deck's flat background to a new colour losslessly. The 11 content slide decks themselves are produced by an external pipeline (not in this repo) — recolour or edit the existing PNGs rather than expecting to regenerate them here.
+The cover, card, and recolour scripts use **Pillow + numpy** in a gitignored `.venv/` (run them as `.venv/bin/python scripts/<name>.py`). `gen_cover.py` makes the index gray + rollover thumbnails; `gen_rss_cards.py` makes the landscape RSS/OG cards (sampling each deck's bg colour from its rollover); `recolor_deck.py` repaints a deck's flat background to a new colour losslessly. Decks **1–12** were produced by an external pipeline (only their PNGs live here) — recolour or edit the existing PNGs rather than expecting to regenerate them. **Essay 13's deck is generated in-repo by `scripts/gen_deck13.py`** (a Passengers-style renderer using local `~/Library/Fonts` Cormorant Garamond + EB Garamond, with a reusable literary-ornament kit: all-caps lead-in, drop caps, hairline–diamond–hairline divider, asterism tailpiece). Adapt/copy it for future essay decks.
+
+### Online vs Instagram decks
+Each essay's slide deck exists in two variants that share every slide **except the last**:
+- **Online** (`public/slides/{folder}/`) — served in the site carousel. The final slide has **no Instagram CTA** (the reader is already online): essays 1–9 end on quote + divider + author, 11–12 on framed closing text, 13 on an asterism tailpiece.
+- **Instagram** (`instagram/{folder}/`, repo root, **not web-served**) — the archive to grab from when posting. Its final slide keeps the call to action (`METAPHYSICS.UP.RAILWAY.APP` on older decks, `READ THE ESSAY ONLINE → LINK IN BIO` on 13).
+
+For essay 13, `gen_deck13.py` renders both variants in one run. For decks 1–12 (no generator), the online final slide was produced by painting the CTA/URL footer out of the archived PNG. See `instagram/README.md`.
 
 ### Custom text formatting tags
 The Google Docs source uses custom markup:
