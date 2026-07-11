@@ -546,15 +546,15 @@ export default function App() {
         <ThemeToggle />
       </div>
 
-      {/* Cover */}
+      {/* Cover — flat ground, natural height: the wall follows directly and
+          the one vertical line on the page descends from CONTENTS below */}
       <section style={{
-        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        textAlign: 'center', padding: '4rem 2rem', position: 'relative',
-        background: 'radial-gradient(ellipse 80% 60% at 50% 0%, color-mix(in srgb, var(--gold) 7%, transparent) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 50% 100%, color-mix(in srgb, var(--gold) 5%, transparent) 0%, transparent 70%)',
+        textAlign: 'center', padding: '4rem 2rem 0', position: 'relative',
       }}>
-        {/* Top rule */}
-        <div style={{ width: '1px', height: '80px', background: 'linear-gradient(to bottom, transparent, var(--gold), transparent)', margin: '0 auto' }} />
+        {/* Spacer where the top rule stood — keeps the title where it was */}
+        <div style={{ height: '80px' }} aria-hidden="true" />
 
         {/* "A Collection of" */}
         <motion.p
@@ -603,45 +603,23 @@ export default function App() {
           No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I&apos;d had. May they help you remember what you already know <span style={{ whiteSpace: 'nowrap' }}>— now, when it matters most.</span>
         </motion.p>
 
-        {/* Index of Essays cue */}
+        {/* Contents — a quiet anchor into the wall; the cover's vertical
+            line now descends from it toward the paintings */}
         <motion.a
           href="#index"
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 1.2 }}
-          style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.8rem', letterSpacing: '.2em', textTransform: 'uppercase', color: 'var(--muted)', textDecoration: 'none', display: 'inline-block' }}
-          onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold)')}
-          onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted)')}
+          style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.72rem', letterSpacing: '.3em', textTransform: 'uppercase', color: 'var(--gold)', textDecoration: 'none', display: 'inline-block' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'var(--ink)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--gold)')}
         >
-          Index of Essays
-          <div style={{ display: 'block', margin: '.5rem auto 0', width: '1px', height: '40px', background: 'linear-gradient(to bottom, var(--gold), transparent)' }} />
+          Contents
+          <div style={{ display: 'block', margin: '1.1rem auto 0', width: '1px', height: '80px', background: 'linear-gradient(to bottom, transparent, var(--gold), transparent)' }} aria-hidden="true" />
         </motion.a>
-
-        {/* Bottom rule */}
-        <div style={{ width: '1px', height: '80px', background: 'linear-gradient(to bottom, transparent, var(--gold), transparent)', margin: '2rem auto 0' }} />
       </section>
 
-      {/* Index section header */}
-      <div id="index" style={{ textAlign: 'center', padding: '5rem 2rem 3.5rem' }}>
-        <motion.div
-          initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }} viewport={{ once: true }}
-        >
-          <p style={{ fontFamily: "'Lato', sans-serif", fontWeight: 300, fontSize: '.72rem', letterSpacing: '.3em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '.8rem' }}>
-            Contents
-          </p>
-          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, fontSize: '2rem', color: 'var(--ink)', fontStyle: 'italic' }}>
-            The Essays
-          </h2>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '.8rem', marginTop: '1.2rem', color: 'var(--gold)' }}>
-            <div style={{ height: '1px', width: '80px', background: 'linear-gradient(to right, transparent, var(--hairline))' }} />
-            <span>✦</span>
-            <div style={{ height: '1px', width: '80px', background: 'linear-gradient(to left, transparent, var(--hairline))' }} />
-          </div>
-        </motion.div>
-      </div>
-
       {/* Gallery wall — newest essay featured, the rest in order below */}
-      <main style={{ maxWidth: '1100px', width: '100%', margin: '0 auto', paddingLeft: '2rem', paddingRight: '2rem', paddingBottom: '8rem', boxSizing: 'border-box' }}>
+      <main id="index" style={{ maxWidth: '1100px', width: '100%', margin: '0 auto', paddingTop: '2.5rem', paddingLeft: '2rem', paddingRight: '2rem', paddingBottom: '8rem', boxSizing: 'border-box' }}>
         {latest && <FeaturedCard essay={latest} onClick={() => openEssay(latest)} />}
         <motion.div
           initial="hidden"

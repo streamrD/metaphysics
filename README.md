@@ -119,8 +119,8 @@ Base font size is 18px (`html`).
 ```
 App
 ├── ThemeToggle (anchored top-right of the cover, scrolls away; ReadingView carries its own)
-├── Cover section (full viewport: rules, title, diamond, byline, tagline, index cue)
-├── "Contents / The Essays" section header
+├── Cover section (natural height, flat ground: title, diamond, byline, tagline,
+│   CONTENTS anchor link with a descending gold line — the wall follows directly)
 ├── FeaturedCard (newest essay: cover square + title/date/quote/Read →)
 ├── Grid of CoverCard × (N−1), ordered 01→N, newest excluded
 ├── Footer (© + RSS link)
