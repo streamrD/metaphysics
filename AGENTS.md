@@ -125,13 +125,19 @@ git add . && git commit -m "…" && git push origin main
 - Touch devices (`hover: none`) skip the gallery hover lift.
 - **Card typography is a solved iOS bug — don't unsettle it.** The cards failed twice on
   iOS Safari's 2-column grid (~150px squares): fixed rem type overflowed and clipped;
-  then bare-`cqw` proportional type rendered ~4px and unreadable. The shipped fix is
-  three interlocking parts in `index.css`, all required: container-relative sizes
-  (`.gallery-card-art` is a size container), `max(Ncqw, px)` legibility floors, and an
+  then bare-`cqw` proportional type rendered ~4px and unreadable — and a cqw cut
+  without caps regressed the *desktop* wall off its dialed composition, because of two
+  cqw traps: a container can't query itself (cqw in the card's own padding silently
+  resolved against the viewport) and children's cqw resolves against the CONTENT box,
+  not the square. The shipped fix is four interlocking parts in `index.css`, all
+  required: container-relative sizes (`.gallery-card-art` is a size container), fixed
+  px padding, `clamp(px-floor, Ncqw, px-cap)` type with legibility floors AND caps at
+  the dialed desktop values (coefficients calibrated to the content box), and an
   `@container (max-width: 230px)` rule that simplifies small cards to essay number +
   title + diamond rule. Regression check after touching card CSS: ~390px viewport →
-  nothing clipped, titles ≥ 11px, miniature cards simplified; desktop unchanged.
-  Full history: README → "The iOS thumbnail bug".
+  nothing clipped, titles ≥ 11px, miniature cards simplified; desktop wall exactly at
+  the dialed sizes (computed title-l 24.8px, eyebrow 8px, padding 20.8/22.4px). Full
+  history: README → "The iOS thumbnail bug".
 - The ☼/☾ toggle on the index is `absolute` on the cover, NOT `fixed` — a fixed toggle
   floated over content while scrolling on phones. The reading view has its own toggle.
 - Feed readers cache aggressively — test RSS changes in a fresh reader.

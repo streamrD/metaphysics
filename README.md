@@ -158,26 +158,31 @@ field in `essays.json` rather than bending the heuristic:
 - **short titles (two–three words) set as a single italic line** — empty upright part:
   essays 07/08/11 `["", "The Two Paths"]` etc., matching "Passengers"
 
-**One type scale for every square, featured included — and it scales with the square.**
-Card typography is **container-relative with readable floors**: `.gallery-card-art` is a
-size container and every card type/ornament dimension is `max(Ncqw, px-floor)`. Title
-buckets (values at the ~330px reference square): `8.6cqw ≈ 28px`, floor 15px (≤24 chars);
-`7cqw ≈ 23px`, floor 13px (25–42); `5.8cqw ≈ 19px`, floor 11px (>42). Eyebrow and byline:
-`2.8cqw ≈ 9px`, floor 7px, Lato letterspaced caps. **Below a 230px container the card
+**One type scale for every square, featured included — and it scales with the square,
+but only downward from the dialed desktop values.** Card typography is
+**container-relative with readable floors and dialed ceilings**: `.gallery-card-art` is a
+size container and every card type/ornament dimension is `clamp(px-floor, Ncqw, px-cap)`,
+where the **cap is the hand-tuned desktop value** — at the ~324px desktop square the
+cover renders exactly as dialed (sizes, placement, wrapping), and scaling engages only
+when the square shrinks below ~290px. Title buckets: cap 24.8px / `8.6cqw` / floor 15px
+(≤24 chars); cap 20.8px / `7cqw` / floor 13px (25–42); cap 16.8px / `5.8cqw` / floor 11px
+(>42). Eyebrow and byline: cap 8px / `2.8cqw` / floor 7px, Lato letterspaced caps. **Below a 230px container the card
 simplifies to a miniature cover** — essay number, title, diamond rule — hiding the
 "A Collection of…" line and the byline via an `@container` rule (the caption under the
-card carries that information anyway). px fallbacks cover browsers without
-container-query units. The featured square (~1.3× the grid square at desktop) carries a
-`gallery-card-art--featured` modifier that scales its container units by ~0.77, so at
-desktop widths its type matches the wall's sizes — per creative direction, the featured
-type must equal the grid type, not enlarge with the square.
+card carries that information anyway). The base px values double as fallbacks for
+browsers without container-query units. The featured square (~416px at desktop, ~1.3×
+the grid square) carries a `gallery-card-art--featured` modifier with proportionally
+smaller cqw coefficients and the **same px caps**, so at desktop widths its type matches
+the wall's sizes — per creative direction, the featured type must equal the grid type,
+not enlarge with the square.
 Titles in a series should land in the same bucket (all three "First Principles" cards sit
 in the middle bucket; the 24-char threshold was chosen so essay 1 matches its siblings).
 
 #### The iOS thumbnail bug — why the card CSS is shaped this way
 
-The live HTML cards failed twice on iOS Safari's 2-column phone grid (squares ≈ 150px),
-once in each direction. All three parts of the shipped fix are load-bearing:
+The live HTML cards failed three times — twice on iOS Safari's 2-column phone grid
+(squares ≈ 150px), once on the desktop wall. All parts of the shipped fix are
+load-bearing:
 
 1. **Fixed type in a scaling square → overflow.** The original cards set type in rem.
    Desktop looked right; at 150px the eyebrow wrapped five lines deep and titles clipped
@@ -186,16 +191,26 @@ once in each direction. All three parts of the shipped fix are load-bearing:
 2. **Pure proportional type → unreadable.** The first fix scaled everything with bare
    `cqw` units. Compositionally perfect at every width — and ~4px tall on a phone.
    *Lesson: proportion alone is not a mobile strategy for text.*
-3. **The shipped fix — all three together:** container-relative sizes for image-like
-   scaling **+** `max()` px floors so no text drops below legibility **+** the ≤230px
-   miniature simplification so the floored type still *fits* the small square. Remove
-   the floors and failure (2) returns; remove the simplification and the floors
-   re-create failure (1); remove the container units and it's the original bug again.
+3. **Uncapped cqw → desktop regression.** The cqw cut fixed phones but silently broke
+   the dialed desktop wall, via two cqw traps: **a container can't query itself**, so
+   cqw in the card's *own* padding resolved against the viewport (~100px padding at
+   1440px!), and children's cqw resolves against the **content box**, not the square,
+   so every size landed below its intended value and the tuned wrapping broke.
+   *Lesson: cqw is subtler than vw — check what box it actually resolves against.*
+4. **The shipped fix — all parts together:** container-relative type for image-like
+   scaling (coefficients calibrated to the content box) **+** fixed px padding **+**
+   px floors so no text drops below legibility **+** px caps at the dialed desktop
+   values so large squares keep the hand-tuned composition **+** the ≤230px miniature
+   simplification so the floored type still *fits* the small square. Remove the floors
+   and failure (2) returns; remove the simplification and the floors re-create failure
+   (1); remove the container units and it's the original bug again; remove the caps
+   and failure (3) returns.
 
 **Regression check when touching card CSS:** view the wall at a ~390px viewport (card
 ≈ 150px, the iPhone 2-column grid): no clipped or overflowing text, titles ≥ 11px, small
-cards showing number + title + rule only. Then confirm desktop is unchanged and the
-featured square still matches the grid's type sizes.
+cards showing number + title + rule only. Then confirm the desktop wall sits exactly on
+the dialed values — computed title 24.8/20.8/16.8px by bucket, eyebrow/byline 8px,
+padding 20.8×22.4px — and the featured square matches the grid's type sizes.
 
 **Fixed colors in both themes** — gold `#C9A227` eyebrow/ornament, ivory `#EDE7D6`
 title, on the essay's own `ground`. Cards never re-theme.

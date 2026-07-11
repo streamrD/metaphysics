@@ -79,17 +79,25 @@
 
   /* Gallery wall — live HTML deck covers. Each card keeps its own
      deck ground in both themes; hover switches on the picture light.
-     The card is a size container: all type inside scales with the square
-     (cqw units below), so it behaves like an image at any width — the
-     2-column phone grid included. px values are pre-container-query
-     fallbacks tuned to the ~330px desktop square. */
+     The card is a size container: on small squares (the 2-column phone
+     grid) type scales with the square via cqw units below, but every
+     clamp()/min() is capped at the dialed desktop value — on desktop the
+     cover renders exactly as tuned (sizes, placement, wrapping), and
+     scaling only engages on small squares. The px values here are those
+     dialed desktop values, doubling as the pre-container-query fallback.
+     Two cqw gotchas, learned the hard way: (1) a container can't query
+     itself, so cqw in .gallery-card-art's OWN properties (e.g. padding)
+     silently resolves against the viewport — padding stays fixed px;
+     (2) cqw for the children resolves against the CONTENT box (square
+     minus padding, ~272px on the desktop wall), so the coefficients below
+     are calibrated to that, sized to exceed their caps at desktop. */
   .gallery-card-art {
     position: relative;
     container-type: inline-size;
     aspect-ratio: 1;
     display: flex;
     flex-direction: column;
-    padding: 23px 25px;
+    padding: 20.8px 22.4px;
     box-sizing: border-box;
     overflow: hidden;
     border: 1px solid var(--card-border);
@@ -99,7 +107,7 @@
   .card-eyebrow {
     font-family: 'Lato', sans-serif;
     font-weight: 300;
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #C9A227;
@@ -113,18 +121,18 @@
     color: #EDE7D6;
     margin: auto 0;
   }
-  .card-title--l { font-size: 28px; }  /* title ≤ 24 chars */
-  .card-title--m { font-size: 23px; }  /* 25–42 chars */
-  .card-title--s { font-size: 19px; }  /* > 42 chars */
+  .card-title--l { font-size: 24.8px; }  /* title ≤ 24 chars */
+  .card-title--m { font-size: 20.8px; }  /* 25–42 chars */
+  .card-title--s { font-size: 16.8px; }  /* > 42 chars */
 
   .card-rule { display: flex; align-items: center; gap: 8px; }
-  .card-rule .ln { height: 1px; width: 33px; background: rgba(201, 162, 39, 0.55); }
+  .card-rule .ln { height: 1px; width: 34px; background: rgba(201, 162, 39, 0.55); }
   .card-rule .di { width: 5px; height: 5px; transform: rotate(45deg); background: #C9A227; }
 
   .card-author {
     font-family: 'Lato', sans-serif;
     font-weight: 300;
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: rgba(237, 231, 214, 0.55);
@@ -132,17 +140,19 @@
   }
 
   @supports (width: 1cqw) {
-    /* Container-scaled with readable floors: type shrinks with the square
-       but never below legibility (max() px floor). */
-    .gallery-card-art { padding: 7cqw 7.5cqw; }
-    .card-eyebrow { font-size: max(2.8cqw, 7px); }
-    .card-title--l { font-size: max(8.6cqw, 15px); }
-    .card-title--m { font-size: max(7cqw, 13px); }
-    .card-title--s { font-size: max(5.8cqw, 11px); }
-    .card-rule { gap: 2.4cqw; }
-    .card-rule .ln { width: 10cqw; }
-    .card-rule .di { width: max(1.5cqw, 3px); height: max(1.5cqw, 3px); }
-    .card-author { font-size: max(2.8cqw, 7px); margin-top: 3.6cqw; }
+    /* Container-scaled with readable floors and dialed ceilings: type
+       shrinks with the square but never below legibility (px floor) and
+       never above the desktop values tuned per essay (px cap). The caps
+       bind whenever the content box is ≳250px — the whole desktop/tablet
+       range — so scaling only engages on phone-grid squares. */
+    .card-eyebrow { font-size: clamp(7px, 3.2cqw, 8px); }
+    .card-title--l { font-size: clamp(15px, 10cqw, 24.8px); }
+    .card-title--m { font-size: clamp(13px, 8.3cqw, 20.8px); }
+    .card-title--s { font-size: clamp(11px, 6.7cqw, 16.8px); }
+    .card-rule { gap: min(3.2cqw, 8px); }
+    .card-rule .ln { width: min(13.6cqw, 34px); }
+    .card-rule .di { width: clamp(3px, 2cqw, 5px); height: clamp(3px, 2cqw, 5px); }
+    .card-author { font-size: clamp(7px, 3.2cqw, 8px); margin-top: min(4.8cqw, 12px); }
 
     /* Small squares (phone 2-col grid) simplify to a miniature cover:
        essay number + title + rule. The dropped lines live in the caption
@@ -152,19 +162,15 @@
       .card-author { display: none; }
     }
 
-    /* Featured square is ~1.3× the grid square at desktop; its container
-       units are scaled by ~0.77 so its type matches the wall's sizes there
-       (per creative direction: featured type = grid type, not larger) */
-    .gallery-card-art--featured { padding: 5.4cqw 5.8cqw; }
-    .gallery-card-art--featured .card-eyebrow { font-size: max(2.2cqw, 7px); }
-    .gallery-card-art--featured .card-title--l { font-size: max(6.6cqw, 15px); }
-    .gallery-card-art--featured .card-title--m { font-size: max(5.4cqw, 13px); }
-    .gallery-card-art--featured .card-title--s { font-size: max(4.5cqw, 11px); }
-    .gallery-card-art--featured .card-rule { gap: 1.8cqw; }
-    .gallery-card-art--featured .card-rule .ln { width: 7.7cqw; }
-    .gallery-card-art--featured .card-rule .di { width: max(1.2cqw, 3px); height: max(1.2cqw, 3px); }
-    .gallery-card-art--featured .card-author { font-size: max(2.2cqw, 7px); margin-top: 2.8cqw; }
   }
+
+  /* Featured square (~1.3× the grid square at desktop) differs only in
+     padding — the dialed 1.8rem/2rem of the original featured card. Its
+     type shares the grid's clamps: both cap at the same dialed sizes, so
+     featured type = grid type (per creative direction: same object hung
+     larger, not larger type), and its bigger content box just means the
+     caps bind even deeper into small widths. */
+  .gallery-card-art--featured { padding: 28.8px 32px; }
 
   .gallery-card-art::after {
     content: "";
