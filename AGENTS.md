@@ -12,6 +12,11 @@ in the **"Nocturne"** design (shipped July 2026). Express serves the build plus 
 feed and per-essay OG meta. Deployed on Railway at `metaphysics.up.railway.app`;
 Railway auto-deploys every push to `main`.
 
+**Current phase (July 2026): content-editing pass.** The design is settled; the author is
+combing through the essays and revising the text in the published Google Docs. The frequent
+task now is **republishing edited Docs**, not building features — see "Republishing edited
+essays" below (or just run `/redeploy [essay]`).
+
 **All application code is in `src/App.tsx` (single file, intentionally).**
 Essay metadata is in `src/essays.json`. Theme tokens are in `src/index.css`.
 
@@ -100,6 +105,24 @@ git add . && git commit -m "…" && git push origin main
 - Test locally with `npm run dev` first.
 - Branches: `main` = production (Nocturne) · `nocturne` = merged redesign branch ·
   `v1` = original static site (preserved) · pre-Nocturne app = `main` history ≤ `74a02c5`.
+
+## Republishing edited essays (the common task right now)
+
+Essay text lives in the published Google Docs, gets snapshotted into
+`public/essay-content/<folder>.html` (gitignored) at build time, and **every Railway build
+re-fetches all docs**. So a Doc edit reaches the site via a *rebuild*, with no file to commit:
+
+1. `node scripts/diff-published.mjs [essay]` — word-diffs the live published doc(s) against
+   the current snapshot. Empty diff usually means Google Docs hasn't republished yet (~5-min
+   lag), not that the edit is missing — don't push, retry shortly.
+2. `npm run fetch-essays` — refresh the local snapshot.
+3. `git commit --allow-empty -m "Republish: …" && git push origin main` — the empty commit
+   triggers the rebuild that pulls the fresh doc(s).
+4. Poll `https://metaphysics.up.railway.app/essay-content/<folder>.html` (~1–2 min) to confirm.
+
+**`/redeploy [essay]`** runs this whole flow. Caveat: the parser flattens native Doc
+bold/italic/color/alignment — only structure, wording/punctuation, links, and literal
+`[em]`/`[right]` tags render (README → "Essay text pipeline").
 
 ---
 

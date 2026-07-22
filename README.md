@@ -256,6 +256,29 @@ static snapshot — no CORS, no runtime Google dependency. After editing a doc:
 `extractTextFromDocHtml(html)` queries `p, h1–h5, li` from `#contents`, serializing each
 block inline (`serializeInline`) so hyperlinks survive as `[link:url]text[/link]` tokens.
 
+> **What survives the parser — matters when editing Docs.** Only block structure
+> (paragraphs, `h1–h5` headings, bullet lists), wording/punctuation, links, and the
+> **literal** `[em]`/`[right]` tags below are rendered. The Doc's **native** Bold / Italic /
+> color / text-alignment are flattened and never reach the site — to emphasize a passage,
+> type the literal `[em]…[/em]` tag rather than styling the text. Preview any Doc edit with
+> `node scripts/diff-published.mjs <essay>` (see [Republishing edited essays](#republishing-edited-essays)).
+
+### Republishing edited essays
+
+The essays are an evolving text: edits happen in the published Google Docs, not in this repo.
+Because snapshots are gitignored and every Railway build re-fetches all docs, getting a Doc
+edit live is a **redeploy**, not a code change:
+
+1. Edit the Doc; make sure Google Docs has **republished** (File → Publish to web; ~5-min lag).
+2. `node scripts/diff-published.mjs <essay|blank>` — word-diffs the published doc against
+   what's live, so you can confirm the edit propagated and see exactly what will change.
+3. `npm run fetch-essays` to refresh the local snapshot.
+4. Empty commit + push to trigger the rebuild: `git commit --allow-empty -m "Republish: …" && git push origin main`.
+5. Verify at `https://metaphysics.up.railway.app/essay-content/<folder>.html` (~1–2 min).
+
+In Claude Code this whole flow is the **`/redeploy [essay]`** command. One rebuild re-fetches
+*every* essay's published doc, so several edited docs ship together.
+
 ### Links in essays
 
 Hyperlinks in any essay's Doc render automatically — no code changes needed:
