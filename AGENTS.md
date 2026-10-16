@@ -17,6 +17,16 @@ the essays and revising the text in the published Google Docs. A frequent task i
 **republishing edited Docs** — see "Republishing edited essays" below (or just run
 `/redeploy [essay]`).
 
+**Next up — the tightening pass on the remaining essays.** Todd trimmed intensifiers and
+hedges from 05, 12 and 13 himself. For the other ten (01–04, 06–11) there is a checklist
+of 35 flagged sentences with a Cut / Consider / Keep call each:
+[Tightening Checklist](https://claude.ai/code/artifact/0d90cd1b-56e1-45bb-80ec-a4c65ea3b436)
+(a Claude Doc). He edits the Google Docs himself, then asks to republish — run
+`node scripts/diff-published.mjs` with no argument to find which essays changed, then
+the `/redeploy` flow. Two items need more than a cut: 04 and 11 share an identical
+sentence ("…the stakes have been raised precisely so the lesson cannot be missed"), and
+03's closing passage has "Listen, —" (stray comma) and possibly "you heard [it]".
+
 **All application code is in `src/App.tsx` (single file, intentionally).**
 Essay metadata is in `src/essays.json`. Theme tokens are in `src/index.css`.
 
@@ -80,9 +90,13 @@ The previous design is preserved on the `nocturne` branch (`beee928`).
   is displayed (essay text, quotes, intro) — the Docs stay as typed; don't "fix" the
   Docs' straight quotes or spaced dashes by hand. Contents rows show no dates (they
   read as out of order next to the numbers); dates stay on essay pages and the feed.
+- **Run-in heads** — a paragraph opening with an ALL-CAPS term and a period
+  ("VOLATILITY. …") renders the term in Hanken semibold, title case; later ALL-CAPS
+  mentions of the same term get a lighter match (05 Supervillain, 02 Free Will). Doc
+  headings drop a trailing colon. Both are display rules; the Docs keep their caps.
 - **`titleParts()`** splits a title for display: "First Principles N: X" → kicker
   "First Principles" + title "X"; "A: B" → title "A" + subtitle "B".
-- **`EssayRow`** is one contents entry (seal ring, kicker, title, subtitle, quote, date);
+- **`EssayRow`** is one contents entry (seal ring, kicker, title, subtitle, quote — no date);
   the prev/next links at the foot of each essay reuse it with a "Previous"/"Next" label.
 - **Entries are real links** (`/essays/<folder>`), intercepted for plain clicks so the SPA
   opens the essay in place; modified clicks (new tab) fall through to the server.
@@ -157,6 +171,38 @@ bold/italic/color/alignment — only structure, wording/punctuation, links, and 
 
 ---
 
+## Session log — 2026-10-16 (the Seal redesign)
+
+One long session took the site from Nocturne to Seal. In order, all pushed to `main`:
+
+1. **Design comps** on a Claude Design canvas
+   ([Metaphysical Essays — Modern Upfit](https://claude.ai/artifact/41urpb6dzAJucK2eUEsxWH)):
+   round 1 (A Hairline, B Journal, C Field) kept the colored cards; Todd asked to drop
+   the colored squares and start from Hanken Grotesk; round 2 (D Chapbook, E Recto,
+   F Seal) — he picked **F · Seal** ("magnifique"). A third page holds the approved
+   share-card comps.
+2. **Seal build** (`ff1e297`): typographic contents, vermilion seal, Hanken + Spectral,
+   paper/ink grounds, favicon, docs. Nocturne archived on the `nocturne` branch.
+3. **Light by default** (`3687656`): theme key renamed to `seal-theme` so Nocturne-era
+   Night picks don't carry over.
+4. **Share cards** (`e0375f5`): Seal-style 1200×630 cards for all essays + homepage via
+   `scripts/gen-share-cards.mjs`; new filenames; old ones 301 (`8781d10`).
+5. **Facebook** (`405a25e`): Supervillain was aliased to the homepage since a June scrape;
+   fixed with `OG_URL_OVERRIDES` (`?s=seal`). Re-scraped 11, 12, 13 and the homepage in
+   the Sharing Debugger — all show their Seal cards. Essays 01–04 and 06–10 had never been
+   shared on Facebook (no history), so they'll preview correctly on first share. Passengers'
+   Oct 5 scrape had failed with a 418 from Railway; a re-scrape returned 200.
+6. **Typesetting** (`f3c5f92`, `19d2673`): run-in heads; curly quotes and uniform em dashes
+   at display; site name unified to "Metaphysical Essays"; dates dropped from contents.
+7. **Doc republishes**: Passengers and A Diminished World tightening passes; several
+   Supervillain passes (including restoring "not just a villain", which must match its
+   `quote` in essays.json, and the "The Characteristics of the Supervillain" heading).
+
+State at close: local = GitHub = live (`0721cab`); all 13 essays match their published
+Docs. Todd's style: terse replies ("y", "done") are approvals; "publish" means push.
+
+---
+
 ## Gotchas
 
 - Restart the dev server after editing `index.html` or `index.css`.
@@ -181,5 +227,13 @@ bold/italic/color/alignment — only structure, wording/punctuation, links, and 
   The fix is a fresh canonical: `OG_URL_OVERRIDES` in server.js makes that essay declare
   `?s=seal` on its `og:url`. If another essay previews as the homepage, add it there.
 - Feed readers cache aggressively — test RSS changes in a fresh reader.
+- **When a Doc edit touches an essay's quoted line**, check it still matches `quote` in
+  essays.json (the callout, contents line, share card, RSS and OG description all use the
+  JSON copy). If the author changed it on purpose, update the JSON and re-render the card.
+- **Google Docs republish lag is ~1–5 min.** An empty diff right after "done" usually means
+  the edit hasn't published yet — watch it (re-run the diff every 30 s in the background)
+  rather than asking the author to come back. Any local `npm run build`/`fetch-essays`
+  refreshes the snapshot the diff compares against, after which an empty diff no longer
+  tells you anything about live; check `/essay-content/<folder>.html` on the live site.
 - The `[em]` handling in `formatEssayContent` carries state across lines on purpose
   (a tag pair can wrap multiple paragraphs).
