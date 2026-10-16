@@ -19,6 +19,15 @@ function setMeta(html, attr, name, value) {
   return html.replace(re, `$1${escapeAttr(value)}$2`);
 }
 
+// Facebook scraped /essays/5-supervillain on 2026-06-09, before per-essay OG
+// tags existed, when every page declared the homepage as its og:url. It has
+// treated that link as an alias of the homepage ever since — re-scrapes and the
+// Batch Invalidator don't clear it. Declaring a canonical URL Facebook has no
+// history for (same page, extra query) gives the essay a fresh object.
+const OG_URL_OVERRIDES = {
+  '5-supervillain': '/essays/5-supervillain?s=seal',
+};
+
 // Inject per-essay OpenGraph/Twitter tags so shared essay links unfurl
 // with their own title, quote, and cover image instead of the site-wide card
 function essayHtml(essay) {
@@ -32,7 +41,7 @@ function essayHtml(essay) {
   html = setMeta(html, 'property', 'og:type', 'article');
   html = setMeta(html, 'property', 'og:title', essay.title);
   html = setMeta(html, 'property', 'og:description', description);
-  html = setMeta(html, 'property', 'og:url', `${SITE_URL}/essays/${essay.folder}`);
+  html = setMeta(html, 'property', 'og:url', SITE_URL + (OG_URL_OVERRIDES[essay.folder] || `/essays/${essay.folder}`));
   html = setMeta(html, 'property', 'og:image', image);
   html = setMeta(html, 'property', 'og:image:width', '1200');
   html = setMeta(html, 'property', 'og:image:height', '630');

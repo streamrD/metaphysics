@@ -170,6 +170,12 @@ bold/italic/color/alignment — only structure, wording/punctuation, links, and 
   `essay<NN>_rss_card.png` / `og-image.jpg` URLs). Missing files with an extension 404
   rather than falling through to the SPA: a crawler handed HTML for an image shows a
   blank preview. To refresh one link on Facebook: Sharing Debugger → Scrape Again.
+- **Facebook can alias an essay URL to the homepage for good.** Before per-essay OG tags
+  existed, every page declared the homepage as its `og:url`; a link Facebook scraped then
+  (Supervillain, 2026-06-09) stays tied to the homepage object — Scrape Again and the
+  Batch Invalidator don't clear it (Debugger → Canonical URL → See History shows it).
+  The fix is a fresh canonical: `OG_URL_OVERRIDES` in server.js makes that essay declare
+  `?s=seal` on its `og:url`. If another essay previews as the homepage, add it there.
 - Feed readers cache aggressively — test RSS changes in a fresh reader.
 - The `[em]` handling in `formatEssayContent` carries state across lines on purpose
   (a tag pair can wrap multiple paragraphs).
