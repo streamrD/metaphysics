@@ -8,14 +8,14 @@ project without re-deriving decisions. Full architectural detail lives in **READ
 ## What this is
 
 A React 18 / TypeScript / Vite SPA presenting 13 metaphysical essays by Todd Stabley,
-in the **"Nocturne"** design (shipped July 2026). Express serves the build plus an RSS
-feed and per-essay OG meta. Deployed on Railway at `metaphysics.up.railway.app`;
-Railway auto-deploys every push to `main`.
+in the **"Seal"** design (shipped October 2026; it replaced the July 2026 "Nocturne"
+design). Express serves the build plus an RSS feed and per-essay OG meta. Deployed on
+Railway at `metaphysics.up.railway.app`; Railway auto-deploys every push to `main`.
 
-**Current phase (July 2026): content-editing pass.** The design is settled; the author is
-combing through the essays and revising the text in the published Google Docs. The frequent
-task now is **republishing edited Docs**, not building features — see "Republishing edited
-essays" below (or just run `/redeploy [essay]`).
+**Current phase (October 2026): content-editing pass.** The author is combing through
+the essays and revising the text in the published Google Docs. A frequent task is
+**republishing edited Docs** — see "Republishing edited essays" below (or just run
+`/redeploy [essay]`).
 
 **All application code is in `src/App.tsx` (single file, intentionally).**
 Essay metadata is in `src/essays.json`. Theme tokens are in `src/index.css`.
@@ -24,58 +24,68 @@ Essay metadata is in `src/essays.json`. Theme tokens are in `src/index.css`.
 
 ## Design decisions that are INTENTIONAL — don't "fix" these
 
-These came out of a full design review with the author (creative director). Changing them
-requires his sign-off:
+The Seal design was chosen by the author (creative director) from two rounds of
+design comps in October 2026. Changing these requires his sign-off:
 
 1. **No slides/carousel in the app.** The slide decks were Instagram promos; embedding them
    made it feel like clicking slides = reading the essay. `public/slides/` holds ONLY the
    1200×630 RSS/OG cards; full decks live in `instagram/` and git history. Don't resurrect
    the carousel.
-2. **Reader-owned ground.** ☼/☾ toggle flips the site between umber `#2A241E` (night)
-   and cream `#F5F0E3` (day). **First visit always opens in night** (deliberate — not
-   `prefers-color-scheme`); the toggle choice persists in `localStorage('theme')`; an
-   inline script in `index.html` sets `document.documentElement.dataset.theme`
-   **before first paint** — keep it there.
-3. **Index is a gallery wall**: live HTML/CSS cover cards (no PNG thumbnails), each on its
-   deck's own `ground` color from `essays.json`. Cards keep fixed deck colors (gold
-   `#C9A227`, ivory `#EDE7D6`) in BOTH themes — they're artwork, not UI panels.
-   Card titles follow a strict lockup: upright lead + italic close, **no one-word lines**
-   (fix bad breaks with the `cardTitle: [upright, italic]` override in essays.json; short
-   titles set as ONE italic line via an empty upright part), and one shared type scale —
-   the featured square uses the same sizes as the grid. Full spec: README →
-   "Cover-card lockup & type treatment".
-4. **Newest essay is featured at the top** (`FeaturedCard`, chosen by highest `num`) and
-   **excluded from the grid below**; it cycles down automatically when a newer essay ships.
-5. **Grid is ordered 01→N** (a numbered contents page, not a feed).
-6. **The callout quote at the top of each essay is unlabeled** — diamond rule + italic line,
-   no "Excerpt" label, no box, no quotation marks. `text-wrap: balance` prevents orphans.
-7. **One gold token per theme** (`--gold`: night `#C9A227`, day `#9C7A28`). Don't introduce
-   new gold hexes; use the token.
-8. **Typography is consolidated**: Cormorant Garamond (display), EB Garamond (body),
-   Lato (caps labels). Playfair was removed — don't reintroduce a second display serif.
+2. **No colored squares.** The author explicitly moved away from the Nocturne gallery wall
+   of deck-colored cover cards. The index is a **typographic contents page**: each entry is
+   a seal ring with its number, title, quote, and date, in two columns. Don't reintroduce
+   per-essay color blocks or the deck `ground` colors in the UI.
+3. **One mark: the vermilion seal.** `--seal` (day `#C23B22`, night `#E0553A`) is the only
+   accent color. It appears as the round seal (ring in the contents; solid for the latest
+   essay and the essay being read), the dot in the "Metaphysical Essays" lockup, the
+   favicon, link underlines, and list bullets. `--seal-text` is the same hue darkened for
+   small text contrast. Don't add a second accent color.
+4. **Typography: Hanken Grotesk + Spectral.** Hanken Grotesk (400–700) for everything
+   structural — titles, labels, navigation, the masthead. Spectral (400, 500, italic) for
+   reading — the essay text, the intro, and the italic quotes. Every capital kept: no
+   all-caps letterspaced labels.
+5. **Reader-owned ground.** The Day/Night toggle flips the site between paper `#F7F5F0`
+   (day) and ink `#151413` (night). **First visit opens in day** (paper is the house
+   register now; not `prefers-color-scheme`); the toggle choice persists in
+   `localStorage('theme')`; an inline script in `index.html` sets
+   `document.documentElement.dataset.theme` **before first paint** — keep it there.
+6. **Newest essay is featured at the top** (`Featured`, chosen by highest `num`) with the
+   large solid seal, and **excluded from the contents below**; it moves into the list
+   automatically when a newer essay ships.
+7. **Contents is ordered 01→N** (a numbered contents page, not a feed).
+8. **The callout quote at the top of each essay is unlabeled** — Spectral italic, no label,
+   no box, no quotation marks.
+
+The previous design is preserved on the `nocturne` branch (`beee928`).
 
 ---
 
 ## How the pieces fit
 
-- **Theme system** — CSS custom properties on `:root` (night) overridden by
-  `:root[data-theme='day']` in `index.css`. Tailwind v4 `@theme` colors alias the vars
-  (`--color-zen-bg: var(--ground)` …), so `bg-zen-bg`, `text-zen-text/85` etc. re-theme
-  live. Components also use `var(--gold)` / `color-mix(...)` in inline styles.
+- **Theme system** — CSS custom properties on `:root` (day) overridden by
+  `:root[data-theme='night']` in `index.css`. Tailwind v4 `@theme` colors alias the vars
+  (`--color-ground: var(--ground)`, `ink`, `body`, `soft`, `muted`, `hairline`, `seal`,
+  `seal-text`), so `bg-ground`, `text-muted`, `border-hairline` etc. re-theme live.
+- **ThemeToggle** appears twice (index header + reading view top bar); a `themechange`
+  window event keeps both labels in sync.
 - **ReadingView has a constant React key (`"reading"`)** inside `AnimatePresence`. Keying
   it per-essay makes prev/next navigation cross-fade two overlays and flash the index
   behind them (that was a real bug). Navigation updates the mounted view in place.
 - **Essay text** is snapshotted from published Google Docs at build time
   (`scripts/fetch-essays.mjs` → `public/essay-content/<folder>.html`, gitignored).
-  After editing a Doc: `npm run fetch-essays`, or just redeploy.
-- **Vespers nav** — prev/next essay links at the foot of every essay, by `num`.
-- **`splitTitle()`** renders card titles as upright lead + italic close (last word, or the
-  part after a colon, or the "N: X" of First Principles essays).
+  `fetchEssayText` caches per folder — the index reads the latest essay's text for its
+  reading time and the reading view reuses it.
+- **`titleParts()`** splits a title for display: "First Principles N: X" → kicker
+  "First Principles" + title "X"; "A: B" → title "A" + subtitle "B".
+- **`EssayRow`** is one contents entry (seal ring, kicker, title, subtitle, quote, date);
+  the prev/next links at the foot of each essay reuse it with a "Previous"/"Next" label.
+- **Entries are real links** (`/essays/<folder>`), intercepted for plain clicks so the SPA
+  opens the essay in place; modified clicks (new tab) fall through to the server.
 - **server.js** reads `essays.json` for `/rss.xml` and injects per-essay OG tags
   (title, `quote`, `rssCard`) on `/essays/:folder`.
-- **Legacy fields** in `essays.json` (`slideCount`, `filePrefix`, `indexGray`,
-  `indexRollover`) are unused by the app and optional in the TS interface; `rssCard` IS
-  still used by server.js. New essays don't need the legacy fields.
+- **Legacy fields** in `essays.json`: `cardTitle`, `slideCount`, `filePrefix`, `indexGray`,
+  `indexRollover` are unused by the app. `ground` is unused by the app but still read by
+  `scripts/gen_rss_cards.py`; `rssCard` IS used by server.js.
 
 ---
 
@@ -103,10 +113,11 @@ git add . && git commit -m "…" && git push origin main
 - **Every push to `main` deploys to production** (~1–2 min). Confirm with the user before
   pushing unless they've already asked for the change to be published.
 - Test locally with `npm run dev` first.
-- Branches: `main` = production (Nocturne) · `nocturne` = merged redesign branch ·
-  `v1` = original static site (preserved) · pre-Nocturne app = `main` history ≤ `74a02c5`.
+- Branches: `main` = production (Seal) · `nocturne` = the July 2026 Nocturne design
+  (`beee928`) · `v1` = original static site (preserved) · pre-Nocturne app = `main`
+  history ≤ `74a02c5`.
 
-## Republishing edited essays (the common task right now)
+## Republishing edited essays
 
 Essay text lives in the published Google Docs, gets snapshotted into
 `public/essay-content/<folder>.html` (gitignored) at build time, and **every Railway build
@@ -129,12 +140,11 @@ bold/italic/color/alignment — only structure, wording/punctuation, links, and 
 ## Adding a new essay (short version — full steps in README)
 
 1. Publish the Doc → get the `/pub` URL.
-2. Pick a dark `ground` hex for its card (match the family of existing `ground` values).
-3. Append to `src/essays.json` (`num` = next number → it becomes the featured essay
-   automatically; `quote` becomes the reading-page callout).
-4. Make its 1200×630 `rssCard` PNG: `.venv/bin/python scripts/gen_rss_cards.py {n}`
-   (reads title/quote/`ground` from the JSON entry).
-5. `npm run dev` to verify, commit, push.
+2. Append to `src/essays.json` (`num` = next number → it becomes the featured essay
+   automatically; `quote` becomes the reading-page callout and the contents line).
+3. Make its 1200×630 `rssCard` PNG: `.venv/bin/python scripts/gen_rss_cards.py {n}`
+   (reads title/quote/`ground` from the JSON entry — the cards are still Nocturne-style).
+4. `npm run dev` to verify, commit, push.
 
 ---
 
@@ -143,26 +153,13 @@ bold/italic/color/alignment — only structure, wording/punctuation, links, and 
 - Restart the dev server after editing `index.html` or `index.css`.
 - Don't move theme init out of the `index.html` inline script (pre-paint = no flash).
 - `#root` needs `width: 100%`; `scrollbar-gutter: stable` on body prevents layout shift.
-- Cover/cards use inline styles referencing `var(--…)` tokens deliberately.
-- `color-mix()` and `text-wrap: balance` are used — modern-browser CSS is assumed.
-- Touch devices (`hover: none`) skip the gallery hover lift.
-- **Card typography is a solved iOS bug — don't unsettle it.** The cards failed twice on
-  iOS Safari's 2-column grid (~150px squares): fixed rem type overflowed and clipped;
-  then bare-`cqw` proportional type rendered ~4px and unreadable — and a cqw cut
-  without caps regressed the *desktop* wall off its dialed composition, because of two
-  cqw traps: a container can't query itself (cqw in the card's own padding silently
-  resolved against the viewport) and children's cqw resolves against the CONTENT box,
-  not the square. The shipped fix is four interlocking parts in `index.css`, all
-  required: container-relative sizes (`.gallery-card-art` is a size container), fixed
-  px padding, `clamp(px-floor, Ncqw, px-cap)` type with legibility floors AND caps at
-  the dialed desktop values (coefficients calibrated to the content box), and an
-  `@container (max-width: 230px)` rule that simplifies small cards to essay number +
-  title + diamond rule. Regression check after touching card CSS: ~390px viewport →
-  nothing clipped, titles ≥ 11px, miniature cards simplified; desktop wall exactly at
-  the dialed sizes (computed title-l 24.8px, eyebrow 8px, padding 20.8/22.4px). Full
-  history: README → "The iOS thumbnail bug".
-- The ☼/☾ toggle on the index is `absolute` on the cover, NOT `fixed` — a fixed toggle
-  floated over content while scrolling on phones. The reading view has its own toggle.
+- `color-mix()` and `text-wrap: balance/pretty` are used — modern-browser CSS is assumed.
+- Hover effects (title underline, seal turn, link fade) sit inside `@media (hover: hover)`
+  so taps on phones don't leave rows stuck mid-hover.
+- The index header is in normal flow (scrolls away), NOT `fixed` — a fixed toggle once
+  floated over content while scrolling on phones. The reading view has its own sticky bar.
+- The RSS/OG cards (`public/slides/*/essay*_rss_card.png`) and the homepage `og-image.jpg`
+  still carry the Nocturne look; regenerating them in the Seal style is open work.
 - Feed readers cache aggressively — test RSS changes in a fresh reader.
 - The `[em]` handling in `formatEssayContent` carries state across lines on purpose
   (a tag pair can wrap multiple paragraphs).

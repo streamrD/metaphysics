@@ -25,14 +25,21 @@ in the 2026-07-10 card-typography commit. Rebuild it from that pattern if needed
 
 Kill stray processes afterwards: `pkill -f remote-debugging-port`, `pkill -f "vite --port=3000"`.
 
-## What to check (card CSS especially)
+## What to check (Seal design, October 2026)
 
-- Desktop 1440px: computed card type must sit exactly on the dialed values —
-  title 24.8/20.8/16.8px by bucket, eyebrow/byline 8px, grid padding 20.8×22.4px,
-  featured padding 28.8×32px with the same type sizes as the grid.
-- Phone 390px: 2-col grid squares ≈ 141px, titles floored ≥ 11px, byline and
-  collection line hidden (miniature mode), nothing clipped/overflowing.
-- Tablet ~800px: 2-col squares ~346px, still capped at dialed values.
-- Gotcha that caused a real regression: cqw in `.gallery-card-art`'s own properties
-  resolves against the viewport (container can't query itself); children's cqw
-  resolves against the content box, not the square.
+- No horizontal overflow at 1440px and 390px (`scrollWidth === clientWidth` on the page
+  and on the reading overlay `.fixed.inset-0`).
+- Index, desktop 1440px: masthead in Hanken Grotesk (~95px), featured essay with the solid
+  seal + "Latest · date · N min read", contents in two columns of `.seal-row` entries
+  (N−1 of them, 01→N−1), each with a vermilion seal ring.
+- Index, phone 390px: masthead ~44px, contents in one column, Contents/RSS nav links
+  hidden (footer keeps RSS), nothing clipped.
+- Reading view (`/essays/<folder>`): solid seal + meta, Hanken title (subtitle for
+  "A: B" titles, kicker for First Principles), Spectral body (`.essay-content`),
+  Previous/Next rows at the foot.
+- Both themes: seed `localStorage.theme` = `day` / `night` before load; night ground is
+  `#151413`, day `#F7F5F0`. The toggle in the header and reading bar stay in sync.
+- After a Doc edit: confirm a distinctive edited phrase renders in the reading view.
+
+The Nocturne-era card checks (cqw floors/caps, miniature cards) no longer apply — the
+cards were removed; that history lives on the `nocturne` branch.

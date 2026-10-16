@@ -5,16 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <title>A Collection of Metaphysical Essays</title>
 
-    <!-- Theme (night = umber, day = cream) — set before first paint to avoid flash.
-         First visit always opens in night; the ☼/☾ toggle persists the reader's choice. -->
+    <!-- Theme (day = paper, night = ink) — set before first paint to avoid flash.
+         First visit opens in day; the Day/Night toggle persists the reader's choice. -->
     <script>
       (function () {
         var t;
         try { t = localStorage.getItem('theme'); } catch (e) { /* private mode */ }
-        if (t !== 'day' && t !== 'night') t = 'night';
+        if (t !== 'day' && t !== 'night') t = 'day';
         document.documentElement.dataset.theme = t;
       })();
     </script>
