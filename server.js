@@ -86,7 +86,7 @@ function buildRss() {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
-    <title>A Collection of Metaphysical Essays</title>
+    <title>Metaphysical Essays</title>
     <link>${SITE_URL}</link>
     <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />
     <description>No one arrives here with a manual. These essays are an attempt to write the one I wish I'd had.</description>

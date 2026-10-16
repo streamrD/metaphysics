@@ -104,6 +104,28 @@ function isPlainClick(e: MouseEvent) {
   return e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 }
 
+// House typesetting, applied when text is displayed (the Docs stay as typed):
+// straight quotes → curly (’49 and ’s included), and every em dash — spaced
+// or closed in the source — set closed with hair spaces; an en dash standing
+// in for an em dash between words becomes one. Ranges (2025–2026) keep theirs.
+const HAIR = '\u200A';
+function typeset(s: string): string {
+  return s
+    .replace(/([A-Za-z])[ \u00A0]*–[ \u00A0]*(?=[A-Za-z])/g, '$1—')
+    .replace(/[ \u00A0]*—[ \u00A0]*/g, `${HAIR}—${HAIR}`)
+    .replace(/(^|[\s([{\u200A—–-]|\[em\]|\[right\])"/g, '$1“')
+    .replace(/"/g, '”')
+    .replace(/'(?=\d)/g, '’')
+    .replace(/(^|[\s([{\u200A—–\-“]|\[em\]|\[right\])'/g, '$1‘')
+    .replace(/'/g, '’');
+}
+
+// Doc text carries [link:url] tokens; typeset everything but the URLs
+const typesetDocText = (text: string) =>
+  text.split(/(\[link:[^\]]*\])/g).map((part, i) => (i % 2 ? part : typeset(part))).join('');
+
+const INTRO = typeset("No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I'd had. May they help you remember what you already know — now, when it matters most.");
+
 // Run-in heads: a paragraph that opens with an ALL-CAPS term and a period
 // ("VOLATILITY. The supervillain…") is set with the term as a Hanken run-in
 // head in title case ("Volatility."). Later all-caps mentions of the same terms
@@ -113,8 +135,9 @@ const RUN_IN = /^([A-Z][A-Z/\- ]{2,}[A-Z])\.\s+/;
 const titleCase = (s: string) =>
   s.toLowerCase().replace(/(^|[\s/-])([a-z])/g, (_, sep: string, c: string) => sep + c.toUpperCase());
 
-function formatEssayContent(text: string): React.ReactNode[] {
-  if (!text) return [];
+function formatEssayContent(source: string): React.ReactNode[] {
+  if (!source) return [];
+  const text = typesetDocText(source);
   // Split on [right]...[/right] blocks; [em] is handled inline within lines
   const segments = text.split(/(\[right\][\s\S]*?\[\/right\])/g);
   const nodes: React.ReactNode[] = [];
@@ -183,7 +206,7 @@ function formatEssayContent(text: string): React.ReactNode[] {
           flushList(listBuffer);
           const minor = Number(heading[1]) > 2;
           nodes.push(
-            <h2 key={key++} className={minor ? 'minor' : undefined}>{renderInline(heading[2].trim())}</h2>
+            <h2 key={key++} className={minor ? 'minor' : undefined}>{renderInline(heading[2].trim().replace(/:$/, ''))}</h2>
           );
         } else if (para.startsWith('[li]')) {
           listBuffer.push(renderInline(para.slice(4).trim()));
@@ -345,9 +368,8 @@ function EssayRow({ essay, label, onOpen }: {
         <span className="seal-title text-[24px] font-semibold leading-[1.12] tracking-[-0.025em] text-balance sm:text-[27px]">{title}</span>
         {sub && <span className="text-[17px] font-medium leading-snug text-soft">{sub}</span>}
         {essay.quote && (
-          <span className="font-serif text-[17px] italic leading-[1.45] text-soft text-pretty sm:text-[18px]">{essay.quote}</span>
+          <span className="font-serif text-[17px] italic leading-[1.45] text-soft text-pretty sm:text-[18px]">{typeset(essay.quote)}</span>
         )}
-        {essay.date && <span className="text-[14px] text-muted">{essay.date}</span>}
       </div>
     </a>
   );
@@ -431,7 +453,7 @@ function ReadingView({ essay, onClose, onOpen }: {
         {/* Callout — the essay's key line, standing on its own */}
         {essay.quote && (
           <p className="callout-quote mt-8 font-serif text-[22px] italic leading-[1.4] text-soft sm:text-[27px]">
-            {essay.quote}
+            {typeset(essay.quote)}
           </p>
         )}
 
@@ -499,7 +521,7 @@ function Featured({ essay, onOpen }: { essay: Essay; onOpen: (essay: Essay) => v
         </span>
         {essay.quote && (
           <span className="max-w-[680px] font-serif text-[21px] italic leading-[1.42] text-soft text-pretty sm:text-[25px]">
-            {essay.quote}
+            {typeset(essay.quote)}
           </span>
         )}
       </div>
@@ -568,7 +590,7 @@ export default function App() {
           </h1>
           <div className="mt-10 flex flex-wrap items-start justify-between gap-8 border-t border-hairline pt-7">
             <p className="max-w-[600px] font-serif text-[19px] leading-[1.6] text-soft text-pretty sm:text-[21px]">
-              No one arrives here with a manual. These essays are an attempt — likely foolish, certainly incomplete — to write the one I wish I’d had. May they help you remember what you already know — now, when it matters most.
+              {INTRO}
             </p>
             <span className="text-[15px] text-muted">
               <span className="font-semibold text-ink">Todd Stabley</span> · {ESSAYS.length} essays, {YEAR_SPAN}

@@ -76,6 +76,10 @@ The previous design is preserved on the `nocturne` branch (`beee928`).
   (`scripts/fetch-essays.mjs` → `public/essay-content/<folder>.html`, gitignored).
   `fetchEssayText` caches per folder — the index reads the latest essay's text for its
   reading time and the reading view reuses it.
+- **`typeset()`** curls quotes and sets every em dash closed with hair spaces when text
+  is displayed (essay text, quotes, intro) — the Docs stay as typed; don't "fix" the
+  Docs' straight quotes or spaced dashes by hand. Contents rows show no dates (they
+  read as out of order next to the numbers); dates stay on essay pages and the feed.
 - **`titleParts()`** splits a title for display: "First Principles N: X" → kicker
   "First Principles" + title "X"; "A: B" → title "A" + subtitle "B".
 - **`EssayRow`** is one contents entry (seal ring, kicker, title, subtitle, quote, date);

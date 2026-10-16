@@ -36,10 +36,14 @@ if (missing.length) { console.error(`No essay with num ${missing.join(', ')}`); 
 // ─── Card markup (mirrors the approved canvas comps) ─────────────────────────
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-// Typographer's quotes for the card text: 'x' → ‘x’, it's → it’s, "x" → “x”
+// Same house typesetting as typeset() in src/App.tsx: curly quotes, and em
+// dashes set closed with hair spaces
 const smart = s => s
-  .replace(/(^|[\s([{—–-])'/g, '$1‘').replace(/'/g, '’')
-  .replace(/(^|[\s([{‘—–-])"/g, '$1“').replace(/"/g, '”');
+  .replace(/([A-Za-z])[ \u00A0]*–[ \u00A0]*(?=[A-Za-z])/g, '$1—')
+  .replace(/[ \u00A0]*—[ \u00A0]*/g, '\u200A—\u200A')
+  .replace(/(^|[\s([{\u200A—–-])"/g, '$1“').replace(/"/g, '”')
+  .replace(/'(?=\d)/g, '’')
+  .replace(/(^|[\s([{\u200A—–\-“])'/g, '$1‘').replace(/'/g, '’');
 
 // Same split as titleParts() in src/App.tsx
 function titleParts(title) {
