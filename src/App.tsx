@@ -104,6 +104,15 @@ function isPlainClick(e: MouseEvent) {
   return e.button === 0 && !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
 }
 
+// Run-in heads: a paragraph that opens with an ALL-CAPS term and a period
+// ("VOLATILITY. The supervillain…") is set with the term as a Hanken run-in
+// head in title case ("Volatility."). Later all-caps mentions of the same terms
+// in that essay ("GREED and CORRUPTION") get a matching, lighter treatment;
+// other capitals (KGB, AIDS) are left alone.
+const RUN_IN = /^([A-Z][A-Z/\- ]{2,}[A-Z])\.\s+/;
+const titleCase = (s: string) =>
+  s.toLowerCase().replace(/(^|[\s/-])([a-z])/g, (_, sep: string, c: string) => sep + c.toUpperCase());
+
 function formatEssayContent(text: string): React.ReactNode[] {
   if (!text) return [];
   // Split on [right]...[/right] blocks; [em] is handled inline within lines
@@ -114,6 +123,11 @@ function formatEssayContent(text: string): React.ReactNode[] {
   // paragraphs (the original block usage) still italicizes all of them
   let inEm = false;
 
+  const runInTerms = [...new Set(text.split('\n').map(l => l.match(RUN_IN)?.[1]).filter((t): t is string => !!t))];
+  const termRe = runInTerms.length
+    ? new RegExp(`\\b(${runInTerms.map(t => t.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|')})\\b`)
+    : null;
+
   const renderInline = (line: string): React.ReactNode[] => {
     const out: React.ReactNode[] = [];
     let k = 0;
@@ -121,7 +135,13 @@ function formatEssayContent(text: string): React.ReactNode[] {
       if (part === '[em]') { inEm = true; return; }
       if (part === '[/em]') { inEm = false; return; }
       if (!part) return;
-      out.push(inEm ? <em key={k++}>{part}</em> : <span key={k++}>{part}</span>);
+      const pieces = termRe ? part.split(termRe) : [part];
+      pieces.forEach((piece, i) => {
+        if (!piece) return;
+        // split() with a capture group puts the matched terms at odd indices
+        if (i % 2 === 1) { out.push(<span key={k++} className="run-in-ref">{titleCase(piece)}</span>); return; }
+        out.push(inEm ? <em key={k++}>{piece}</em> : <span key={k++}>{piece}</span>);
+      });
     };
     // Split out [link:url]text[/link] tokens, then handle [em] within the rest
     line.split(/(\[link:[^\]]*\][\s\S]*?\[\/link\])/g).forEach(chunk => {
@@ -169,7 +189,14 @@ function formatEssayContent(text: string): React.ReactNode[] {
           listBuffer.push(renderInline(para.slice(4).trim()));
         } else {
           flushList(listBuffer);
-          nodes.push(<p key={key++}>{renderInline(para.trim())}</p>);
+          const line = para.trim();
+          const lead = line.match(RUN_IN);
+          nodes.push(
+            <p key={key++}>
+              {lead && <><span className="run-in">{titleCase(lead[1])}.</span>{' '}</>}
+              {renderInline(lead ? line.slice(lead[0].length) : line)}
+            </p>
+          );
         }
       });
       flushList(listBuffer);

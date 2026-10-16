@@ -78,6 +78,19 @@
     text-wrap: pretty;
   }
   .essay-content em { font-style: italic; }
+  /* Run-in heads ("VOLATILITY." in the Doc → "Volatility.") and later
+     mentions of the same terms — set in Hanken, the structural face, sized
+     down a touch to sit with Spectral's smaller x-height */
+  .essay-content .run-in,
+  .essay-content .run-in-ref {
+    font-family: var(--font-sans);
+    font-style: normal;
+    font-size: 0.9em;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+  }
+  .essay-content .run-in { font-weight: 600; }
+  .essay-content .run-in-ref { font-weight: 500; }
   .essay-content h2 {
     font-family: var(--font-sans);
     font-weight: 600;

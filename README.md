@@ -242,6 +242,7 @@ Hyperlinks in any essay's Doc render automatically — no code changes needed:
 | `[right]...[/right]` | Right-aligned paragraphs (supports nested `[em]`) |
 | `[li]` (auto-tagged) | Grouped into `<ul>` with bullets |
 | `[h1]`–`[h5]` (auto-tagged from Doc headings) | Section headings |
+| `TERM. ` opening a paragraph (ALL CAPS + period) | Run-in head in Hanken semibold, title case ("VOLATILITY." → **Volatility.**); later ALL-CAPS mentions of the same term in that essay get a lighter matching style. Other capitals (KGB) are untouched. Used by essays 02 and 05. |
 | Plain text | Standard `<p>` blocks |
 
 To add a tag: update the split regex and add a handler in `formatEssayContent()`.
