@@ -279,6 +279,9 @@ autodiscovery `<link>`; the footer links the feed.
 **OG meta:** `server.js` intercepts `/essays/:folder` and injects per-essay OpenGraph/Twitter
 tags (title, quote, rssCard) into `dist/index.html`, so shared essay links unfurl with their
 own cards. The homepage keeps site-wide tags from `index.html` (`og-image.png`).
+The Nocturne card URLs (`essay<NN>_rss_card.png`, `og-image.jpg`) 301 to the Seal cards,
+because platforms cache image URLs from earlier shares; any other missing file with an
+extension returns 404 instead of the SPA's HTML (which crawlers render as a blank image).
 
 ---
 

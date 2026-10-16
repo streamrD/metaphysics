@@ -93,8 +93,23 @@ app.get('/rss.xml', (req, res) => {
   res.type('application/rss+xml').send(buildRss());
 });
 
+// Share cards were renamed in the Seal redesign (essay<NN>_rss_card.png →
+// essay<NN>_share.png, og-image.jpg → og-image.png). Facebook and other
+// platforms cache the old image URLs from earlier shares, so send those to
+// the new cards rather than letting them fall through to the SPA.
+app.get('/slides/:folder/:file', (req, res, next) => {
+  if (!/^essay\d+_rss_card\.png$/.test(req.params.file)) return next();
+  const essay = essays.find(e => e.folder === req.params.folder);
+  if (!essay?.rssCard) return next();
+  res.redirect(301, essay.rssCard);
+});
+app.get('/og-image.jpg', (req, res) => res.redirect(301, '/og-image.png'));
+
 app.use(express.static(path.join(__dirname, 'dist')));
 app.get('*', (req, res) => {
+  // A missing file is a 404, not the SPA — a crawler fetching an image must
+  // never get HTML back (it renders as a blank preview).
+  if (path.extname(req.path)) return res.status(404).end();
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 

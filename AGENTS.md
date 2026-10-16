@@ -165,7 +165,11 @@ bold/italic/color/alignment — only structure, wording/punctuation, links, and 
   floated over content while scrolling on phones. The reading view has its own sticky bar.
 - Share cards are committed PNGs, not built at deploy — after editing a title or quote in
   `essays.json`, re-run `node scripts/gen-share-cards.mjs <num>`. Social platforms cache
-  OG images by URL; to force a refresh of every card, give the files new names.
+  OG images by URL; to force a refresh of every card, give the files new names — and
+  301 the old names to the new ones in server.js (as it does for the Nocturne
+  `essay<NN>_rss_card.png` / `og-image.jpg` URLs). Missing files with an extension 404
+  rather than falling through to the SPA: a crawler handed HTML for an image shows a
+  blank preview. To refresh one link on Facebook: Sharing Debugger → Scrape Again.
 - Feed readers cache aggressively — test RSS changes in a fresh reader.
 - The `[em]` handling in `formatEssayContent` carries state across lines on purpose
   (a tag pair can wrap multiple paragraphs).
