@@ -38,7 +38,7 @@ design comps in October 2026. Changing these requires his sign-off:
 3. **One mark: the vermilion seal.** `--seal` (day `#C23B22`, night `#E0553A`) is the only
    accent color. It appears as the round seal (ring in the contents; solid for the latest
    essay and the essay being read), the dot in the "Metaphysical Essays" lockup, the
-   favicon, link underlines, and list bullets. `--seal-text` is the same hue darkened for
+   favicon, the share cards, link underlines, and list bullets. `--seal-text` is the same hue darkened for
    small text contrast. Don't add a second accent color.
 4. **Typography: Hanken Grotesk + Spectral.** Hanken Grotesk (400–700) for everything
    structural — titles, labels, navigation, the masthead. Spectral (400, 500, italic) for
@@ -84,9 +84,13 @@ The previous design is preserved on the `nocturne` branch (`beee928`).
   opens the essay in place; modified clicks (new tab) fall through to the server.
 - **server.js** reads `essays.json` for `/rss.xml` and injects per-essay OG tags
   (title, `quote`, `rssCard`) on `/essays/:folder`.
-- **Legacy fields** in `essays.json`: `cardTitle`, `slideCount`, `filePrefix`, `indexGray`,
-  `indexRollover` are unused by the app. `ground` is unused by the app but still read by
-  `scripts/gen_rss_cards.py`; `rssCard` IS used by server.js.
+- **Share cards** — `rssCard` in `essays.json` points at each essay's 1200×630 PNG
+  (`/slides/<folder>/essay<NN>_share.png`), served by server.js as the OG/Twitter image
+  and RSS media; `public/og-image.png` is the homepage card. All are rendered from HTML in
+  headless Chrome by `node scripts/gen-share-cards.mjs [nums…|home]` and committed — re-run
+  it when a title or quote changes (or a new essay changes the homepage count).
+- **Legacy fields** in `essays.json`: `ground`, `cardTitle`, `slideCount`, `filePrefix`,
+  `indexGray`, `indexRollover` are unused (Nocturne-era).
 
 ---
 
@@ -100,8 +104,8 @@ npm run lint          # tsc --noEmit
 npm start             # production Express server (needs a prior build)
 ```
 
-Python asset tooling (RSS cards, deck utilities) runs from the gitignored `.venv/`:
-`.venv/bin/python scripts/gen_rss_cards.py {n}`.
+Share cards: `node scripts/gen-share-cards.mjs [nums…|home]` (needs local Google Chrome).
+Python deck utilities run from the gitignored `.venv/`.
 
 ---
 
@@ -143,8 +147,8 @@ bold/italic/color/alignment — only structure, wording/punctuation, links, and 
 1. Publish the Doc → get the `/pub` URL.
 2. Append to `src/essays.json` (`num` = next number → it becomes the featured essay
    automatically; `quote` becomes the reading-page callout and the contents line).
-3. Make its 1200×630 `rssCard` PNG: `.venv/bin/python scripts/gen_rss_cards.py {n}`
-   (reads title/quote/`ground` from the JSON entry — the cards are still Nocturne-style).
+3. Set `rssCard` to `/slides/<folder>/essay<NN>_share.png`, then render it and refresh
+   the homepage card: `node scripts/gen-share-cards.mjs {n} home`.
 4. `npm run dev` to verify, commit, push.
 
 ---
@@ -159,8 +163,9 @@ bold/italic/color/alignment — only structure, wording/punctuation, links, and 
   so taps on phones don't leave rows stuck mid-hover.
 - The index header is in normal flow (scrolls away), NOT `fixed` — a fixed toggle once
   floated over content while scrolling on phones. The reading view has its own sticky bar.
-- The RSS/OG cards (`public/slides/*/essay*_rss_card.png`) and the homepage `og-image.jpg`
-  still carry the Nocturne look; regenerating them in the Seal style is open work.
+- Share cards are committed PNGs, not built at deploy — after editing a title or quote in
+  `essays.json`, re-run `node scripts/gen-share-cards.mjs <num>`. Social platforms cache
+  OG images by URL; to force a refresh of every card, give the files new names.
 - Feed readers cache aggressively — test RSS changes in a fresh reader.
 - The `[em]` handling in `formatEssayContent` carries state across lines on purpose
   (a tag pair can wrap multiple paragraphs).

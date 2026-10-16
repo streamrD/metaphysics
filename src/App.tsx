@@ -20,14 +20,14 @@ interface Essay {
   quote?: string;
   date?: string;
   isoDate?: string;
-  ground?: string;       // deck ground hex — read by scripts/gen_rss_cards.py, not the app
-  // Legacy fields — unused by the app (server.js still reads rssCard)
+  rssCard?: string;      // 1200×630 share card — read by server.js, written by scripts/gen-share-cards.mjs
+  // Legacy fields — unused
+  ground?: string;
   cardTitle?: string[];
   slideCount?: number;
   filePrefix?: string;
   indexGray?: string;
   indexRollover?: string;
-  rssCard?: string;
 }
 
 // ─── Essay data ───────────────────────────────────────────────────────────────

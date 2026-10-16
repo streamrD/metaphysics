@@ -38,13 +38,14 @@ metaphysics/
 ├── public/
 │   ├── favicon.svg      ← The vermilion seal
 │   ├── essay-content/   ← Google Docs snapshots (gitignored; built by fetch-essays)
-│   └── slides/          ← One folder per essay holding ONLY its 1200×630 RSS/OG card
-│                          (essay{n}_rss_card.png, served by server.js). The app renders
+│   ├── og-image.png     ← Homepage share card (1200×630, Seal style)
+│   └── slides/          ← One folder per essay holding ONLY its 1200×630 share card
+│                          (essay{n}_share.png, served by server.js). The app renders
 │                          no images; deck PNGs live in instagram/ and git history.
 ├── instagram/           ← Instagram deck archive (NOT web-served); final slide keeps the CTA
 ├── scripts/
 │   ├── fetch-essays.mjs ← Snapshots published Google Docs into public/essay-content/
-│   ├── gen_rss_cards.py ← 1200×630 RSS/OG cards (colors from essays.json `ground`)
+│   ├── gen-share-cards.mjs ← Renders the 1200×630 share cards in headless Chrome
 │   ├── gen_deck13.py    ← Essay 13 deck renderer (online + Instagram variants)
 │   └── recolor_deck.py  ← Lossless deck background recolour
 ├── server.js            ← Express server (dist/ + /rss.xml + per-essay OG meta on /essays/:folder)
@@ -169,13 +170,13 @@ interface Essay {
   date?: string;     // display date, e.g. 'July 2026'
   isoDate: string;   // 'YYYY-MM-DD' (RSS pubDate)
   quote?: string;    // the callout line; also OG/feed description
-  ground: string;    // deck ground hex — unused by the app since Seal; still read by
-                     // scripts/gen_rss_cards.py for the RSS/OG card background
-  cardTitle?: string[]; // legacy Nocturne cover-card lockup override — unused
   folder: string;    // public/slides subfolder + URL slug, e.g. '13-diminished'
   docUrl: string;    // Google Docs /pub URL (essay text source)
-  // Legacy deck fields — unused by the app; kept in existing entries only:
-  rssCard?: string;      // 1200×630 OG/RSS card — USED by server.js
+  rssCard: string;   // share card path, e.g. '/slides/13-diminished/essay13_share.png' —
+                     // server.js serves it as OG/Twitter/RSS image; gen-share-cards writes it
+  // Legacy fields — unused; kept in existing entries only:
+  ground?: string;       // Nocturne deck/card color
+  cardTitle?: string[];  // Nocturne cover-card lockup override
   slideCount?: number;   // legacy
   filePrefix?: string;   // legacy
   indexGray?: string;    // legacy (old PNG thumbnail path; files removed from tree)
@@ -251,17 +252,25 @@ To add a tag: update the split regex and add a handler in `formatEssayContent()`
 
 The app renders **no slide images**. What remains and why:
 
-- **`public/slides/{folder}/essay{n}_rss_card.png`** — 1200×630 landscape cards, served by
-  `server.js` as the per-essay OG/Twitter image and in the RSS feed (Media RSS). Still
-  required for every essay. Generate with `.venv/bin/python scripts/gen_rss_cards.py {n}`
-  (background color comes from the essay's `ground` field).
+- **Share cards** — `public/slides/{folder}/essay{n}_share.png` (one per essay, at the
+  essay's `rssCard` path) and `public/og-image.png` (homepage). 1200×630, Seal style: paper
+  ground, "● Metaphysical Essays" lockup, the essay number in a solid vermilion seal, title
+  in Hanken Grotesk (kicker/subtitle split as on the site), quote in Spectral italic.
+  `server.js` serves the essay card as the per-essay OG/Twitter image and in the RSS feed
+  (Media RSS). Render with `node scripts/gen-share-cards.mjs [nums…|home]` — it builds
+  each card as HTML from `essays.json`, renders it in headless Chrome (local Google Chrome;
+  override with `CHROME=`) so the web fonts match the site, shrinks the quote if anything
+  would overflow, and writes the PNG. The cards are committed files, **not** built at
+  deploy: re-run the script after changing an essay's title or quote. They replaced the
+  Nocturne `essay{n}_rss_card.png` cards (new filenames so social platforms and feed
+  readers re-fetch instead of serving cached Nocturne art).
 - **`instagram/{folder}/`** — the Instagram deck archive (final slide keeps the CTA); grab
   decks here when posting. See `instagram/README.md`. The old "online variant" decks and
   PNG index thumbnails were removed from the working tree in the post-redesign cleanup —
   recover any of them from git history (pre-cleanup: `762ef44` and earlier).
-- Python tooling runs from the gitignored `.venv/` (Pillow + numpy): `gen_rss_cards.py`
-  (current), `gen_deck13.py` (essay 13 deck renderer — adapt for future decks),
-  `recolor_deck.py` (utility for deck PNGs).
+- Python deck tooling runs from the gitignored `.venv/` (Pillow + numpy): `gen_deck13.py`
+  (essay 13 deck renderer — adapt for future decks), `recolor_deck.py` (utility for deck
+  PNGs). The Nocturne-era `gen_rss_cards.py` lives on the `nocturne` branch.
 
 **RSS:** `server.js` serves `/rss.xml` from `essays.json` (newest first by `isoDate`), with
 `quote` as description and the rssCard via `media:content`. `index.html` carries the
@@ -269,7 +278,7 @@ autodiscovery `<link>`; the footer links the feed.
 
 **OG meta:** `server.js` intercepts `/essays/:folder` and injects per-essay OpenGraph/Twitter
 tags (title, quote, rssCard) into `dist/index.html`, so shared essay links unfurl with their
-own cards. The homepage keeps site-wide tags from `index.html` (`og-image.jpg`).
+own cards. The homepage keeps site-wide tags from `index.html` (`og-image.png`).
 
 ---
 
@@ -313,8 +322,8 @@ npm start             # production server (requires a prior build)
 - The index header is in normal flow, not `fixed` — deliberate: a fixed toggle once
   floated over content while scrolling on phones. The reading view carries its own
   toggle in a sticky top bar.
-- The RSS/OG cards and `og-image.jpg` still carry the Nocturne look (deck colors);
-  regenerating them in the Seal style is open work.
+- Share cards are committed PNGs rendered by `scripts/gen-share-cards.mjs`; re-run it
+  when an essay's title or quote changes.
 
 ---
 
@@ -322,18 +331,17 @@ npm start             # production server (requires a prior build)
 
 1. Write and **publish** the essay in Google Docs (File → Share → Publish to web); note the
    `/pub` URL.
-2. Choose a **ground color** — the site no longer shows it, but `gen_rss_cards.py` still
-   uses it as the RSS/OG card background (a dark, muted hex like the existing values).
-3. Add the entry to `src/essays.json`: `id`, `num` (next number — this automatically makes
+2. Add the entry to `src/essays.json`: `id`, `num` (next number — this automatically makes
    it the featured essay), `title`, `date`, `isoDate`, `quote` (this is the reading-page
-   callout — make it strong), `ground`, `folder` (`{n}-{slug}`), `rssCard`, `docUrl`.
-4. Create the **RSS/OG card**: `.venv/bin/python scripts/gen_rss_cards.py {n}` — it reads
-   the title, quote, and `ground` color from the JSON entry and writes
-   `public/slides/{n}-{slug}/essay{n}_rss_card.png`.
-5. `npm run dev` to verify (fetches the snapshot): the new essay should appear as the
+   callout and the contents line — make it strong), `folder` (`{n}-{slug}`),
+   `rssCard` (`/slides/{n}-{slug}/essay{n}_share.png`), `docUrl`.
+3. Render its **share card**: `node scripts/gen-share-cards.mjs {n}` (writes the PNG at the
+   `rssCard` path). Also re-run `node scripts/gen-share-cards.mjs home` — the homepage card
+   shows the essay count and year span.
+4. `npm run dev` to verify (fetches the snapshot): the new essay should appear as the
    featured essay with its solid seal, and the previous one should join the contents.
    Then commit and push — Railway deploys.
-6. *(Optional)* If an Instagram deck exists, archive it in `instagram/{n}-{slug}/` and put
+5. *(Optional)* If an Instagram deck exists, archive it in `instagram/{n}-{slug}/` and put
    the online variant (no CTA on the final slide) in `public/slides/{n}-{slug}/`.
 
 The previous featured essay drops into the contents automatically; no other changes needed.

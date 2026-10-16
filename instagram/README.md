@@ -8,7 +8,8 @@ These are the **Instagram** versions: the final slide carries a
 
 Since the Nocturne redesign (July 2026) the website no longer displays slide
 decks at all. `public/slides/{n}-{slug}/` now holds only each essay's
-`essay{n}_rss_card.png` OG/RSS card, which the server still serves. The old
+`essay{n}_share.png` share card (OG/RSS image, rendered by `scripts/gen-share-cards.mjs`),
+which the server serves. The old
 "online variant" decks (final slide without the CTA) were removed from the
 working tree in the post-redesign cleanup — recover them from git history
 (commit `762ef44` and earlier) if ever needed. **This folder is the canonical
