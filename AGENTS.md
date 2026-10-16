@@ -47,7 +47,8 @@ design comps in October 2026. Changing these requires his sign-off:
 5. **Reader-owned ground.** The Day/Night toggle flips the site between paper `#F7F5F0`
    (day) and ink `#151413` (night). **First visit opens in day** (paper is the house
    register now; not `prefers-color-scheme`); the toggle choice persists in
-   `localStorage('theme')`; an inline script in `index.html` sets
+   `localStorage('seal-theme')` — a new key, so Night picks saved under the Nocturne-era
+   `'theme'` key don't carry over; an inline script in `index.html` sets
    `document.documentElement.dataset.theme` **before first paint** — keep it there.
 6. **Newest essay is featured at the top** (`Featured`, chosen by highest `num`) with the
    large solid seal, and **excluded from the contents below**; it moves into the list

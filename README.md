@@ -76,7 +76,8 @@ Grotesk. Its intentional decisions — do not "fix" these without checking with 
    (`public/favicon.svg`), link underlines, and list bullets — and nothing else.
 4. **The ground follows the reader.** A Day/Night toggle flips the whole site between
    paper (`#F7F5F0`, day) and ink (`#151413`, night). **First visit opens in day**
-   regardless of OS preference; the reader's choice persists in `localStorage('theme')`.
+   regardless of OS preference; the reader's choice persists in `localStorage('seal-theme')` (a fresh key at launch, so
+   Night picks saved by the Nocturne site under `'theme'` don't carry over).
    An inline script in `index.html` sets `data-theme` on `<html>` **before first paint**.
 5. **Newest essay is featured** above the contents (large solid seal + title, date,
    reading time, quote) and excluded from the list below; it moves into the list

@@ -59,7 +59,7 @@ function ThemeToggle() {
   const next: Theme = theme === 'day' ? 'night' : 'day';
   const toggle = () => {
     document.documentElement.dataset.theme = next;
-    try { localStorage.setItem('theme', next); } catch { /* private mode */ }
+    try { localStorage.setItem('seal-theme', next); } catch { /* private mode */ }
     window.dispatchEvent(new Event('themechange'));
   };
   const Icon = theme === 'day' ? Sun : Moon;

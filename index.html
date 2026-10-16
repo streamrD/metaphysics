@@ -10,11 +10,12 @@
     <title>A Collection of Metaphysical Essays</title>
 
     <!-- Theme (day = paper, night = ink) — set before first paint to avoid flash.
-         First visit opens in day; the Day/Night toggle persists the reader's choice. -->
+         Opens in day; the Day/Night toggle persists the reader's choice. The key is
+         'seal-theme' (not the Nocturne-era 'theme') so old Night picks don't carry over. -->
     <script>
       (function () {
         var t;
-        try { t = localStorage.getItem('theme'); } catch (e) { /* private mode */ }
+        try { t = localStorage.getItem('seal-theme'); } catch (e) { /* private mode */ }
         if (t !== 'day' && t !== 'night') t = 'day';
         document.documentElement.dataset.theme = t;
       })();

@@ -37,7 +37,7 @@ Kill stray processes afterwards: `pkill -f remote-debugging-port`, `pkill -f "vi
 - Reading view (`/essays/<folder>`): solid seal + meta, Hanken title (subtitle for
   "A: B" titles, kicker for First Principles), Spectral body (`.essay-content`),
   Previous/Next rows at the foot.
-- Both themes: seed `localStorage.theme` = `day` / `night` before load; night ground is
+- Both themes: seed `localStorage['seal-theme']` = `day` / `night` before load; night ground is
   `#151413`, day `#F7F5F0`. The toggle in the header and reading bar stay in sync.
 - After a Doc edit: confirm a distinctive edited phrase renders in the reading view.
 
